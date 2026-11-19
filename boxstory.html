@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DHL 박스 스토리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<!-- 상자 3D 모델(GLB)을 그리는 three.js -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<style>
+:root{--y:#FFCC00;--r:#D40511;--light:#F7F6F2;--g1:#757575;--pad:8.33vw;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans KR',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--light);color:#000;font-family:var(--sans);overflow:hidden;height:100%}
+body{overflow-x:hidden}
+
+header{position:fixed;inset:0 0 auto 0;height:64px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--pad);z-index:50;color:#000}
+header .logo{font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px}
+header .logo i{display:inline-block;width:28px;height:18px;background:var(--y);border-bottom:4px solid var(--r)}
+header nav{display:flex;gap:28px;font-size:14px}
+header nav a{color:inherit;text-decoration:none;opacity:.85}
+header .util{display:flex;gap:18px;font-size:13px;color:#555}
+
+.story{height:100vh;position:relative}
+.stage{position:fixed;inset:0;overflow:hidden;background:#D9D7D1}
+.view{position:absolute;inset:0;overflow:hidden}
+.scene{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
+.g{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.f{position:absolute;left:0;top:0;backface-visibility:hidden}
+
+/* 상자 면 */
+.bface{box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mark{display:flex;align-items:center;gap:.18em;color:var(--r);font-weight:700;letter-spacing:.02em;line-height:1}
+.mark s{display:inline-block;width:.9em;height:.42em;text-decoration:none;
+  background:repeating-linear-gradient(180deg,var(--r) 0 18%,transparent 18% 41%)}
+.label{position:absolute;left:50%;top:7%;transform:translateX(-50%);width:34%;height:22%;background:#fff;
+  box-shadow:0 0 0 1px rgba(0,0,0,.25);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6%}
+.label b{font-weight:700;color:#111}
+.label i{display:block;width:80%;height:22%;background:repeating-linear-gradient(90deg,#111 0 2px,transparent 2px 4px,#111 4px 5px,transparent 5px 8px)}
+.tape{position:absolute;left:0;right:0;top:44%;height:12%;background:rgba(255,204,0,.85)}
+
+.flat{color:#111}
+.flat .no{font-family:var(--mono);color:var(--g1);letter-spacing:.08em}
+.flat .no b{color:var(--r);font-weight:500}
+.flat h3{font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.flat h3 em{font-style:normal;color:var(--g1)}
+.flat p{color:#333;line-height:1.55}
+
+/* 히어로 UI (상자 면 위의 실제 검색바) */
+/* ===== 히어로 (디자인 시안 Frame_87 / 배경 Frame_90) =====
+   위치는 화면 높이 %, 크기는 vw(16:9 기준). 시안 3840×2160에서 잰 값 */
+.hero{position:absolute;inset:0;z-index:10;background:#FFC84B url(img/hero/hero_bg.webp) center/cover no-repeat;will-change:opacity;
+  font-family:'Pretendard','Inter',var(--sans)}
+.hero .hlogo{position:absolute;left:50%;top:39.3%;width:40vw;transform:translate(-50%,-50%);user-select:none;pointer-events:none}
+.hero .slogan{position:absolute;left:0;right:0;top:50.75%;transform:translateY(-50%);text-align:center;color:var(--r);
+  font-family:'Inter','Pretendard',sans-serif;font-weight:700;font-size:2.08vw;letter-spacing:-.012em;line-height:1}
+.hero .track{position:absolute;left:50%;top:64.4%;transform:translateX(-50%);width:44.9vw;height:3.99vw;
+  display:flex;align-items:center;border:.16vw solid var(--r);border-radius:999px;background:rgba(255,246,222,.32);overflow:hidden}
+.hero .track input{flex:1;min-width:0;height:100%;border:0;background:transparent;outline:none;padding:0 0 0 2.5vw;
+  font:600 1.42vw/1 'Pretendard',var(--sans);color:var(--r)}
+.hero .track input::placeholder{color:var(--r);opacity:1}
+.hero .track button{flex:none;width:3.85vw;height:2.31vw;margin-right:1.05vw;border:0;border-radius:999px;background:var(--r);color:#fff;
+  font:600 1.1vw/1 'Pretendard',var(--sans);cursor:pointer}
+.hero .demo-msg{position:absolute;left:0;right:0;top:73.5%;text-align:center;font-size:.8vw;color:#8a0000;min-height:1em}
+.hero .scroll{position:absolute;left:0;right:0;top:89.6%;display:flex;flex-direction:column;align-items:center;gap:.55vw;color:var(--r);
+  font:800 1.12vw/1 'Inter','Pretendard',sans-serif;letter-spacing:.01em}
+.hero .scroll svg{width:.75vw;height:.75vw}
+/* 상자(GLB)를 그리는 캔버스: CSS 3D 장면 위에 같은 카메라로 겹침 */
+.boxgl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+.black{position:absolute;inset:0;background:#000;opacity:0;z-index:20;pointer-events:none}
+
+/* 야드 (2D) */
+.yard{position:absolute;inset:0;opacity:0;background:#F7F6F2;overflow:hidden}
+.ycam{position:absolute;inset:0;will-change:transform}
+.yground{position:absolute;left:-50%;right:-50%;bottom:0;background:#0E0E0E}
+.ye{position:absolute;left:0;top:0}
+.cfront{overflow:hidden;box-shadow:inset 0 0 0 2px rgba(0,0,0,.3)}
+.cfront::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 2px,transparent 2px 7%)}
+.cfront .seam{position:absolute;left:50%;top:3%;bottom:3%;width:2px;background:rgba(0,0,0,.35)}
+.cfront .bar{position:absolute;top:5%;bottom:5%;width:3%;background:rgba(0,0,0,.28)}
+.cfront .bar::before,.cfront .bar::after{content:"";position:absolute;left:-60%;width:220%;height:3%;background:rgba(0,0,0,.4)}
+.cfront .bar::before{top:22%}.cfront .bar::after{bottom:22%}
+.cfront .band{position:absolute;left:10%;width:30%;top:42%;height:4%;background:var(--r)}
+.cfront .num{position:absolute;right:7%;top:7%;font-family:var(--mono);color:rgba(0,0,0,.55);line-height:1.2}
+
+.hud{position:fixed;right:16px;bottom:16px;z-index:60;font-family:var(--mono);font-size:12px;
+  background:rgba(0,0,0,.8);color:#fff;padding:10px 12px;border-radius:6px;line-height:1.6;pointer-events:none}
+.hud b{color:var(--y);font-weight:500}
+.hud .bar{width:220px;height:3px;background:#444;margin-top:6px}
+.hud .bar i{display:block;height:100%;background:var(--y);width:0}
+
+.next{min-height:100vh;background:var(--light);padding:16vh var(--pad);overflow:hidden}
+.next .big{font-size:clamp(80px,14vw,240px);font-weight:700;letter-spacing:-.04em;line-height:.9;color:#E4E1DA;white-space:nowrap}
+.next .no{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--g1);margin-top:28px}
+.next p{margin-top:10px;font-size:15px;color:#333}
+@media (max-width:860px){header nav,header .util{display:none}}
+</style>
+</head>
+<body>
+<section class="story" id="story">
+  <div class="stage" id="stage">
+    <div class="view" id="view"><div class="scene" id="scene"></div></div>
+    <canvas class="boxgl" id="boxGL" aria-hidden="true"></canvas>
+    <div class="yard" id="yard"><div class="ycam" id="ycam"></div></div>
+    <div class="black" id="black"></div>
+    <div class="hero" id="heroUI">
+      <img class="hlogo" src="img/hero/hero_logo.png" alt="DHL">
+      <p class="slogan">Excellence. Simply delivered.</p>
+      <form class="track" id="trackForm">
+        <input type="text" placeholder="운송장 번호 입력하기" aria-label="운송장 번호">
+        <button type="submit">조회</button>
+      </form>
+      <div class="demo-msg" id="demoMsg"></div>
+      <div class="scroll">SCROLL<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 2l4 4 4-4M2 6l4 4 4-4"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* =========================================================
+   자주 만질 값 (팀원용)
+   PH    : 스크롤 진행도(0~1) 구간. 숫자만 바꾸면 장면 길이 조절
+   ROUTE : 탑뷰 컨베이어 경로 (x, z). 단위 u (메인 상자 폭 60u)
+   Z_DIV : 4컷에서 갈색 상자들이 슈트로 빠지는 지점
+   ========================================================= */
+const PH = {
+  heroOut:[0.00,0.03], zoomOut:[0.02,0.10], exit:[0.10,0.18], toTop:[0.19,0.26],
+  route:[0.18,0.45], toGround:[0.45,0.53], approach:[0.45,0.625], black:[0.625,0.645],
+  doorIn:[0.655,0.69], reveal:[0.695,0.77],
+  lift:[0.78,0.82], truckIn:[0.82,0.87], lower:[0.87,0.91], release:[0.91,0.93], truckOut:[0.94,1.00]
+};
+const ROUTE=[[-1000,-260],[-640,-260],[-560,-260],[-300,-260],[0,-260],[170,-260],[210,-260],[237.5,-252.6],[257.6,-232.5],[265.0,-205.0],[257.6,-177.5],[237.5,-157.4],[210.0,-150.0],[170,-150],[0,-150],[-170,-150],[-210,-150],[-237.5,-142.6],[-257.6,-122.5],[-265.0,-95.0],[-257.6,-67.5],[-237.5,-47.4],[-210.0,-40.0],[-170,-40],[-85,-40],[-55,-40],[-27.5,-32.6],[-7.4,-12.5],[0.0,15.0],[0,75],[0,200],[0,300],[0,500],[0,700],[0,900],[0,990]];
+const BELT_Y=-30, BELT_UP=-140;
+// 상자 크기는 DHL_Boxes_All.glb 실측값 (1m = 100u). 모양·색은 GLB 그대로 씀
+const MAIN={w:60.32,h:39.6,d:40.32};
+const KINDS={A:{w:30.32,h:21.6,d:24.32},B:{w:42.32,h:27.6,d:31.32},C:{w:50.32,h:32.6,d:38.32},D:{w:60.32,h:41.6,d:44.32}};
+// 탑뷰 컨베이어 렌더 이미지 (블렌더). 탑뷰 화면 캡처와 1:1로 맞춰 뽑은 이미지라 TOPCAM 기준으로 바닥에 깖
+const CONV={src:'img/conveyor_top_web.png',pw:2576,ph:1245};
+// 히어로 로고 위치 (시안 기준: 화면 너비 40%, 화면 높이 39.3% 지점) → GLB 상자 앞면 로고(폭 0.42m)와 겹치게 카메라 배치
+const HERO_LOGO={wFrac:0.40,cy:0.393,logoW:42,logoY:20};
+// 남은 CSS 벨트 윗면 색 (렌더 이미지의 회색에 맞춤). 예전 초록으로 되돌리려면 GRN
+const BELT_TOP='#C2C3C5';
+// 3→4 단차: 위층(탑뷰 구간)에서 경사 벨트로 아래층(4컷)으로 내려옴
+const DECLINE={z0:210,z1:430};
+let sD0=0,sD1=0;
+function beltY(s){return s<=sD0?BELT_UP:s>=sD1?BELT_Y:lerp(BELT_UP,BELT_Y,(s-sD0)/(sD1-sD0));}
+const TOPCAM={x:-90,y:-800,z:-150};
+const GROUNDCAM={x:0,y:BELT_Y-24,z:1010};
+const Z_DIV=[520,640,760];
+// 2컷 정면 뷰: 카메라가 상자 오른쪽으로 dx만큼, 거리 d, 높이 y (벨트 윗면 -30 바로 위)
+const FRONT={dx:80,d:190,y:BELT_UP-6};
+const COPY=[
+  {x:-530,z:-150,at:0.30,no:'01',tag:'SINCE 1969',t:'1969년,<br><em>첫 국제 특송.</em>',p:'샌프란시스코에서 호놀룰루로 서류를 직접 들고 날아간 것이 시작이었습니다. (임시 카피)'},
+  {x:-480,z:70,at:0.60,no:'02',tag:'220+ COUNTRIES',t:'220개 이상의<br><em>국가와 지역.</em>',p:'전 세계를 잇는 네트워크가 오늘도 하나의 화물을 다음 목적지로 보냅니다. (임시 카피)'},
+  {x:200,z:90,at:0.85,no:'03',tag:'OUR PURPOSE',t:'Connecting people.<br><em>Improving lives.</em>',p:'사람과 사람을 잇고, 삶을 더 낫게. DHL이 일하는 이유입니다.'}
+];
+
+const $=id=>document.getElementById(id);
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const seg=(p,[a,b])=>clamp((p-a)/(b-a));
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const sine=t=>-(Math.cos(Math.PI*t)-1)/2;
+const lerp=(a,b,t)=>a+(b-a)*t;
+let U,P,W,H,mainBox,train=[],texts=[],dHero,dLead,path,Y={};
+const px=v=>(v*U)+'px';
+const T=(x,y,z)=>`translate3d(${px(x)},${px(y)},${px(z)})`;
+function el(parent,cls,style={}){const d=document.createElement('div');d.className=cls;Object.assign(d.style,style);parent.appendChild(d);return d;}
+function plane(parent,w,h,tf,cls='f',style={}){return el(parent,cls,{width:px(w),height:px(h),marginLeft:px(-w/2),marginTop:px(-h/2),transform:tf,...style});}
+
+/* ---------- 경로 ---------- */
+function buildPath(){
+  const pts=[],R=ROUTE;
+  for(let i=0;i<R.length-1;i++){
+    const p0=R[Math.max(0,i-1)],p1=R[i],p2=R[i+1],p3=R[Math.min(R.length-1,i+2)];
+    for(let k=0;k<12;k++){const t=k/12,t2=t*t,t3=t2*t;
+      const f=(a,b,c,d)=>.5*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t2+(-a+3*b-3*c+d)*t3);
+      pts.push([f(p0[0],p1[0],p2[0],p3[0]),f(p0[1],p1[1],p2[1],p3[1])]);}
+  }
+  pts.push(R[R.length-1]);
+  const len=[0]; for(let i=1;i<pts.length;i++) len.push(len[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
+  return {pts,len,total:len[len.length-1]};
+}
+function at(s){
+  const {pts,len}=path; s=clamp(s,0,path.total);
+  let i=1; while(i<len.length-1&&len[i]<s) i++;
+  const t=(s-len[i-1])/((len[i]-len[i-1])||1),a=pts[i-1],b=pts[i];
+  return {x:lerp(a[0],b[0],t),z:lerp(a[1],b[1],t),h:Math.atan2(-(b[1]-a[1]),b[0]-a[0])*180/Math.PI};
+}
+function sAtZ(z){const {pts,len}=path;for(let i=pts.length-1;i>0;i--){if(pts[i-1][1]<=z&&pts[i][1]>=z&&Math.abs(pts[i][0])<8){
+  const t=(z-pts[i-1][1])/(pts[i][1]-pts[i-1][1]);return lerp(len[i-1],len[i],t);}}return path.total;}
+function sAtX(x){const {pts,len}=path;for(let i=1;i<pts.length;i++){if(pts[i-1][0]<=x&&pts[i][0]>=x){
+  const t=(x-pts[i-1][0])/((pts[i][0]-pts[i-1][0])||1);return lerp(len[i-1],len[i],t);}}return 0;}
+
+/* ---------- 상자 ---------- */
+function markHTML(size){return `<div class="mark" style="font-size:${size}px"><s></s>DHL<s></s></div>`;}
+function makeBox(parent,b){
+  const g=el(parent,'g'),{w,h,d}=b, main=b.main;
+  const c=main?'#FFCC00':b.c, cs=main?'#F2BF00':shade(b.c,10), ct=main?'#FFD633':shade(b.c,-8);
+  const face=(ww,hh,tf,bg,html='')=>{const f=plane(g,ww,hh,tf,'f bface',{background:bg});f.innerHTML=html;return f;};
+  face(w,h,T(0,0,d/2),c, main?`<div style="transform:translateY(-${h*U*0.07}px)">${markHTML(w*U*0.075)}</div>`:'');
+  face(w,h,T(0,0,-d/2)+' rotateY(180deg)',c, main?markHTML(w*U*0.14):'');
+  face(d,h,T(w/2,0,0)+' rotateY(90deg)',cs, main?`<div class="label"><b style="font-size:${px(3.4)}">메인</b><i></i></div>${markHTML(d*U*0.14)}`:'');
+  face(d,h,T(-w/2,0,0)+' rotateY(-90deg)',cs);
+  const top=face(w,d,T(0,-h/2,0)+' rotateX(90deg)',ct); el(top,'tape',{background:main?'rgba(212,5,17,.85)':'rgba(255,255,255,.35)'});
+  return g;
+}
+function shade(hex,k){return `color-mix(in srgb, ${hex} ${100-Math.abs(k)}%, ${k>0?'#000':'#fff'} ${Math.abs(k)}%)`;}
+
+/* ---------- 바닥 콘크리트 텍스처 ----------
+   원본 이미지 1장 = 탑뷰 화면(16:9) 크기만큼의 바닥. 탑뷰 중심에 원본이 오고,
+   바깥은 상하좌우 뒤집은 타일로 이어져서 이음매가 안 보임 */
+const FLOOR={src:'img/floor_concrete_tile.webp',aspect:16/9};
+function floorBg(x0,z0,size){
+  const D=-TOPCAM.y, wu=FLOOR.aspect*D/1.2, hu=D/1.2;      // 원본 1장이 덮는 바닥 크기(u)
+  const ox=TOPCAM.x-wu/2, oz=TOPCAM.z-hu/2;                  // 원본 왼쪽 위 모서리
+  return {backgroundColor:'#B7B7B5',backgroundImage:`url(${FLOOR.src})`,backgroundRepeat:'repeat',
+    backgroundSize:`${2*wu*U}px ${2*hu*U}px`,
+    backgroundPosition:`${-(x0-ox)*U}px ${-(z0-oz)*U}px`};
+}
+
+/* ---------- 탑뷰 컨베이어 이미지 범위 (월드 좌표) ----------
+   캡처 화면: 탑뷰 카메라(TOPCAM), 원근 P=1.2×화면높이 → 위층 벨트 높이에서 1u = P/거리 px.
+   그래서 이미지가 덮는 월드 크기는 화면 해상도와 상관없이 정해짐 */
+function convBounds(){
+  const D=BELT_UP-TOPCAM.y, wu=CONV.pw*D/(1.2*CONV.ph), hu=D/1.2;
+  return {x0:TOPCAM.x-wu/2,x1:TOPCAM.x+wu/2,z0:TOPCAM.z-hu/2,z1:TOPCAM.z+hu/2};
+}
+function inConv(x,z){const c=convBounds();return x>c.x0+2&&x<c.x1-2&&z>c.z0+2&&z<c.z1-2;}
+
+/* ---------- 분류센터 환경 ---------- */
+const YEL='#F2C200', GRN='#2E5B4B';
+function beltSeg(S,a,b,opt={}){
+  const dx=b[0]-a[0],dz=b[1]-a[1],L0=Math.hypot(dx,dz); if(L0<0.5) return;
+  const ya=opt.ya??BELT_Y, yb=opt.yb??BELT_Y, BY=(ya+yb)/2, ph=Math.atan2(yb-ya,L0)*180/Math.PI, L=Math.hypot(L0,yb-ya), TL=` rotateZ(${ph}deg)`;
+  const h=Math.atan2(-dz,dx)*180/Math.PI,mx=(a[0]+b[0])/2,mz=(a[1]+b[1])/2,r=h*Math.PI/180,sn=Math.sin(r),cs=Math.cos(r),BW=60;
+  plane(S,L+1.5,BW,T(mx,BY,mz)+` rotateY(${h}deg)`+TL+' rotateX(90deg)','f',
+    {background:`linear-gradient(180deg,#4E4F51 0 6%,${BELT_TOP} 6% 94%,#4E4F51 94%),repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 2px,transparent 2px 8px)`,visibility:opt.noTop?'hidden':'visible'});
+  // 노란 프레임 (양쪽 옆면, 바닥까지)
+  plane(S,L+1.5,30,T(mx+sn*BW/2,BY+15,mz+cs*BW/2)+` rotateY(${h}deg)`+TL,'f',{background:`radial-gradient(circle at 50% 58%,#B38A00 0 22%,transparent 24%) 0 0/24px 100% repeat-x,linear-gradient(180deg,${YEL} 0 16%,#C99F00 16% 20%,${YEL} 20% 84%,#C99F00 84% 88%,${YEL} 88%)`});
+  plane(S,L+1.5,30,T(mx-sn*BW/2,BY+15,mz-cs*BW/2)+` rotateY(${h+180}deg) rotateZ(${-ph}deg)`,'f',{background:`linear-gradient(180deg,${YEL} 0 40%,#C99F00 40% 46%,${YEL} 46%)`});
+  // 난간 (선택)
+  if(opt.rail){[1,-1].forEach(sd=>{
+    plane(S,L+1.5,34,T(mx+sn*sd*(BW/2+2),BY-17,mz+cs*sd*(BW/2+2))+` rotateY(${sd>0?h:h+180}deg)`,'f',
+      {background:`linear-gradient(180deg,${YEL} 0 9%,transparent 9% 48%,${YEL} 48% 55%,transparent 55%),repeating-linear-gradient(90deg,${YEL} 0 3px,transparent 3px 40px)`});
+  });}
+}
+function gantry(S,x,z,rot,span=150,color=YEL){
+  const g=el(S,'g',{transform:T(x,0,z)+` rotateY(${rot}deg)`});
+  [-span/2,span/2].forEach(o=>{ plane(g,8,150,T(o,-75,0),'f',{background:color}); plane(g,8,150,T(o,-75,0)+' rotateY(90deg)','f',{background:shade(color,12)}); });
+  plane(g,span+8,12,T(0,-150,0),'f',{background:color});
+  plane(g,span+8,36,T(0,-156,0)+' rotateX(90deg)','f',{background:`repeating-linear-gradient(90deg,#8A8F92 0 3px,#A9AEB1 3px 6px)`});
+  plane(g,span+8,26,T(0,-169,18),'f',{background:`linear-gradient(180deg,${YEL} 0 12%,transparent 12% 50%,${YEL} 50% 60%,transparent 60%),repeating-linear-gradient(90deg,${YEL} 0 3px,transparent 3px 30px)`});
+  plane(g,span+8,26,T(0,-169,-18)+' rotateY(180deg)','f',{background:`linear-gradient(180deg,${YEL} 0 12%,transparent 12% 50%,${YEL} 50% 60%,transparent 60%),repeating-linear-gradient(90deg,${YEL} 0 3px,transparent 3px 30px)`});
+}
+function chute(S,side,zc){
+  const L=140,a=9.9;
+  plane(S,L,64,T(side*(32+L/2*0.985),BELT_Y+12,zc)+` rotateZ(${side*a}deg) rotateX(90deg)`,'f',
+    {background:'linear-gradient(180deg,#B9BEC1 0 8%,#8E9396 8% 92%,#B9BEC1 92%)'});
+  plane(S,L,10,T(side*(32+L/2*0.985),BELT_Y+7,zc+32)+` rotateZ(${side*a}deg)`,'f',{background:'#A3A8AB'});
+  plane(S,L,10,T(side*(32+L/2*0.985),BELT_Y+7,zc-32)+` rotateZ(${side*a}deg) rotateY(180deg)`,'f',{background:'#A3A8AB'});
+}
+
+function build(){
+  W=innerWidth;H=innerHeight;U=H*0.003;P=H*1.2;
+  $('view').style.perspective=P+'px';
+  const S=$('scene'); S.innerHTML=''; train=[]; texts=[];
+  path=buildPath();
+
+  // 바닥 (회색 콘크리트 + 안전선)
+  for(let x=-1000;x<800;x+=400) for(let z=-800;z<1200;z+=400)
+    plane(S,400,400,T(x+200,0,z+200)+' rotateX(90deg)','f',floorBg(x,z,400));
+  plane(S,6,1700,T(-420,-0.5,250)+' rotateX(90deg)','f',{background:'#E8C200'});
+  plane(S,6,1700,T(330,-0.5,250)+' rotateX(90deg)','f',{background:'#E8C200'});
+  // 안쪽 벽 + 메자닌 (2컷 배경)
+  plane(S,1800,420,T(-100,-210,-720),'f',{background:
+    `linear-gradient(180deg,#D7D5CF 0 34%,${YEL} 34% 36%,transparent 36% 44%,${YEL} 44% 46%,#8A6A45 46% 49%,#CFCCC5 49%)`});
+  plane(S,1800,8,T(-100,-215,-700)+' rotateX(90deg)','f',{background:YEL});
+  for(let x=-900;x<800;x+=70) plane(S,46,34,T(x,-180,-712),'f',{background:['#C49A6C','#B58A5E','#D1A877'][Math.abs((x/70)|0)%3]});
+
+  // 컨베이어 (경로 따라) — 위층 / 경사 / 아래층
+  sD0=sAtZ(DECLINE.z0); sD1=sAtZ(DECLINE.z1);
+  const {pts,len}=path;
+  for(let i=1;i<pts.length;i++){
+    const a=pts[i-1],b=pts[i];
+    const rail=(Math.abs(a[0])<1&&a[1]>DECLINE.z1&&a[1]<DECLINE.z1+60);
+    const ya=beltY(len[i-1]), yb=beltY(len[i]);
+    const noTop=ya===BELT_UP&&yb===BELT_UP&&inConv((a[0]+b[0])/2,(a[1]+b[1])/2);
+    beltSeg(S,a,b,{rail,ya,yb,noTop});
+  }
+  // 위층 컨베이어 다리 (노란 기둥)
+  for(let sl=0; sl<sD1; sl+=70){
+    const q=at(sl), y=beltY(sl)+30; if(y>-12) continue;
+    const r=q.h*Math.PI/180, nx=Math.sin(r)*26, nz=Math.cos(r)*26;
+    [1,-1].forEach(sd=>{
+      plane(S,6,-y,T(q.x+nx*sd,y/2,q.z+nz*sd)+` rotateY(${q.h}deg)`,'f',{background:YEL});
+      plane(S,6,-y,T(q.x+nx*sd,y/2,q.z+nz*sd)+` rotateY(${q.h+90}deg)`,'f',{background:'#C99F00'});
+    });
+  }
+  // 초록 포털 프레임 + 노란 캣워크 (레퍼런스)
+  gantry(S,0,420,0,170);
+  gantry(S,0,880,0,190);
+  // 분류 슈트 (4컷: 갈색 상자가 빠지는 곳)
+  [450,520,590,660,730,800].forEach((z,i)=>{chute(S,1,z);chute(S,-1,z+35);});
+
+  // 바닥 문구 (탑뷰)
+  COPY.forEach(c=>{
+    const t=plane(S,230,95,T(c.x,-0.8,c.z)+' rotateX(90deg)','f flat');
+    t.innerHTML=`<div class="no" style="font-size:${px(5.2)};margin-bottom:${px(5)}"><b>${c.no}</b> / ${c.tag}</div>
+      <h3 style="font-size:${px(19)}">${c.t}</h3><p style="font-size:${px(6.2)};margin-top:${px(7)}">${c.p}</p>`;
+    texts.push({el:t,at:c.at});
+  });
+
+  // 탑뷰 컨베이어 렌더 이미지: 위층 벨트 높이에 바닥처럼 깖 (근거리 왜곡 방지용으로 타일로 나눔)
+  {
+    const cb=convBounds(), nx=8, ny=4, tw=(cb.x1-cb.x0)/nx, th=(cb.z1-cb.z0)/ny;
+    for(let ix=0;ix<nx;ix++) for(let iz=0;iz<ny;iz++)
+      plane(S,tw+0.4,th+0.4,T(cb.x0+tw*(ix+.5),BELT_UP-0.3,cb.z0+th*(iz+.5))+' rotateX(90deg)','f',{
+        backgroundImage:`url(${CONV.src})`,backgroundRepeat:'no-repeat',
+        backgroundSize:`${(cb.x1-cb.x0)*U}px ${(cb.z1-cb.z0)*U}px`,
+        backgroundPosition:`${-(tw*ix-0.2)*U}px ${-(th*iz-0.2)*U}px`});
+  }
+
+  // 상자 행렬: 노란 메인 상자 1개 + 갈색 상자 A~D (크기 섞어서). 그리는 건 GLB(아래 three.js)
+  let seed=11; const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
+  mainBox={...MAIN,main:true,kind:'Main',o:0}; train.push(mainBox);
+  let k=0; const kinds=['A','B','C','D'];
+  for(let o=-520;o<=820;o+=72+rnd()*40){
+    if(Math.abs(o)<75) continue;
+    if(rnd()<0.18) continue;
+    const kind=kinds[Math.floor(rnd()*4)];
+    train.push({...KINDS[kind],kind,o,side:(k++%2?1:-1),zdiv:Z_DIV[k%3]+rnd()*30,jit:(rnd()-.5)*10,spin:(rnd()-.5)*24});
+  }
+
+  dHero=Math.min(MAIN.w*P/W,MAIN.h*P/H)/1.02;
+  dLead=Math.min(MAIN.d*P/W,MAIN.h*P/H);
+  buildYard();
+  render();
+}
+
+
+/* ---------- 야드 (2D, 리치스태커 장면) ---------- */
+const RS={px:82.5,py:144,L:378.7}, SP_DROP=34, BED=34, deg=Math.PI/180;
+const A0=Math.asin((200+SP_DROP-RS.py)/RS.L)/deg, A_LIFT=A0+7;
+const A_LOW=Math.asin((BED+100+SP_DROP-RS.py)/RS.L)/deg, A_REL=A_LOW+8;
+const X0=-296;
+const tipX=a=>RS.px+RS.L*Math.cos(a*deg), tipY=a=>RS.py+RS.L*Math.sin(a*deg);
+const XS=X0+tipX(A0)-47.5, XT=X0+tipX(A_LOW)-80;
+let Yu,GY;
+function yPlace(e,X,Yup,h){e.style.transform=`translate(${W/2+X*Yu}px,${GY-(Yup+h)*Yu}px)`;}
+function cFront(parent,color,num){
+  const c=el(parent,'ye cfront',{width:95*Yu+'px',height:100*Yu+'px',background:color});
+  el(c,'seam'); [16,36,60,80].forEach(v=>el(c,'bar',{left:v+'%'})); el(c,'band');
+  if(num) el(c,'num',{fontSize:(4.2*Yu)+'px'}).innerHTML=num;
+  return c;
+}
+function buildYard(){
+  const C=$('ycam'); C.innerHTML='';
+  Yu=Math.min(W/760,H/430); GY=H*0.84;
+  el(C,'yground',{top:GY+'px'});
+  Y.yellow=cFront(C,'#F2BC00','DHLU 481527 2<br>22G1'); yPlace(Y.yellow,XS,0,100);
+  Y.navy=cFront(C,'#1F2A44'); yPlace(Y.navy,XS+97,0,100);
+  Y.rs=el(C,'ye',{width:470*Yu+'px',height:300*Yu+'px'}); Y.rs.innerHTML=stackerSVG(); yPlace(Y.rs,X0,0,300);
+  Y.truck=el(C,'ye',{width:260*Yu+'px',height:125*Yu+'px'}); Y.truck.innerHTML=truckSVG();
+  Y.white=cFront(C,'#ECECEC','DHLU 514237 7<br>22G1');
+}
+function stackerSVG(){
+  const py=300-RS.py;
+  return `<svg viewBox="0 0 470 300" width="100%" height="100%" overflow="visible">
+    <line id="cyl" x1="190" y1="215" x2="250" y2="140" stroke="#333" stroke-width="9" stroke-linecap="round"/>
+    <rect x="15" y="215" width="345" height="60" rx="8" fill="#FFCC00"/>
+    <rect x="15" y="244" width="345" height="7" fill="#D40511"/>
+    <rect x="15" y="220" width="18" height="50" fill="#111"/>
+    <rect x="48" y="128" width="78" height="90" rx="10" fill="#F2C200"/>
+    <rect x="140" y="132" width="92" height="84" fill="#2A2A2A"/>
+    <rect x="148" y="140" width="76" height="44" fill="#5B6670"/>
+    <g id="boom" transform="rotate(${-A0} ${RS.px} ${py})">
+      <rect x="60" y="${py-12}" width="420" height="24" rx="3" fill="#FFCC00"/>
+      <rect x="250" y="${py-12}" width="230" height="24" rx="3" fill="#F2C200"/>
+      <rect x="120" y="${py-16}" width="190" height="4" fill="#222"/>
+      <rect x="420" y="${py-12}" width="12" height="24" fill="#111"/><rect x="440" y="${py-12}" width="12" height="24" fill="#111"/>
+    </g>
+    <circle cx="${RS.px}" cy="${py}" r="9" fill="#333"/>
+    <g id="spreader">
+      <rect x="-14" y="-12" width="28" height="16" rx="3" fill="#1A1A1A"/>
+      <rect x="-5" y="2" width="10" height="20" fill="#1A1A1A"/>
+      <rect x="-58" y="22" width="116" height="12" fill="#1A1A1A"/>
+      <rect x="-58" y="24" width="10" height="8" fill="#FFCC00"/><rect x="48" y="24" width="10" height="8" fill="#FFCC00"/>
+    </g>
+    <circle cx="65" cy="268" r="32" fill="#111"/><circle cx="65" cy="268" r="13" fill="#D9D9D9"/>
+    <circle cx="302" cy="268" r="32" fill="#111"/><circle cx="302" cy="268" r="13" fill="#D9D9D9"/>
+  </svg>`;
+}
+function truckSVG(){
+  return `<svg viewBox="0 0 260 125" width="100%" height="100%" overflow="visible">
+    <rect x="0" y="86" width="165" height="10" fill="#222"/><rect x="0" y="82" width="160" height="5" fill="#FFCC00"/>
+    <circle cx="30" cy="109" r="14" fill="#111"/><circle cx="30" cy="109" r="5" fill="#9A9A9A"/>
+    <circle cx="60" cy="109" r="14" fill="#111"/><circle cx="60" cy="109" r="5" fill="#9A9A9A"/>
+    <rect x="168" y="20" width="84" height="80" rx="6" fill="#151515"/>
+    <rect x="222" y="30" width="26" height="26" rx="2" fill="#5B6670"/>
+    <rect x="168" y="70" width="84" height="5" fill="#D40511"/><rect x="168" y="76" width="84" height="3" fill="#FFCC00"/>
+    <circle cx="192" cy="109" r="15" fill="#111"/><circle cx="192" cy="109" r="5" fill="#9A9A9A"/>
+    <circle cx="232" cy="109" r="15" fill="#111"/><circle cx="232" cy="109" r="5" fill="#9A9A9A"/>
+  </svg>`;
+}
+
+
+/* ---------- 매 프레임 ---------- */
+let BXP=0,ticking=false,BX_STATE=null;
+window.bxRender=v=>{BXP=v;if(!ticking){ticking=true;requestAnimationFrame(()=>{render();ticking=false;});}};
+const fwd=d=>{try{if(parent.__bxInput&&parent.__bxInput(d))return;}catch(e){}parent.scrollBy(0,d);};
+addEventListener('wheel',e=>{e.preventDefault();fwd(e.deltaY);},{passive:false});
+addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp','PageDown','PageUp',' '].includes(e.key)&&e.target.tagName!=='INPUT'){e.preventDefault();parent.focus();fwd((e.key==='ArrowUp'||e.key==='PageUp')?-innerHeight*.8:innerHeight*.8);}});
+addEventListener('resize',build);
+
+function render(){
+  const p=clamp(BXP)*0.645;
+  const ho=seg(p,PH.heroOut);
+  $('heroUI').style.opacity=1-ho; $('heroUI').style.pointerEvents=ho>.5?'none':'auto';
+
+  // 메인 상자의 경로 위치 s
+  const sExit=sAtX(-640+FRONT.dx+FRONT.d*(W/2)/P+45), sRE=sAtZ(200), sEnd=sAtZ(GROUNDCAM.z-MAIN.w/2-dLead*0.15);
+  const SB=sAtX(-640);
+  let s;
+  if(p<PH.exit[0]) s=SB;
+  else if(p<PH.exit[1]) s=lerp(SB,sExit,Math.pow(seg(p,PH.exit),1.5));
+  else if(p<PH.route[1]) s=lerp(sExit,sRE,seg(p,[PH.exit[1],PH.route[1]]));
+  else s=lerp(sRE,sEnd,Math.pow(seg(p,[PH.route[1],PH.approach[1]]),1.4));
+
+  let mb=null; const poses=[];
+  train.forEach((b,idx)=>{
+    const si=s+b.o;
+    if(si<0||si>path.total) return;
+    const q=at(si); let x=q.x, z=q.z, y=beltY(si), rz=0, rx=0, op=1;
+    if(si>sD0&&si<sD1) rx=-Math.atan2(BELT_Y-BELT_UP,sD1-sD0)*180/Math.PI;
+    if(!b.main && Math.abs(q.x)<1 && z>b.zdiv){       // 슈트로 빠짐
+      const f=clamp((z-b.zdiv)/70), f2=clamp((z-b.zdiv-70)/220);
+      z=Math.min(z,b.zdiv+70)+b.jit;
+      x=b.side*(f*70+f2*100); y+=f*10+f2*16;
+      rz=b.side*(f*28+f2*6); op=1-f2;
+    }
+    poses.push({i:idx,kind:b.kind,x,y,z,yaw:q.h+(b.main?0:(b.spin||0)*0.3),rz,rx,op});
+    if(b.main) mb={x,z,h:q.h};
+  });
+
+  // 카메라
+  const hd=HERO_LOGO.logoW*P/(HERO_LOGO.wFrac*W);                 // 로고 폭이 화면 40%가 되는 거리
+  const z0={x:-640,y:(BELT_UP-HERO_LOGO.logoY)+(0.5-HERO_LOGO.cy)*H*hd/P,z:-260+MAIN.d/2+hd}, z1={x:-640+FRONT.dx,y:FRONT.y,z:-260+MAIN.d/2+FRONT.d};
+  const zo=ease(seg(p,PH.zoomOut)), tt=ease(seg(p,PH.toTop)), tg=ease(seg(p,PH.toGround));
+  let c={x:lerp(z0.x,z1.x,zo),y:lerp(z0.y,z1.y,zo),z:lerp(z0.z,z1.z,zo)}, pitch=0;
+  if(tt>0){c={x:lerp(c.x,TOPCAM.x,tt),y:lerp(c.y,TOPCAM.y,tt),z:lerp(c.z,TOPCAM.z,tt)};pitch=lerp(0,-90,tt);}
+  if(tg>0){c={x:lerp(c.x,GROUNDCAM.x,tg),y:lerp(c.y,GROUNDCAM.y,tg),z:lerp(c.z,GROUNDCAM.z,tg)};pitch=lerp(-90,0,tg);}
+  $('scene').style.transform=`translateZ(${P}px) rotateX(${pitch}deg) translate3d(${-c.x*U}px,${-c.y*U}px,${-c.z*U}px)`;
+  BX_STATE={U,P,cam:{x:c.x,y:c.y,z:c.z,pitch},boxes:poses,show:true};
+
+  const prog=(s-SB)/(sRE-SB);
+  texts.forEach(t=>{t.el.style.opacity=clamp((prog-t.at+0.06)/0.08)*(1-tg)*tt;});
+
+  // 암전
+  const dist=GROUNDCAM.z-(mb.z+MAIN.w/2);
+  // 상자 면이 화면을 완전히 덮고 더 다가온 뒤에만 까매짐
+  let bl=p>PH.toGround[1]?clamp((dLead*0.5-dist)/(dLead*0.3)):0;
+  if(p>=PH.black[0]) bl=1;
+  if(p>PH.black[1]) bl=1-seg(p,PH.doorIn);
+  $('black').style.opacity=bl;
+  const inYard=p>=PH.black[1];
+  $('view').style.visibility=inYard?'hidden':'visible';
+  $('yard').style.opacity=inYard?1:0;
+  BX_STATE.show=!inYard; window.BXGL_STATE=BX_STATE; window.BXGL_draw&&window.BXGL_draw();
+
+  // ---- 야드 ----
+  const k1=ease(seg(p,PH.lift)),k2=ease(seg(p,PH.truckIn)),k3=ease(seg(p,PH.lower)),k4=ease(seg(p,PH.release)),k5=ease(seg(p,PH.truckOut));
+  let a=lerp(A0,A_LIFT,k1); if(k3>0)a=lerp(A_LIFT,A_LOW,k3); if(k4>0)a=lerp(A_LOW,A_REL,k4);
+  const py=300-RS.py, tX=tipX(a), tY=tipY(a);
+  Y.rs.querySelector('#boom').setAttribute('transform',`rotate(${-a} ${RS.px} ${py})`);
+  Y.rs.querySelector('#spreader').setAttribute('transform',`translate(${tX} ${300-tY})`);
+  Y.rs.querySelector('#cyl').setAttribute('x2',RS.px+170*Math.cos(a*deg));
+  Y.rs.querySelector('#cyl').setAttribute('y2',py-170*Math.sin(a*deg));
+  const truckX=k5>0?lerp(XT,XT+900,k5):lerp(XT+760,XT,k2);
+  yPlace(Y.truck,truckX,0,125);
+  if(k3<1) yPlace(Y.white,X0+tX-47.5,tY-SP_DROP-100,100); else yPlace(Y.white,truckX+80-47.5,BED,100);
+  const rv=ease(seg(p,PH.reveal));
+  const cxw=W/2+(X0+tipX(A0))*Yu, cyw=GY-(tipY(A0)-SP_DROP-50)*Yu;
+  const S0=Math.max(W/(95*Yu),H/(100*Yu))*1.12, sc=lerp(S0,1,rv);
+  $('ycam').style.transformOrigin=`${cxw}px ${cyw}px`;
+  $('ycam').style.transform=`translate(${(W/2-cxw)*(1-rv)}px,${(H/2-cyw)*(1-rv)}px) scale(${sc})`;
+
+}
+$('trackForm').addEventListener('submit',e=>{e.preventDefault();$('demoMsg').textContent='데모 화면이에요. 실제 조회는 TRACK 페이지에 연결할 예정입니다.';});
+build();
+</script>
+
+<script type="module">
+/* =========================================================
+   상자 3D 모델 (models/DHL_Boxes_All.glb)
+   - CSS 3D 장면과 똑같은 카메라를 three.js로 만들어 그 위에 상자만 그림
+   - 노란 메인 상자 = Box_Main_Root, 갈색 = Box_Brown_A~D_Root (모양·색은 GLB 그대로)
+   - 위치는 위 render()가 계산한 window.BXGL_STATE를 그대로 씀
+   ========================================================= */
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const cv=document.getElementById('boxGL');
+const R=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+R.outputColorSpace=THREE.SRGBColorSpace;
+R.toneMapping=THREE.NeutralToneMapping;   // 색이 최대한 그대로 보이는 톤 매핑
+const scene=new THREE.Scene();
+scene.environment=new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(),0.04).texture;
+scene.environmentIntensity=0.9;
+const key=new THREE.DirectionalLight(0xffffff,1.3); key.position.set(-0.45,1,-0.55); scene.add(key);
+const cam=new THREE.PerspectiveCamera(40,1,1,1e6);
+const D2R=Math.PI/180;
+
+// 상자 밑 그림자 (부드러운 원)
+const sc=document.createElement('canvas'); sc.width=sc.height=128;
+const g=sc.getContext('2d'), gr=g.createRadialGradient(64,64,8,64,64,64);
+gr.addColorStop(0,'rgba(0,0,0,.45)'); gr.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=gr; g.fillRect(0,0,128,128);
+const shTex=new THREE.CanvasTexture(sc);
+
+let tpl=null; const inst=new Map();
+new GLTFLoader().load('models/DHL_Boxes_All.glb',gl=>{
+  tpl={};
+  for(const k of ['Main','A','B','C','D']){
+    const n=gl.scene.getObjectByName(k==='Main'?'Box_Main_Root':`Box_Brown_${k}_Root`);
+    n.position.set(0,0,0); tpl[k]=n;
+  }
+  window.BXGL_draw();
+},undefined,e=>console.error('[boxstory] GLB를 불러오지 못했어요. 로컬 서버(Live Server 등)로 열었는지 확인하세요.',e));
+
+function make(kind){
+  const holder=new THREE.Group(), o=tpl[kind].clone(true), mats=[];
+  o.traverse(m=>{ if(m.isMesh){ m.material=m.material.clone(); m.material.userData.o0=m.material.opacity; m.material.userData.t0=m.material.transparent; mats.push(m.material);} });
+  holder.add(o);
+  const size=new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3());
+  const sh=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:shTex,transparent:true,depthWrite:false}));
+  sh.rotation.x=-Math.PI/2; sh.position.y=0.001; sh.scale.set(size.x*1.4,size.z*1.4,1); holder.add(sh);
+  holder.userData={mats,sh,op:1};
+  scene.add(holder); return holder;
+}
+function setOp(h,op){
+  if(Math.abs(h.userData.op-op)<0.002) return; h.userData.op=op;
+  for(const m of h.userData.mats){ m.transparent=op<1||m.userData.t0; m.opacity=m.userData.o0*op; m.needsUpdate=true; }
+  h.userData.sh.material.opacity=op;
+}
+
+window.BXGL_draw=()=>{
+  const st=window.BXGL_STATE; if(!st) return;
+  const W=innerWidth,H=innerHeight;
+  const sz=R.getSize(new THREE.Vector2()); if(sz.x!==W||sz.y!==H) R.setSize(W,H,false);
+  cv.style.visibility=st.show?'visible':'hidden';
+  if(!st.show||!tpl) return;
+  const U=st.U;
+  // CSS: perspective P, rotateX(pitch) → three.js: 세로 화각 2·atan(H/2/P), y축만 뒤집음
+  cam.fov=2*Math.atan(H/2/st.P)/D2R; cam.aspect=W/H; cam.near=Math.max(0.5,U*0.5); cam.far=U*30000; cam.updateProjectionMatrix();
+  cam.position.set(st.cam.x*U,-st.cam.y*U,st.cam.z*U);
+  cam.rotation.set(st.cam.pitch*D2R,0,0);
+  const seen=new Set();
+  for(const b of st.boxes){
+    let h=inst.get(b.i); if(!h){h=make(b.kind); inst.set(b.i,h);}
+    seen.add(b.i);
+    h.visible=b.op>0.01;
+    h.position.set(b.x*U,-b.y*U,b.z*U);
+    h.rotation.set(-b.rx*D2R,b.yaw*D2R,-b.rz*D2R,'ZXY');
+    h.scale.setScalar(100*U);
+    setOp(h,b.op);
+  }
+  for(const [i,h] of inst) if(!seen.has(i)) h.visible=false;
+  R.render(scene,cam);
+};
+window.BXGL_draw();
+</script>
+</body>
+</html>
