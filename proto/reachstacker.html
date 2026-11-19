@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DHL 리치스태커 → 트럭 · 3D 프로토타입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Inter:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#E9E7E1;color:#141414;font-family:'Noto Sans KR',system-ui,sans-serif}
+  .track{height:900vh;position:relative}
+  .pin{position:sticky;top:0;height:100vh;overflow:hidden}
+  #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hud{position:fixed;left:16px;top:16px;z-index:5;display:flex;flex-direction:column;gap:8px;max-width:360px}
+  .card{background:rgba(20,20,20,.82);color:#fff;border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.55;backdrop-filter:blur(6px)}
+  .card b{color:#FFCC00}
+  .card .ph{font-size:16px;font-weight:900;margin:2px 0 4px}
+  .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.2);overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;width:0;background:#FFCC00}
+  .btns{display:flex;gap:6px}
+  .btns button{border:0;border-radius:999px;padding:8px 14px;font:700 12px 'Noto Sans KR',sans-serif;background:#FFCC00;color:#141414;cursor:pointer}
+  .btns button.k{background:#141414;color:#fff}
+  .load{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:#E9E7E1;font-weight:700;transition:opacity .4s}
+  .note{position:fixed;right:16px;bottom:16px;z-index:5;font-size:11px;color:#555;background:rgba(255,255,255,.75);padding:6px 10px;border-radius:8px}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div class="load" id="load">3D 모델 불러오는 중… <span id="lp" style="margin-left:6px">0%</span></div>
+<div class="hud">
+  <div class="card">
+    <div>DHL 리치스태커 → 트럭 · <b>3D 프로토타입</b> (메인 미적용)</div>
+    <div class="ph" id="ph">-</div>
+    <div id="fr">-</div>
+    <div class="bar"><i id="pb"></i></div>
+  </div>
+  <div class="btns"><button id="play">▶ 자동 재생</button><button class="k" id="rew">처음으로</button></div>
+</div>
+<div class="note">이젠 3조 · DHL 웹 리뉴얼 포트폴리오 시안 (비공식 학습용 데모) · 스크롤하면 진행</div>
+<div class="track" id="track"><div class="pin"><canvas id="gl"></canvas></div></div>
+
+<script type="module">
+/* =========================================================
+   리치스태커 → 트럭 3D 프로토타입
+   - 흐름은 메인 물류 장면(사진 140장)과 같음. 카메라는 원근 3/4 시점으로 장면을 따라감 (KEYS)
+     트럭이 멈추는 자리·컨테이너 위치는 예전 웹 숫자 그대로 (TRUCK_CX, COFF)
+   - 리치스태커 GLB의 조종 장치를 코드로 움직임
+       RS_Boom_Pivot 회전 = 붐 각도 / RS_Telescope x = 붐 늘리기 / RS_Spreader_Root = 항상 수평
+       RS_Cyl_Base·Top = 서로를 바라봄 (블렌더 DAMPED_TRACK 대신 계산)
+   - 좌표: 블렌더(X,Y,Z) → three(X, Z, -Y). 카메라는 +z 쪽에서 -z를 봄 (= 블렌더 -Y 정측면)
+   ========================================================= */
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const VIEW_H=29/1.6, GROUND=0.803, CAM_Y=(GROUND-0.5)*VIEW_H;
+const LGCX=[...Array(42).fill(7),7.0,6.9697,6.8828,6.7452,6.5629,6.3419,6.088,5.8074,5.5059,5.1895,4.8642,4.5358,4.2105,3.8941,3.5926,3.312,3.0581,2.8371,2.6548,2.5172,2.4303,2.4,2.4,2.3986,2.3945,2.3881,2.3794,2.3688,2.3565,2.3426,2.3275,2.3114,2.2944,2.2769,2.259,2.241,2.2231,2.2056,2.1886,2.1725,2.1574,2.1435,2.1312,2.1206,2.1119,2.1055,2.1014,2.1];
+const NF=172;                        // 0~139: 예전 사진 140장과 같은 흐름, 140~171: 트럭 출발
+const TRUCK_CX=2.1+(812-800)/1600*29; // 예전 웹: 마지막 장면에서 트럭 중심이 프레임 x 812px
+const COFF=-111.6*0.02124;            // 예전 웹: 컨테이너 중심 = 트럭 중심 - 2.37m
+const LANE=7.0;                       // 트럭이 지나가는 줄 (카메라 쪽, three z)
+const INTRO=0.10;                     // 스크롤 앞 10%: 컨테이너 문 클로즈업 → 줌아웃 (예전 웹과 같은 시작)
+
+const cv=document.getElementById('gl');
+const R=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2)); R.outputColorSpace=THREE.SRGBColorSpace;
+R.toneMapping=THREE.NeutralToneMapping; R.shadowMap.enabled=true; R.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0xE9E7E1);
+scene.environment=new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(),0.04).texture; scene.environmentIntensity=0.75;
+const sun=new THREE.DirectionalLight(0xFFF6EA,2.2); sun.position.set(-14,26,22); sun.castShadow=true;
+sun.shadow.mapSize.set(4096,4096); Object.assign(sun.shadow.camera,{left:-30,right:40,top:30,bottom:-30,near:1,far:140}); sun.shadow.radius=3; sun.shadow.bias=-0.0004; sun.shadow.normalBias=0.03;
+scene.add(sun); scene.add(sun.target); sun.target.position.set(4,0,0);
+scene.add(new THREE.HemisphereLight(0xffffff,0x8a8a86,0.35));
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(600,600),new THREE.MeshStandardMaterial({color:0xA9A8A3,roughness:.95}));
+ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+const cam=new THREE.PerspectiveCamera(30,1,0.1,800);
+scene.fog=new THREE.Fog(0xE9E7E1,70,190);
+
+const prog={};
+const loadGLB=(url,key)=>new Promise((res,rej)=>new GLTFLoader().load(url,res,e=>{prog[key]=e.total?e.loaded/e.total:0;const v=(prog.rs??0)*.5+(prog.tr??0)*.5;document.getElementById('lp').textContent=Math.round(v*100)+'%';},rej));
+const [RSg,TRg]=await Promise.all([loadGLB('models/reachstacker.glb','rs'),loadGLB('models/truck.glb','tr')]);
+document.getElementById('load').style.opacity=0; setTimeout(()=>document.getElementById('load').remove(),450);
+
+const rsScene=RSg.scene, trScene=TRg.scene;
+scene.add(rsScene); scene.add(trScene);
+for(const s of [rsScene,trScene]) s.traverse(m=>{ if(m.isMesh){ m.castShadow=true; m.receiveShadow=true; } });
+const N=n=>rsScene.getObjectByName(n);
+const root=N('RS_Root'), pivot=N('RS_Boom_Pivot'), tele=N('RS_Telescope'), spr=N('RS_Spreader_Root'), cw=N('Container_White_Root');
+// 트럭에 원래 실린 노란 컨테이너는 숨김 (리치스태커가 흰 컨테이너를 실어 줌)
+trScene.traverse(o=>{ if(o.name.startsWith('F7_Cont')) o.visible=false; });
+scene.updateMatrixWorld(true);
+
+// ---------- 트럭 ----------
+const box3=(objs)=>{const b=new THREE.Box3();objs.forEach(o=>{ if(o.isMesh&&o.visible) b.expandByObject(o); });return b;};
+const trMeshes=[]; trScene.traverse(o=>{ if(o.isMesh&&o.visible&&!o.name.startsWith('F7_')) trMeshes.push(o); });
+// 노란 컨테이너가 숨겨져도 보이는 부모 체인은 그대로라, 숨김 메시는 위에서 제외
+const tb=new THREE.Box3(); trMeshes.forEach(m=>{ let v=true,p=m; while(p){ if(!p.visible){v=false;break;} p=p.parent; } if(v) tb.expandByObject(m); });
+const T_CX0=(tb.min.x+tb.max.x)/2;
+let deck=Infinity; trScene.traverse(o=>{ if(o.isMesh&&o.name.startsWith('F7_Cont_Floor')){ const b=new THREE.Box3().setFromObject(o); deck=Math.min(deck,b.min.y); } });
+if(!isFinite(deck)) deck=1.45;
+// 바퀴 굴림용: 바퀴 부품을 바퀴 중심 빈 오브젝트로 묶음
+const wheelMap=new Map(); trScene.traverse(o=>{ if(o.isMesh&&o.name.startsWith('Wheel_')){ const k=o.name.split('_').slice(0,3).join('_'); if(!wheelMap.has(k)) wheelMap.set(k,[]); wheelMap.get(k).push(o); } });
+const wheels=[];
+for(const [k,list] of wheelMap){
+  const tire=list.filter(o=>o.name.includes('Tire')); if(!tire.length) continue;
+  const b=box3(tire), c=b.getCenter(new THREE.Vector3()), r=(b.max.y-b.min.y)/2;
+  const g=new THREE.Group(); trScene.add(g); g.position.copy(trScene.worldToLocal(c.clone()));
+  list.forEach(o=>g.attach(o)); wheels.push({g,r});
+}
+const trBase=trScene.position.clone();
+
+// ---------- 리치스태커 조종 ----------
+const TELE0=tele.position.x, PIV0=pivot.rotation.z, SPR0=spr.rotation.z;   // GLB 기본 자세 (붐 약 21°)
+const cyl=[-1,1].map(s=>{const b=N('RS_Cyl_Base_'+s), t=N('RS_Cyl_Top_'+s);
+  const pb=b.getWorldPosition(new THREE.Vector3()), pt=t.getWorldPosition(new THREE.Vector3());
+  return {b,t,qb:b.getWorldQuaternion(new THREE.Quaternion()),qt:t.getWorldQuaternion(new THREE.Quaternion()),d0:pt.sub(pb).normalize()};});
+// 흰 컨테이너: 집게 기준 상대 행렬 저장 후 장면 루트로 옮겨 직접 배치
+const REL=new THREE.Matrix4().copy(spr.matrixWorld).invert().multiply(cw.matrixWorld);
+const CW0=cw.matrixWorld.clone();   // 처음: 노란 컨테이너 위에 얹힌 자리
+scene.attach(cw); cw.matrixAutoUpdate=false;
+const D=Math.PI/180, _q=new THREE.Quaternion(), _q2=new THREE.Quaternion(), _v=new THREE.Vector3(), _v2=new THREE.Vector3();
+function setRS(a,e){
+  // 블렌더 Y축 회전(음수=위) → three Z축 회전(양수=위)
+  pivot.rotation.set(0,0,PIV0+a*D); tele.position.x=TELE0+e; spr.rotation.set(0,0,SPR0-a*D);
+  rsScene.updateMatrixWorld(true);
+  const rq=root.getWorldQuaternion(new THREE.Quaternion());
+  for(const c of cyl){
+    const d=c.t.getWorldPosition(_v).sub(c.b.getWorldPosition(_v2)).normalize();
+    const dl=d.clone().applyQuaternion(rq.clone().invert());          // 몸체 기준 방향
+    const rot=new THREE.Quaternion().setFromUnitVectors(c.d0,dl);
+    for(const [o,q0] of [[c.b,c.qb],[c.t,c.qt]]){
+      const want=rq.clone().multiply(rot).multiply(q0);                // 몸체 회전 × 실린더 회전 × 원래 방향
+      o.parent.getWorldQuaternion(_q2); o.quaternion.copy(_q2.invert().multiply(want));
+    }
+  }
+  rsScene.updateMatrixWorld(true);
+}
+function contAt(a,e){ setRS(a,e); return new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().multiplyMatrices(spr.matrixWorld,REL)); }
+const P0=contAt(0,0);                                   // 처음 자세 = 컨테이너가 노란 컨테이너 위에 얹힌 자리
+function solveA(e,y){ let lo=-21,hi=24; for(let i=0;i<40;i++){ const m=(lo+hi)/2; if(contAt(m,e).y<y) lo=m; else hi=m; } return (lo+hi)/2; }
+const E_L=-1.2;
+const A_ABOVE=solveA(-0.6,P0.y+1.1), A_LIFT=solveA(E_L,5.6), A_PLACE=solveA(E_L,deck+0.02), A_RISE=solveA(E_L-0.5,deck+1.5);
+const LX=contAt(A_PLACE,E_L).x;                          // 내려놓는 자세에서 몸체 기준 컨테이너 앞쪽 거리
+const SLOT_X=TRUCK_CX+COFF;
+const ROT_F=-90;                                       // 돌아서 붐이 카메라 쪽(+z)을 봄
+const LOC_F=new THREE.Vector3(SLOT_X,0,LANE-LX);        // 내려놓을 때 컨테이너가 (SLOT_X, LANE)에 오게
+// 내려놓은 컨테이너 자리(트레일러 위) = 내려놓는 순간 집게가 들고 있던 그대로
+root.position.copy(LOC_F); root.rotation.set(0,ROT_F*D,0); setRS(A_PLACE,E_L);
+const PLACE_M=new THREE.Matrix4().multiplyMatrices(spr.matrixWorld,REL);
+root.position.set(0,0,0); root.rotation.set(0,0,0); setRS(0,0);
+
+// ---------- 시간표 (프레임 f) ----------
+const sm=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);}, sg=(f,a,b)=>Math.max(0,Math.min(1,(f-a)/(b-a))), lp=(a,b,t)=>a+(b-a)*t;
+function boom(f){
+  if(f<16) return [lp(A_ABOVE,0,sm(sg(f,2,16))),lp(-0.6,0,sm(sg(f,2,16)))];
+  if(f<20) return [0,0];
+  if(f<40){const t=sm(sg(f,20,40));return [lp(0,A_LIFT,t),lp(0,E_L,t)];}
+  if(f<90) return [A_LIFT,E_L];
+  if(f<106) return [lp(A_LIFT,A_PLACE,sm(sg(f,90,106))),E_L];
+  if(f<114){const t=sm(sg(f,108,114));return [lp(A_PLACE,A_RISE,t),lp(E_L,E_L-0.5,t)];}
+  return [A_RISE,E_L-0.5];
+}
+function body(f){
+  const t=sm(sg(f,40,64)); let rot=lp(0,ROT_F,t), loc=new THREE.Vector3().lerpVectors(new THREE.Vector3(),LOC_F,t);
+  if(f>114){ const u=sm(sg(f,114,139)); rot=lp(ROT_F,0,u); loc=LOC_F.clone().add(new THREE.Vector3(26*u*u,0,-9*u)); }
+  return [rot,loc];
+}
+const truckX=f=> f<140 ? TRUCK_CX-34*Math.pow(1-sg(f,62,88),2.2) : TRUCK_CX+40*Math.pow(sg(f,140,NF-1),2);
+const PHASES=[[0,'컨테이너 문 → 줌아웃'],[2,'붐을 내려 컨테이너 집기'],[20,'들어 올림'],[40,'돌아서며 카메라 이동'],[62,'트럭 진입'],[90,'트레일러에 내려놓기'],[108,'집게 풀고 빠지기'],[140,'트럭 출발']];
+
+function pose(f){
+  const [rot,loc]=body(f); root.position.copy(loc); root.rotation.set(0,rot*D,0);
+  rsScene.visible=f<139.5;   // 화면 밖으로 빠진 뒤에는 숨김
+  const [a,e]=boom(f); setRS(a,e);
+  const tx=truckX(f); trScene.position.set(trBase.x+tx-T_CX0,trBase.y,trBase.z+LANE);
+  for(const w of wheels) w.g.rotation.z=-(tx-TRUCK_CX)/w.r;
+  if(f<18) cw.matrix.copy(CW0);
+  else if(f<107) cw.matrix.multiplyMatrices(spr.matrixWorld,REL);
+  else cw.matrix.makeTranslation(tx-TRUCK_CX,0,0).multiply(PLACE_M);
+  cw.matrixWorldNeedsUpdate=true;
+}
+
+// ---------- 카메라 (원근, 3/4 시점으로 장면을 따라감) ----------
+// 키: [프레임, 카메라 위치, 바라보는 점]. 프레임 사이는 부드럽게 이어짐
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const DOOR=P0.clone().add(V(0,1.3,3.05));                // 흰 컨테이너 문(카메라 쪽 끝면) 가운데
+const KEYS=[
+  [-1, V(DOOR.x,DOOR.y,DOOR.z+4.3), V(DOOR.x,DOOR.y,0)],   // 인트로 시작: 문이 화면을 덮음
+  [0,  V(-3,6.5,24),  V(7,3.4,0)],                        // 리치스태커 + 컨테이너 더미, 앞 왼쪽 위에서
+  [38, V(-1,8.5,22),  V(8,4.2,0)],                        // 들어 올리는 동안 조금 다가감
+  [62, V(-13,8.5,34), V(2,3.2,3)],                       // 돌아서는 동안 왼쪽으로 크게 돌아 봄
+  [88, V(9,8.5,40),   V(2.5,2.8,4)],                      // 트럭이 들어와 멈춤 (앞에서 트럭 전체)
+  [106,V(8,6.5,32),   V(1.5,2.8,4.5)],                    // 내려놓는 순간 조금 다가감
+  [139,V(10,6.5,38),  V(2.8,2.4,5)],                      // 리치스태커 빠지고 트럭만
+  [171,V(30,6,36),    V(20,2,6)]                          // 트럭 출발을 따라감
+];
+function camAt(f){
+  let i=0; while(i<KEYS.length-2&&f>KEYS[i+1][0]) i++;
+  const [f0,p0,l0]=KEYS[i],[f1,p1,l1]=KEYS[i+1], t=sm(sg(f,f0,f1));
+  return [p0.clone().lerp(p1,t),l0.clone().lerp(l1,t)];
+}
+function frame(p){
+  const W=innerWidth,H=innerHeight; if(cv.width!==Math.round(W*R.getPixelRatio())) R.setSize(W,H,false);
+  const zi=sm(p/INTRO), f=Math.max(0,(p-INTRO)/(1-INTRO))*(NF-1);
+  pose(f);
+  const [cp,cl]=p<INTRO?(()=>{const t=zi;return [KEYS[0][1].clone().lerp(KEYS[1][1],t),KEYS[0][2].clone().lerp(KEYS[1][2],t)];})():camAt(f);
+  cam.aspect=W/H; cam.updateProjectionMatrix(); cam.position.copy(cp); cam.lookAt(cl);
+  R.render(scene,cam);
+  let ph=PHASES[0][1]; if(p>=INTRO) for(const [k,n] of PHASES) if(f>=k) ph=n;
+  document.getElementById('ph').textContent=ph;
+  document.getElementById('fr').textContent=p<INTRO?`인트로 ${Math.round(zi*100)}%`:`프레임 ${Math.round(f)} / ${NF-1}  (예전 사진 0~139와 같은 흐름)`;
+  document.getElementById('pb').style.width=(p*100).toFixed(1)+'%';
+}
+const track=document.getElementById('track');
+const progress=()=>Math.max(0,Math.min(1,scrollY/(track.offsetHeight-innerHeight)));
+let ticking=false; const req=()=>{ if(!ticking){ticking=true;requestAnimationFrame(()=>{ticking=false;frame(progress());});} };
+addEventListener('scroll',req,{passive:true}); addEventListener('resize',req); req();
+
+// 자동 재생: 끝까지 약 18초
+let anim=null;
+document.getElementById('play').onclick=()=>{ if(anim){cancelAnimationFrame(anim);anim=null;return;}
+  const y0=scrollY, Y=track.offsetHeight-innerHeight, T=18000*(1-y0/Y), t0=performance.now();
+  const step=now=>{ const k=Math.min(1,(now-t0)/T); scrollTo(0,y0+(Y-y0)*k); if(k<1) anim=requestAnimationFrame(step); else anim=null; };
+  anim=requestAnimationFrame(step); };
+document.getElementById('rew').onclick=()=>{ if(anim){cancelAnimationFrame(anim);anim=null;} scrollTo(0,0); };
+addEventListener('wheel',()=>{ if(anim){cancelAnimationFrame(anim);anim=null;} },{passive:true});
+window.__proto={frame,pose,setRS,A:{A_ABOVE,A_LIFT,A_PLACE,A_RISE,LX,deck,P0,T_CX0}};
+</script>
+</body>
+</html>
