@@ -43,7 +43,7 @@
 <script type="module">
 /* =========================================================
    리치스태커 → 트럭 3D 프로토타입
-   - 흐름은 메인 물류 장면(사진 140장)과 같음. 카메라는 원근 3/4 시점으로 장면을 따라감 (KEYS)
+   - 흐름·구도는 메인 물류 장면(사진 140장)과 같음. 정사영 대신 망원 원근이라 입체감·그림자가 보임
      트럭이 멈추는 자리·컨테이너 위치는 예전 웹 숫자 그대로 (TRUCK_CX, COFF)
    - 리치스태커 GLB의 조종 장치를 코드로 움직임
        RS_Boom_Pivot 회전 = 붐 각도 / RS_Telescope x = 붐 늘리기 / RS_Spreader_Root = 항상 수평
@@ -74,8 +74,8 @@ scene.add(sun); scene.add(sun.target); sun.target.position.set(4,0,0);
 scene.add(new THREE.HemisphereLight(0xffffff,0x8a8a86,0.35));
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(600,600),new THREE.MeshStandardMaterial({color:0xA9A8A3,roughness:.95}));
 ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
-const cam=new THREE.PerspectiveCamera(30,1,0.1,800);
-scene.fog=new THREE.Fog(0xE9E7E1,70,190);
+const cam=new THREE.PerspectiveCamera(18,1,0.1,1200);
+scene.fog=new THREE.Fog(0xE9E7E1,120,320);
 
 const prog={};
 const loadGLB=(url,key)=>new Promise((res,rej)=>new GLTFLoader().load(url,res,e=>{prog[key]=e.total?e.loaded/e.total:0;const v=(prog.rs??0)*.5+(prog.tr??0)*.5;document.getElementById('lp').textContent=Math.round(v*100)+'%';},rej));
@@ -181,30 +181,26 @@ function pose(f){
   cw.matrixWorldNeedsUpdate=true;
 }
 
-// ---------- 카메라 (원근, 3/4 시점으로 장면을 따라감) ----------
-// 키: [프레임, 카메라 위치, 바라보는 점]. 프레임 사이는 부드럽게 이어짐
+// ---------- 카메라: 메인 기존 장면과 같은 구도 ----------
+//  정측면(카메라가 앞에서 옆모습을 봄), 높이 5.49m에서 수평으로 → 지면이 화면 80.3% 높이에 옴 (예전 GROUND)
+//  가운데 평면(z=0)에서 화면 높이 18.125m(=예전 폭 29m @16:10), 카메라 x는 예전 LGCX 그대로 따라감
+//  예전 사진은 거의 평면(정사영)이라 납작했던 걸, 망원 원근으로 바꿔 위·옆면과 그림자가 보이게 함
+const SIDE_FOV=18, SIDE_D=(VIEW_H/2)/Math.tan(SIDE_FOV/2*D);
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 const DOOR=P0.clone().add(V(0,1.3,3.05));                // 흰 컨테이너 문(카메라 쪽 끝면) 가운데
-const KEYS=[
-  [-1, V(DOOR.x,DOOR.y,DOOR.z+4.3), V(DOOR.x,DOOR.y,0)],   // 인트로 시작: 문이 화면을 덮음
-  [0,  V(-3,6.5,24),  V(7,3.4,0)],                        // 리치스태커 + 컨테이너 더미, 앞 왼쪽 위에서
-  [38, V(-1,8.5,22),  V(8,4.2,0)],                        // 들어 올리는 동안 조금 다가감
-  [62, V(-13,8.5,34), V(2,3.2,3)],                       // 돌아서는 동안 왼쪽으로 크게 돌아 봄
-  [88, V(9,8.5,40),   V(2.5,2.8,4)],                      // 트럭이 들어와 멈춤 (앞에서 트럭 전체)
-  [106,V(8,6.5,32),   V(1.5,2.8,4.5)],                    // 내려놓는 순간 조금 다가감
-  [139,V(10,6.5,38),  V(2.8,2.4,5)],                      // 리치스태커 빠지고 트럭만
-  [171,V(30,6,36),    V(20,2,6)]                          // 트럭 출발을 따라감
-];
-function camAt(f){
-  let i=0; while(i<KEYS.length-2&&f>KEYS[i+1][0]) i++;
-  const [f0,p0,l0]=KEYS[i],[f1,p1,l1]=KEYS[i+1], t=sm(sg(f,f0,f1));
-  return [p0.clone().lerp(p1,t),l0.clone().lerp(l1,t)];
+function sideCam(f){
+  const fi=Math.min(139,Math.max(0,Math.round(f)));
+  let x=LGCX[fi]; if(f>140) x+= (truckX(f)-TRUCK_CX)*0.55;   // 트럭 출발은 살짝 따라감
+  return [V(x,CAM_Y,SIDE_D), V(x,CAM_Y,0)];
 }
 function frame(p){
   const W=innerWidth,H=innerHeight; if(cv.width!==Math.round(W*R.getPixelRatio())) R.setSize(W,H,false);
   const zi=sm(p/INTRO), f=Math.max(0,(p-INTRO)/(1-INTRO))*(NF-1);
   pose(f);
-  const [cp,cl]=p<INTRO?(()=>{const t=zi;return [KEYS[0][1].clone().lerp(KEYS[1][1],t),KEYS[0][2].clone().lerp(KEYS[1][2],t)];})():camAt(f);
+  // 인트로: 문이 화면을 덮을 만큼 가까이(같은 화각)에서 → 원래 자리로 물러남
+  const [sp,sl]=sideCam(f), near=V(DOOR.x,DOOR.y,DOOR.z+1.5/Math.tan(SIDE_FOV/2*D));
+  const cp=p<INTRO?near.clone().lerp(sp,zi):sp, cl=p<INTRO?V(DOOR.x,DOOR.y,0).lerp(sl,zi):sl;
+  cam.fov=SIDE_FOV;
   cam.aspect=W/H; cam.updateProjectionMatrix(); cam.position.copy(cp); cam.lookAt(cl);
   R.render(scene,cam);
   let ph=PHASES[0][1]; if(p>=INTRO) for(const [k,n] of PHASES) if(f>=k) ph=n;
