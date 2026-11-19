@@ -259,7 +259,7 @@
   .scene-pin{position:sticky;top:0;height:100vh;overflow:hidden}
   .scene-pin svg.stage{position:absolute;inset:0;width:100%;height:100%}
   /* ============ ④ 물류 여정 (레퍼런스 구성) ============ */
-  .logi{height:2570vh;color:#111}
+  .logi{height:2140vh;color:#111}   /* (예전 2570vh: 뒤에 서비스 장면 svpScene 포함) */
   .lg-pin{background:#F7F6F2}
   .lg-side,.lg-top,.lg-hand{position:absolute;inset:0;overflow:hidden}
   .lg-world{position:absolute;left:50%;top:0;width:max(100vw,160vh);aspect-ratio:1.6;transform-origin:50% 74.8%;will-change:transform}
@@ -704,7 +704,6 @@
 <body class="v4">
 <div style="position:fixed;left:12px;bottom:12px;z-index:9999;font:500 11px/1.5 system-ui,sans-serif;background:rgba(0,0,0,.75);color:#fff;padding:6px 10px;border-radius:6px;pointer-events:none">이젠 3조 · DHL 웹 리뉴얼 포트폴리오 시안 (비공식 학습용 데모 · 실제 DHL 서비스 아님)<br>아래로 한 번 스크롤하면 자동 재생 · 위로 스크롤하면 멈춤</div>
 
-
 <div id="loading" aria-label="DHL Express 로딩 화면">
   <div class="ld">
     <img class="ld-logo" src="data:image/png;base64,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" alt="DHL">
@@ -861,7 +860,7 @@
 </section>
 
 <!-- ⑦ 함께 일할래요? → 미니게임 -->
-<section class="scene crew" id="crewScene" data-theme="light" aria-label="함께 잇는 사람들">
+<section class="scene crew" id="crewScene" data-theme="light" aria-label="함께 잇는 사람들" style="display:none">   <!-- 숨김: 미니게임 섹션 (되살리려면 style 삭제) -->
   <div class="scene-pin crew-pin" id="crewPin">
     <svg class="crew-ribbon" id="crewRibbon" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true"><path d="M1700 140 C 1520 120 1380 170 1300 260 C 1220 350 1240 470 1330 520 C 1440 580 1560 520 1700 600" fill="none" stroke="#FFCC00" stroke-width="44" stroke-linecap="round"/></svg>
     <h2 class="crew-h" id="crewH">사람을 잇는 사람들</h2>
@@ -1381,16 +1380,17 @@ const lgTW=$('lgTW'),road=$('lgRoadPath'),RLEN=road.getTotalLength(),truckTop=$(
 const SHORE=2350; // 도로 끝 = 바다 시작 (월드 y)
 
 const cgs=[...document.querySelectorAll('.lg-cg')];
-const lgWhite=document.createElement('div');lgWhite.className='lg-white';lgWhite.style.opacity=0;lgWhite.innerHTML='<div class="svp-line" data-i="w"><p class="k">01 · TIME DEFINITE EXPRESS</p><h3>원하는 시간에 맞춰,<br><b>정시 국제특송</b></h3><p class="d">익스프레스 9:00·12:00부터 월드와이드까지 도착 시간을 고르면<br>220여 개 국가·지역으로 문에서 문까지 배송해요.</p></div>';$('lgTop').appendChild(lgWhite);
+const lgWhite=document.createElement('div');lgWhite.className='lg-white';lgWhite.style.opacity=0;lgWhite.dataset.text='<div class="svp-line" data-i="w"><p class="k">01 · TIME DEFINITE EXPRESS</p><h3>원하는 시간에 맞춰,<br><b>정시 국제특송</b></h3><p class="d">익스프레스 9:00·12:00부터 월드와이드까지 도착 시간을 고르면<br>220여 개 국가·지역으로 문에서 문까지 배송해요.</p></div>';$('lgTop').appendChild(lgWhite);
 const lgPlane=$('lgPlane'),HP={c:[-2,442,773],b:[481,137,638],r:[827,442,775]};
 const sv=(s,a,b)=>clamp((s-a)/(b-a));
 const LG_GROUND_Y=.66;
+const LG_END=18.2;   // 물류 장면 끝(장면 진행 s). 예전 22.5 = 비행기 뒤 서비스 장면(svpScene)까지. 되살리려면 22.5 + .logi 높이 2570vh
 const LG_LIFT=[12.6,13.3];   // 배에 실린 뒤 앞 장면이 위로 올라가는 구간(장면 진행 s). 길게 잡을수록 천천히
 const SVC_START=4.75, SVC_GAP=.16;   // 서비스 항목 등장 시작 시점(장면 진행 s)과 항목 사이 간격   // 트럭 서비스 장면에서 지면(검은 바닥 시작) 위치: 화면 높이의 66%
 function logi(){
   const r=LG.getBoundingClientRect(),W=innerWidth,H=innerHeight;
   if(r.bottom<0||r.top>H)return;
-  const sR=clamp(-r.top/(r.height-H))*(22.5+LGZ); // LGZ: 앞쪽 '컨테이너 문 → 뒤로 빠지는' 구간
+  const sR=clamp(-r.top/(r.height-H))*(LG_END+LGZ); // LGZ: 앞쪽 '컨테이너 문 → 뒤로 빠지는' 구간
   const s=Math.max(0,sR-LGZ); // 장면 진행 (화면 높이 단위)
   const zt=clamp((sR-.3)/(LGZ-.3)),zE=zt<.5?4*zt*zt*zt:1-Math.pow(-2*zt+2,3)/2;   // 0: 문이 화면을 덮음(암전이 걷히는 동안 그대로) → 1: 원래 구도
   /* ---------- A. 옆에서: 리치스태커 → 트럭 ---------- */
@@ -1501,7 +1501,7 @@ function logi(){
     const psc=pw/1591,Xc=px+840*psc,Yc=H/2-ph*.46+735*psc,SL=.365;lgWhite.style.opacity=pt>0?1:0;lgWhite.style.clipPath=pt>=1?'none':`polygon(-10px 0,${(Xc-Yc*SL).toFixed(1)}px 0,${Xc.toFixed(1)}px ${Yc.toFixed(1)}px,${(Xc-(H-Yc)*SL).toFixed(1)}px ${H}px,-10px ${H}px)`;
     LG.dataset.theme=s>10.9&&pt<.55?'dark':'light';
   }else LG.dataset.theme='light';
-  const sOn=s>=18.1;SVP.style.visibility=sOn?'visible':'hidden';if(sOn)svp(s-18.1,W,H);
+  const sOn=false;SVP.style.visibility='hidden';   // 서비스 장면 숨김 (되살리려면 sOn=s>=18.1 + svp(s-18.1,W,H))
 }
 addEventListener('resize',()=>{lgLast=-1;logi()});
 
@@ -1656,7 +1656,7 @@ onScroll();
     const r=wrap.getBoundingClientRect(),H=innerHeight,p=Math.min(1,Math.max(0,-r.top/(r.height-H)));
     try{fr.contentWindow.bxRender&&fr.contentWindow.bxRender(p);}catch(e){}
      fr.parentNode.style.visibility=p>=0.9995?'hidden':'visible'; // 암전 끝나면 아래 컨테이너 장면(같은 검정)으로 넘김
-    const q=lg.getBoundingClientRect(),s=Math.min(1,Math.max(0,-q.top/(q.height-H)))*(22.5+2.2);
+    const q=lg.getBoundingClientRect(),s=Math.min(1,Math.max(0,-q.top/(q.height-H)))*(LG_END+2.2);
     fade.style.opacity=q.top>0?1:Math.max(0,Math.min(1,1-(s-0.04)/0.36));
   }
   addEventListener('scroll',sync,{passive:true});addEventListener('resize',sync);
@@ -1668,7 +1668,7 @@ onScroll();
    AP_KEYS: [물류 장면 진행(s, 화면 높이 단위), 그 구간 재생 시간(ms)] — 숫자만 바꾸면 구간별 빠르기 조절 */
 (function(){
   if(/[?&]noap/.test(location.search))return;   // 테스트용: 자동 재생 끄기
-  const lg=document.getElementById('logiScene'),LGZ_=2.2,LGS=22.5;
+  const lg=document.getElementById('logiScene'),LGZ_=2.2,LGS=LG_END;
   const AP_BOX=21000;           // 택배 히어로 → 컨테이너 문 줌아웃 끝(리치스태커 첫 구도)
   const AP_KEYS=[[3.6,7000],    // 리치스태커가 컨테이너를 들어 트럭에 올림
                  [4.4,1800],    // 카메라가 멀어짐
