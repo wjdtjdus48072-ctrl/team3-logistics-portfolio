@@ -520,9 +520,9 @@ R.toneMapping=THREE.NeutralToneMapping;   // 색이 최대한 그대로 보이�
 R.shadowMap.enabled=true; R.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
 scene.environment=new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(),0.04).texture;
-scene.environmentIntensity=0.65;
+scene.environmentIntensity=0.38;   // 사방에서 고르게 비추는 빛은 줄이고(납작해 보임) 천장등으로 명암을 줌
 // 배경(해질녘 창고) 톤에 맞춘 조명: 천장 형광등처럼 위에서 차가운 흰빛 + 창 쪽 푸른 하늘빛 + 바닥에서 올라오는 약한 반사
-const key=new THREE.DirectionalLight(0xE6EEFF,1.25); key.position.set(-0.35,1,-0.45); scene.add(key); scene.add(key.target);
+const key=new THREE.DirectionalLight(0xE6EEFF,0.7); key.position.set(-0.35,1,-0.45); scene.add(key); scene.add(key.target);
 // 컨베이어·상자가 CSS 바닥에 그림자를 떨어뜨림 (바닥 높이에 그림자만 그리는 투명 면)
 key.castShadow=true; key.shadow.mapSize.set(4096,4096); key.shadow.radius=4;
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.ShadowMaterial({color:0x05080c,opacity:0.5}));
@@ -530,7 +530,11 @@ ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
 // 멀리 있는 것은 배경 사진처럼 어둡고 푸르게 가라앉음
 scene.fog=new THREE.Fog(0x1A2430,1,2);
 const fill=new THREE.DirectionalLight(0x8FA6C8,0.45); fill.position.set(0.6,0.35,1); scene.add(fill);
-scene.add(new THREE.HemisphereLight(0x9DB2D0,0x3C3F44,0.35));
+scene.add(new THREE.HemisphereLight(0x9DB2D0,0x2A2D32,0.22));
+// 천장등: 배경 사진의 형광등처럼 위에서 아래로 내리비춤. 위치는 바닥 빛 웅덩이(LIGHT.pools)와 같은 자리
+const spots=(typeof LIGHT!=="undefined"?LIGHT.pools:[]).map(([x,z])=>{
+  const L=new THREE.SpotLight(0xF2F5FF,2.4,0,Math.PI*0.30,0.75,0); L.userData={x,z};
+  scene.add(L); scene.add(L.target); return L;});
 const cam=new THREE.PerspectiveCamera(40,1,1,1e6);
 const D2R=Math.PI/180;
 
@@ -599,6 +603,7 @@ window.BXGL_draw=()=>{
   key.target.position.set(-100*U,0,200*U); key.position.set((-100-700)*U,2000*U,(200-900)*U);
   key.shadow.bias=-0.0004; key.shadow.normalBias=0.5*U; sc2.updateProjectionMatrix();
   scene.fog.near=900*U; scene.fog.far=5200*U;
+  for(const L of spots){ L.position.set(L.userData.x*U,650*U,L.userData.z*U); L.target.position.set(L.userData.x*U,0,L.userData.z*U); }
   const seen=new Set();
   for(const b of st.boxes){
     let h=inst.get(b.i); if(!h){h=make(b.kind); inst.set(b.i,h);}
