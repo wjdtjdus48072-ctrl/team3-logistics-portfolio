@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DHL 박스 스토리</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Inter:wght@600;700;800&family=Big+Shoulders+Stencil+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <!-- 상자 3D 모델(GLB)을 그리는 three.js -->
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
@@ -26,7 +26,7 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 
 .story{height:100vh;position:relative}
 .stage{position:fixed;inset:0;overflow:hidden;background:#D9D7D1}
-.view{position:absolute;inset:0;overflow:hidden}
+.view{position:absolute;inset:0;overflow:hidden;background:#121A22}
 .scene{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
 .g{position:absolute;left:0;top:0;transform-style:preserve-3d}
 .f{position:absolute;left:0;top:0;backface-visibility:hidden}
@@ -42,12 +42,14 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 .label i{display:block;width:80%;height:22%;background:repeating-linear-gradient(90deg,#111 0 2px,transparent 2px 4px,#111 4px 5px,transparent 5px 8px)}
 .tape{position:absolute;left:0;right:0;top:44%;height:12%;background:rgba(255,204,0,.85)}
 
-.flat{color:#111}
-.flat .no{font-family:var(--mono);color:var(--g1);letter-spacing:.08em}
-.flat .no b{color:var(--r);font-weight:500}
-.flat h3{font-weight:700;letter-spacing:-.02em;line-height:1.05}
-.flat h3 em{font-style:normal;color:var(--g1)}
-.flat p{color:#333;line-height:1.55}
+/* 바닥 문구: 바닥에 흰 페인트 스텐실로 칠한 느낌 (노랑·빨강 안 씀 → 노란 상자가 제일 잘 보이게) */
+.flat{color:#ECECE8;filter:url(#paintWear)}
+.flat .no{font-family:var(--mono);color:#E2E3E0;letter-spacing:.08em;opacity:.85}
+.flat .no b{color:#E2E3E0;font-weight:500}
+.flat h3{font-family:'Big Shoulders Stencil Display','Pretendard',var(--sans);font-weight:700;letter-spacing:.04em;line-height:1.02;
+  color:#ECECE8;opacity:.8;mix-blend-mode:screen}
+.flat h3 em{font-style:normal;color:#ECECE8}
+.flat p{color:#E2E3E0;line-height:1.55;opacity:.92}
 
 /* 히어로 UI (상자 면 위의 실제 검색바) */
 /* ===== 히어로 (디자인 시안 Frame_87 / 배경 Frame_90) =====
@@ -101,6 +103,16 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- 바닥 페인트: 가장자리 살짝 번짐(displace) + 군데군데 닳음(구멍 난 알파) — 읽기 방해 안 될 만큼만 -->
+  <filter id="paintWear" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="fine"/>
+    <feDisplacementMap in="SourceGraphic" in2="fine" scale="1.6" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.035 0.06" numOctaves="3" seed="3" result="blot"/>
+    <feColorMatrix in="blot" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 2.15" result="wear"/>
+    <feComposite in="rough" in2="wear" operator="in"/>
+  </filter>
+</svg>
 <section class="story" id="story">
   <div class="stage" id="stage">
     <div class="view" id="view"><div class="scene" id="scene"></div></div>
@@ -125,7 +137,7 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
    자주 만질 값 (팀원용)
    PH    : 스크롤 진행도(0~1) 구간. 숫자만 바꾸면 장면 길이 조절
    ROUTE : 탑뷰 컨베이어 경로 (x, z). 단위 u (메인 상자 폭 60u)
-   Z_DIV : 4컷에서 갈색 상자들이 슈트로 빠지는 지점
+   SORT  : 4컷에서 갈색 상자들이 하나씩 옆 분기 컨베이어로 빠지는 지점
    ========================================================= */
 const PH = {
   heroOut:[0.00,0.03], zoomOut:[0.02,0.10], exit:[0.10,0.18], toTop:[0.19,0.26],
@@ -150,7 +162,12 @@ let sD0=0,sD1=0;
 function beltY(s){return s<=sD0?BELT_UP:s>=sD1?BELT_Y:lerp(BELT_UP,BELT_Y,(s-sD0)/(sD1-sD0));}
 const TOPCAM={x:-90,y:-800,z:-150};
 const GROUNDCAM={x:0,y:BELT_Y-24,z:1010};
-const Z_DIV=[520,640,760];
+// 4컷 분류: 갈색 상자가 SORT.z 지점에서 하나씩 옆 분기 컨베이어로 빠져나감 (좌우 번갈아)
+//  z: 분기 지점 / ang: 분기 각도(도, 클수록 옆으로) / turn: 꺾이는 데 걸리는 거리 / len: 분기 벨트 길이
+const SORT={z:600,ang:90,turn:80,len:520};
+// 분기 경로 (side=1 오른쪽, -1 왼쪽): 분기 지점에서 d만큼 간 위치와 진행 방향
+const BR=(()=>{const T=[{x:0,z:0,a:0}];let x=0,z=0;for(let d=2;d<=SORT.len+200;d+=2){const k=Math.min(1,d/SORT.turn),a=SORT.ang*Math.PI/180*k*k*(3-2*k);x+=Math.sin(a)*2;z+=Math.cos(a)*2;T.push({x,z,a});}return T;})();
+function branchAt(d,side){const t=BR[Math.max(0,Math.min(BR.length-1,Math.round(d/2)))];return {x:side*t.x,z:SORT.z+t.z,h:Math.atan2(-Math.cos(t.a),side*Math.sin(t.a))*180/Math.PI};}
 // 2컷 정면 뷰: 카메라가 상자 오른쪽으로 dx만큼, 거리 d, 높이 y (벨트 윗면 -30 바로 위)
 const FRONT={dx:80,d:190,y:BELT_UP-6};
 const COPY=[
@@ -165,7 +182,7 @@ const seg=(p,[a,b])=>clamp((p-a)/(b-a));
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const sine=t=>-(Math.cos(Math.PI*t)-1)/2;
 const lerp=(a,b,t)=>a+(b-a)*t;
-let U,P,W,H,mainBox,train=[],texts=[],dHero,dLead,path,Y={};
+let convTiles=[],U,P,W,H,mainBox,train=[],texts=[],dHero,dLead,path,Y={};
 const px=v=>(v*U)+'px';
 const T=(x,y,z)=>`translate3d(${px(x)},${px(y)},${px(z)})`;
 function el(parent,cls,style={}){const d=document.createElement('div');d.className=cls;Object.assign(d.style,style);parent.appendChild(d);return d;}
@@ -213,13 +230,12 @@ function shade(hex,k){return `color-mix(in srgb, ${hex} ${100-Math.abs(k)}%, ${k
 /* ---------- 바닥 콘크리트 텍스처 ----------
    원본 이미지 1장 = 탑뷰 화면(16:9) 크기만큼의 바닥. 탑뷰 중심에 원본이 오고,
    바깥은 상하좌우 뒤집은 타일로 이어져서 이음매가 안 보임 */
-const FLOOR={src:'img/floor_concrete_tile.webp',aspect:16/9};
+const FLOOR={src:'img/floor.webp',px:1500};   // 탑뷰 컨베이어 이미지(CONV) 기준 가로 1500px마다 한 장 반복
 function floorBg(x0,z0,size){
-  const D=-TOPCAM.y, wu=FLOOR.aspect*D/1.2, hu=D/1.2;      // 원본 1장이 덮는 바닥 크기(u)
-  const ox=TOPCAM.x-wu/2, oz=TOPCAM.z-hu/2;                  // 원본 왼쪽 위 모서리
-  return {backgroundColor:'#B7B7B5',backgroundImage:`url(${FLOOR.src})`,backgroundRepeat:'repeat',
-    backgroundSize:`${2*wu*U}px ${2*hu*U}px`,
-    backgroundPosition:`${-(x0-ox)*U}px ${-(z0-oz)*U}px`};
+  const cb=convBounds(), tu=FLOOR.px*(cb.x1-cb.x0)/CONV.pw;   // 바닥 이미지 한 장이 덮는 크기(u)
+  return {backgroundColor:'#6E6F70',backgroundImage:`url(${FLOOR.src})`,backgroundRepeat:'repeat',
+    backgroundSize:`${tu*U}px ${tu*U}px`,
+    backgroundPosition:`${-(x0-cb.x0)*U}px ${-(z0-cb.z0)*U}px`};
 }
 
 /* ---------- 탑뷰 컨베이어 이미지 범위 (월드 좌표) ----------
@@ -270,41 +286,21 @@ function build(){
   const S=$('scene'); S.innerHTML=''; train=[]; texts=[];
   path=buildPath();
 
-  // 바닥 (회색 콘크리트 + 안전선)
+  // 바닥 (회색 콘크리트 타일, img/floor.webp)
   for(let x=-1000;x<800;x+=400) for(let z=-800;z<1200;z+=400)
     plane(S,400,400,T(x+200,0,z+200)+' rotateX(90deg)','f',floorBg(x,z,400));
-  plane(S,6,1700,T(-420,-0.5,250)+' rotateX(90deg)','f',{background:'#E8C200'});
-  plane(S,6,1700,T(330,-0.5,250)+' rotateX(90deg)','f',{background:'#E8C200'});
-  // 안쪽 벽 + 메자닌 (2컷 배경)
-  plane(S,1800,420,T(-100,-210,-720),'f',{background:
-    `linear-gradient(180deg,#D7D5CF 0 34%,${YEL} 34% 36%,transparent 36% 44%,${YEL} 44% 46%,#8A6A45 46% 49%,#CFCCC5 49%)`});
-  plane(S,1800,8,T(-100,-215,-700)+' rotateX(90deg)','f',{background:YEL});
-  for(let x=-900;x<800;x+=70) plane(S,46,34,T(x,-180,-712),'f',{background:['#C49A6C','#B58A5E','#D1A877'][Math.abs((x/70)|0)%3]});
+  // 안쪽 벽: 창고 선반 사진 (img/bg_warehouse.webp, 사진 아래 바닥 부분은 잘라냄). 가로로 이어 붙임
+  { const BW=1800, BH=BW*628/1914;
+    // 한 장짜리 큰 면은 브라우저가 못 그려서 사진 한 장 크기씩 나눠서 깖 (가운데 + 좌우)
+    for(const k of [-1,0,1]) plane(S,BW+1,BH,T(-100+k*BW,-BH/2,-720),'f',{backgroundColor:'#121A22',
+      backgroundImage:'url(img/bg_warehouse.webp)',backgroundSize:'100% 100%'}); }
 
-  // 컨베이어 (경로 따라) — 위층 / 경사 / 아래층
+  // 컨베이어: 블렌더 모델(models/DHL_Conveyor_web.glb)을 아래 three.js에서 그림 (위층·경사·아래층·분기 전부)
+  //  경로를 바꾸면 블렌더에서 GLB를 다시 뽑아야 함 (README 참고)
   sD0=sAtZ(DECLINE.z0); sD1=sAtZ(DECLINE.z1);
-  const {pts,len}=path;
-  for(let i=1;i<pts.length;i++){
-    const a=pts[i-1],b=pts[i];
-    const rail=(Math.abs(a[0])<1&&a[1]>DECLINE.z1&&a[1]<DECLINE.z1+60);
-    const ya=beltY(len[i-1]), yb=beltY(len[i]);
-    const noTop=ya===BELT_UP&&yb===BELT_UP&&inConv((a[0]+b[0])/2,(a[1]+b[1])/2);
-    beltSeg(S,a,b,{rail,ya,yb,noTop});
-  }
-  // 위층 컨베이어 다리 (노란 기둥)
-  for(let sl=0; sl<sD1; sl+=70){
-    const q=at(sl), y=beltY(sl)+30; if(y>-12) continue;
-    const r=q.h*Math.PI/180, nx=Math.sin(r)*26, nz=Math.cos(r)*26;
-    [1,-1].forEach(sd=>{
-      plane(S,6,-y,T(q.x+nx*sd,y/2,q.z+nz*sd)+` rotateY(${q.h}deg)`,'f',{background:YEL});
-      plane(S,6,-y,T(q.x+nx*sd,y/2,q.z+nz*sd)+` rotateY(${q.h+90}deg)`,'f',{background:'#C99F00'});
-    });
-  }
   // 초록 포털 프레임 + 노란 캣워크 (레퍼런스)
   gantry(S,0,420,0,170);
   gantry(S,0,880,0,190);
-  // 분류 슈트 (4컷: 갈색 상자가 빠지는 곳)
-  [450,520,590,660,730,800].forEach((z,i)=>{chute(S,1,z);chute(S,-1,z+35);});
 
   // 바닥 문구 (탑뷰)
   COPY.forEach(c=>{
@@ -314,14 +310,16 @@ function build(){
     texts.push({el:t,at:c.at});
   });
 
-  // 탑뷰 컨베이어 렌더 이미지: 위층 벨트 높이에 바닥처럼 깖 (근거리 왜곡 방지용으로 타일로 나눔)
+  // 탑뷰 컨베이어 렌더 이미지(블렌더 Cam_Top): 위층 벨트 높이에 바닥처럼 깖 (근거리 왜곡 방지용으로 타일로 나눔)
+  //  탑뷰일 때만 보이고, 다른 시점에서는 같은 모양의 3D 모델(GLB)로 바뀜
+  convTiles=[];
   {
     const cb=convBounds(), nx=8, ny=4, tw=(cb.x1-cb.x0)/nx, th=(cb.z1-cb.z0)/ny;
     for(let ix=0;ix<nx;ix++) for(let iz=0;iz<ny;iz++)
-      plane(S,tw+0.4,th+0.4,T(cb.x0+tw*(ix+.5),BELT_UP-0.3,cb.z0+th*(iz+.5))+' rotateX(90deg)','f',{
+      convTiles.push(plane(S,tw+0.4,th+0.4,T(cb.x0+tw*(ix+.5),BELT_UP-0.3,cb.z0+th*(iz+.5))+' rotateX(90deg)','f',{
         backgroundImage:`url(${CONV.src})`,backgroundRepeat:'no-repeat',
         backgroundSize:`${(cb.x1-cb.x0)*U}px ${(cb.z1-cb.z0)*U}px`,
-        backgroundPosition:`${-(tw*ix-0.2)*U}px ${-(th*iz-0.2)*U}px`});
+        backgroundPosition:`${-(tw*ix-0.2)*U}px ${-(th*iz-0.2)*U}px`}));
   }
 
   // 상자 행렬: 노란 메인 상자 1개 + 갈색 상자 A~D (크기 섞어서). 그리는 건 GLB(아래 three.js)
@@ -332,7 +330,7 @@ function build(){
     if(Math.abs(o)<75) continue;
     if(rnd()<0.18) continue;
     const kind=kinds[Math.floor(rnd()*4)];
-    train.push({...KINDS[kind],kind,o,side:(k++%2?1:-1),zdiv:Z_DIV[k%3]+rnd()*30,jit:(rnd()-.5)*10,spin:(rnd()-.5)*24});
+    train.push({...KINDS[kind],kind,o,side:(k++%2?1:-1),spin:(rnd()-.5)*24});
   }
 
   dHero=Math.min(MAIN.w*P/W,MAIN.h*P/H)/1.02;
@@ -436,13 +434,12 @@ function render(){
     if(si<0||si>path.total) return;
     const q=at(si); let x=q.x, z=q.z, y=beltY(si), rz=0, rx=0, op=1;
     if(si>sD0&&si<sD1) rx=-Math.atan2(BELT_Y-BELT_UP,sD1-sD0)*180/Math.PI;
-    if(!b.main && Math.abs(q.x)<1 && z>b.zdiv){       // 슈트로 빠짐
-      const f=clamp((z-b.zdiv)/70), f2=clamp((z-b.zdiv-70)/220);
-      z=Math.min(z,b.zdiv+70)+b.jit;
-      x=b.side*(f*70+f2*100); y+=f*10+f2*16;
-      rz=b.side*(f*28+f2*6); op=1-f2;
+    let yaw=q.h+(b.main?0:(b.spin||0)*0.3);
+    if(!b.main && Math.abs(q.x)<1 && z>SORT.z){       // 분기 지점을 지나면 옆 컨베이어로 꺾여 나감 (떨어지지 않고 같은 높이로)
+      const d=z-SORT.z, r=branchAt(d,b.side);
+      x=r.x; z=r.z; yaw=r.h+(b.spin||0)*0.3; op=1-clamp((d-SORT.len+120)/120);
     }
-    poses.push({i:idx,kind:b.kind,x,y,z,yaw:q.h+(b.main?0:(b.spin||0)*0.3),rz,rx,op});
+    poses.push({i:idx,kind:b.kind,x,y,z,yaw,rz,rx,op});
     if(b.main) mb={x,z,h:q.h};
   });
 
@@ -454,7 +451,10 @@ function render(){
   if(tt>0){c={x:lerp(c.x,TOPCAM.x,tt),y:lerp(c.y,TOPCAM.y,tt),z:lerp(c.z,TOPCAM.z,tt)};pitch=lerp(0,-90,tt);}
   if(tg>0){c={x:lerp(c.x,GROUNDCAM.x,tg),y:lerp(c.y,GROUNDCAM.y,tg),z:lerp(c.z,GROUNDCAM.z,tg)};pitch=lerp(-90,0,tg);}
   $('scene').style.transform=`translateZ(${P}px) rotateX(${pitch}deg) translate3d(${-c.x*U}px,${-c.y*U}px,${-c.z*U}px)`;
-  BX_STATE={U,P,cam:{x:c.x,y:c.y,z:c.z,pitch},boxes:poses,show:true};
+  // 탑뷰에 거의 다 왔을 때만 렌더 이미지, 나머지는 3D 컨베이어
+  const topK=clamp((tt*(1-tg)-0.85)/0.15), convOp=1-topK;
+  convTiles.forEach(e=>e.style.opacity=topK);
+  BX_STATE={U,P,cam:{x:c.x,y:c.y,z:c.z,pitch},boxes:poses,show:true,convOp};
 
   const prog=(s-SB)/(sRE-SB);
   texts.forEach(t=>{t.el.style.opacity=clamp((prog-t.at+0.06)/0.08)*(1-tg)*tt;});
@@ -511,8 +511,11 @@ R.outputColorSpace=THREE.SRGBColorSpace;
 R.toneMapping=THREE.NeutralToneMapping;   // 색이 최대한 그대로 보이는 톤 매핑
 const scene=new THREE.Scene();
 scene.environment=new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(),0.04).texture;
-scene.environmentIntensity=0.9;
-const key=new THREE.DirectionalLight(0xffffff,1.3); key.position.set(-0.45,1,-0.55); scene.add(key);
+scene.environmentIntensity=0.65;
+// 배경(해질녘 창고) 톤에 맞춘 조명: 천장 형광등처럼 위에서 차가운 흰빛 + 창 쪽 푸른 하늘빛 + 바닥에서 올라오는 약한 반사
+const key=new THREE.DirectionalLight(0xE6EEFF,1.25); key.position.set(-0.35,1,-0.45); scene.add(key);
+const fill=new THREE.DirectionalLight(0x8FA6C8,0.45); fill.position.set(0.6,0.35,1); scene.add(fill);
+scene.add(new THREE.HemisphereLight(0x9DB2D0,0x3C3F44,0.35));
 const cam=new THREE.PerspectiveCamera(40,1,1,1e6);
 const D2R=Math.PI/180;
 
@@ -531,6 +534,20 @@ new GLTFLoader().load('models/DHL_Boxes_All.glb',gl=>{
   }
   window.BXGL_draw();
 },undefined,e=>console.error('[boxstory] GLB를 불러오지 못했어요. 로컬 서버(Live Server 등)로 열었는지 확인하세요.',e));
+
+// 컨베이어 (블렌더 DHL_conveyor_final.blend → 웹 경로에 맞춰 뽑은 GLB, 1m = 100u)
+let conv=null; const convMats=[];
+new GLTFLoader().load('models/DHL_Conveyor_web.glb',gl=>{
+  conv=gl.scene; conv.traverse(m=>{ if(m.isMesh){ convMats.push(m.material); m.material.userData.t0=m.material.transparent; } });
+  convMats.forEach(m=>{ if(m.map){ m.map.wrapS=m.map.wrapT=THREE.RepeatWrapping; m.map.anisotropy=8; m.map.needsUpdate=true; } });
+  scene.add(conv); window.BXGL_draw();
+},undefined,e=>console.error('[boxstory] 컨베이어 GLB를 불러오지 못했어요.',e));
+let convOp0=-1;
+function setConvOp(op){
+  if(Math.abs(op-convOp0)<0.002) return; convOp0=op;
+  conv.visible=op>0.01;
+  for(const m of convMats){ m.transparent=op<1||m.userData.t0; m.opacity=op; m.depthWrite=op>=1; m.needsUpdate=true; }
+}
 
 function make(kind){
   const holder=new THREE.Group(), o=tpl[kind].clone(true), mats=[];
@@ -559,6 +576,7 @@ window.BXGL_draw=()=>{
   cam.fov=2*Math.atan(H/2/st.P)/D2R; cam.aspect=W/H; cam.near=Math.max(0.5,U*0.5); cam.far=U*30000; cam.updateProjectionMatrix();
   cam.position.set(st.cam.x*U,-st.cam.y*U,st.cam.z*U);
   cam.rotation.set(st.cam.pitch*D2R,0,0);
+  if(conv){ conv.scale.setScalar(100*U); setConvOp(st.convOp??1); }
   const seen=new Set();
   for(const b of st.boxes){
     let h=inst.get(b.i); if(!h){h=make(b.kind); inst.set(b.i,h);}
