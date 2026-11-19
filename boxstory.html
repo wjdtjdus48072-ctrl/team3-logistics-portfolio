@@ -69,7 +69,11 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 .hero .demo-msg{position:absolute;left:0;right:0;top:73.5%;text-align:center;font-size:.8vw;color:#8a0000;min-height:1em}
 .hero .scroll{position:absolute;left:0;right:0;top:89.6%;display:flex;flex-direction:column;align-items:center;gap:.55vw;color:var(--r);
   font:800 1.12vw/1 'Inter','Pretendard',sans-serif;letter-spacing:.01em}
-.hero .scroll svg{width:.75vw;height:.75vw}
+.hero .scroll svg{width:.75vw;height:.75vw;animation:heroNudge 1.6s ease-in-out infinite}
+/* 스크롤 전: SCROLL 아래 화살표가 살짝 아래로 까딱 (스크롤 시작하면 멈춤) */
+@keyframes heroNudge{0%,100%{transform:translateY(0)}50%{transform:translateY(.45vw)}}
+.hero.moved .scroll svg{animation:none}
+@media (prefers-reduced-motion:reduce){.hero .scroll svg{animation:none}}
 /* 상자(GLB)를 그리는 캔버스: CSS 3D 장면 위에 같은 카메라로 겹침 */
 .boxgl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
@@ -140,7 +144,7 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
    SORT  : 4컷에서 갈색 상자들이 하나씩 옆 분기 컨베이어로 빠지는 지점
    ========================================================= */
 const PH = {
-  heroOut:[0.00,0.03], zoomOut:[0.02,0.10], exit:[0.10,0.18], toTop:[0.19,0.26],
+  heroOut:[0.00,0.03], trackOut:[0.00,0.06], zoomOut:[0.02,0.10], exit:[0.10,0.18], toTop:[0.19,0.26],
   route:[0.18,0.45], toGround:[0.45,0.53], approach:[0.45,0.625], black:[0.625,0.645],
   doorIn:[0.655,0.69], reveal:[0.695,0.77],
   lift:[0.78,0.82], truckIn:[0.82,0.87], lower:[0.87,0.91], release:[0.91,0.93], truckOut:[0.94,1.00]
@@ -427,7 +431,14 @@ addEventListener('resize',build);
 function render(){
   const p=clamp(BXP)*0.645;
   const ho=seg(p,PH.heroOut);
-  $('heroUI').style.opacity=1-ho; $('heroUI').style.pointerEvents=ho>.5?'none':'auto';
+  // 히어로: 로고·문구·SCROLL은 바로 사라지고, 운송장 입력란은 한 번 위로 떴다가 아래로 내려가며 사라짐
+  const hu=$('heroUI'), tk=seg(p,PH.trackOut);
+  hu.classList.toggle('moved',BXP>0.0005);
+  for(const el of hu.children) if(el.id!=='trackForm') el.style.opacity=1-ho;
+  { const up=ease(clamp(tk/0.35)), dn=ease(clamp((tk-0.35)/0.65));
+    const y=-1.4*up*(1-dn)+4.2*dn;                                   // vw: 위로 1.4 → 아래로 4.2
+    const tf=$('trackForm'); tf.style.transform=`translateX(-50%) translateY(${y}vw)`; tf.style.opacity=1-dn; }
+  hu.style.pointerEvents=ho>.5?'none':'auto';
 
   // 메인 상자의 경로 위치 s
   const sExit=sAtX(-640+FRONT.dx+FRONT.d*(W/2)/P+45), sRE=sAtZ(200), sEnd=sAtZ(GROUNDCAM.z-MAIN.w/2-dLead*0.15);
