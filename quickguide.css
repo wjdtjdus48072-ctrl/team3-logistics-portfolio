@@ -1,0 +1,41 @@
+/* ===== DHL 퀵가이드 (겹친 카드, 마우스 올리면 펼쳐짐) =====
+   모든 클래스는 qgv- 로 시작해서 기존 index.html 스타일과 안 겹침. */
+.qgv{font-family:'Noto Sans KR',Pretendard,system-ui,sans-serif;line-height:1.5}
+.qgv *,.qgv *::before,.qgv *::after{box-sizing:border-box}
+.qgv h2,.qgv h3,.qgv p,.qgv ul{margin:0}
+.qgv a{color:#141414}
+.qgv a:hover{color:#D40511}
+
+/* 카드 묶음: 평소엔 부채꼴로 겹쳐 있음 */
+.qgv-deck{display:flex;justify-content:center;align-items:flex-end;padding:56px 0 24px}
+.qgv-card{width:228px;height:392px;flex:none;margin-left:-64px;border-radius:22px;padding:20px 20px 18px;
+  display:flex;flex-direction:column;gap:10px;text-decoration:none;color:#141414;position:relative;transform-origin:50% 100%;
+  box-shadow:0 18px 40px rgba(20,20,20,.14),0 2px 6px rgba(20,20,20,.08);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),margin .5s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease}
+.qgv-card:first-child{margin-left:0}
+.qgv-card.qgv-c1{transform:rotate(-7deg) translateY(22px);z-index:1}
+.qgv-card.qgv-c2{transform:rotate(-3.5deg) translateY(7px);z-index:2}
+.qgv-card.qgv-c3{transform:rotate(0deg);z-index:3}
+.qgv-card.qgv-c4{transform:rotate(3.5deg) translateY(7px);z-index:4}
+.qgv-card.qgv-c5{transform:rotate(7deg) translateY(22px);z-index:5}
+
+/* 묶음에 마우스 → 카드가 똑바로 서며 펼쳐짐 */
+.qgv-deck:hover .qgv-card{margin-left:10px;transform:rotate(0deg) translateY(0)}
+.qgv-deck:hover .qgv-card:first-child{margin-left:0}
+/* 마우스 올린 카드 → 떠오름 + 세부 항목 열림 */
+.qgv-deck .qgv-card:hover,.qgv-deck .qgv-card:focus-visible{transform:translateY(-26px) scale(1.04);z-index:10;
+  box-shadow:0 30px 60px rgba(20,20,20,.22),0 4px 10px rgba(20,20,20,.1)}
+.qgv-card:hover{color:#141414}
+.qgv-card.qgv-c5:hover{color:#fff}
+.qgv-more{list-style:none;padding:0;max-height:0;opacity:0;overflow:hidden;transition:max-height .45s ease,opacity .3s ease}
+.qgv-deck .qgv-card:hover .qgv-more,.qgv-deck .qgv-card:focus-visible .qgv-more{max-height:110px;opacity:1}
+.qgv-go{transition:transform .3s ease}
+.qgv-card:hover .qgv-go{transform:translateX(4px)}
+
+@media (max-width:760px){
+  .qgv-deck{flex-wrap:wrap;gap:16px;padding-top:24px}
+  .qgv-card,.qgv-deck:hover .qgv-card{margin-left:0;transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .qgv-card,.qgv-more,.qgv-go{transition:none}
+}
