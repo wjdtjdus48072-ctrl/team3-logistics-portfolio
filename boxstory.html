@@ -54,7 +54,8 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 /* 히어로 UI (상자 면 위의 실제 검색바) */
 /* ===== 히어로 (디자인 시안 Frame_87 / 배경 Frame_90) =====
    위치는 화면 높이 %, 크기는 vw(16:9 기준). 시안 3840×2160에서 잰 값 */
-.hero{position:absolute;inset:0;z-index:10;background:#FFC84B url(img/hero/hero_bg.webp) center/cover no-repeat;will-change:opacity;
+.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:#FFC84B url(img/hero/hero_bg.webp) center/cover no-repeat;opacity:var(--bgo,1)}
+.hero{position:absolute;inset:0;z-index:10;will-change:opacity;
   font-family:'Pretendard','Inter',var(--sans)}
 .hero .hlogo{position:absolute;left:50%;top:39.3%;width:40vw;transform:translate(-50%,-50%);user-select:none;pointer-events:none}
 .hero .slogan{position:absolute;left:0;right:0;top:50.75%;transform:translateY(-50%);text-align:center;color:var(--r);
@@ -438,6 +439,7 @@ function render(){
   { const up=ease(clamp(tk/0.35)), dn=ease(clamp((tk-0.35)/0.65));
     const y=-1.4*up*(1-dn)+4.2*dn;                                   // vw: 위로 1.4 → 아래로 4.2
     const tf=$('trackForm'); tf.style.transform=`translateX(-50%) translateY(${y}vw)`; tf.style.opacity=1-dn; }
+  hu.style.setProperty('--bgo',1-ho);   // 히어로 배경(골판지)도 같이 사라짐
   hu.style.pointerEvents=ho>.5?'none':'auto';
 
   // 메인 상자의 경로 위치 s
