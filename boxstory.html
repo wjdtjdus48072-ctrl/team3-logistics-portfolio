@@ -43,11 +43,11 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 .tape{position:absolute;left:0;right:0;top:44%;height:12%;background:rgba(255,204,0,.85)}
 
 /* 바닥 문구: 바닥에 흰 페인트 스텐실로 칠한 느낌 (노랑·빨강 안 씀 → 노란 상자가 제일 잘 보이게) */
-.flat{color:#ECECE8;filter:url(#paintWear)}
+.flat{color:#ECECE8}
 .flat .no{font-family:var(--mono);color:#E2E3E0;letter-spacing:.08em;opacity:.85}
 .flat .no b{color:#E2E3E0;font-weight:500}
 .flat h3{font-family:'Big Shoulders Stencil Display','Pretendard',var(--sans);font-weight:700;letter-spacing:.04em;line-height:1.02;
-  color:#ECECE8;opacity:.8;mix-blend-mode:screen}
+  color:#ECECE8;opacity:.8;mix-blend-mode:screen;filter:url(#paintWear)}   /* 벗겨진 페인트 효과는 영문 타이틀에만 */
 .flat h3 em{font-style:normal;color:#ECECE8}
 .flat p{color:#E2E3E0;line-height:1.55;opacity:.92}
 
@@ -171,8 +171,8 @@ function branchAt(d,side){const t=BR[Math.max(0,Math.min(BR.length-1,Math.round(
 // 2컷 정면 뷰: 카메라가 상자 오른쪽으로 dx만큼, 거리 d, 높이 y (벨트 윗면 -30 바로 위)
 const FRONT={dx:80,d:190,y:BELT_UP-6};
 const COPY=[
-  {x:-530,z:-150,at:0.30,no:'01',tag:'OUR STORY',t:'SINCE 1969',p:'왜 배가 도착할 때까지 서류작업을 기다려야 할까요?<br>서류 한 통을 먼저 띄운 것이 그 질문의 답이었습니다.'},
-  {x:-480,z:70,at:0.60,no:'02',tag:'NETWORK',t:'220+ COUNTRIES',p:'그 답은 길이 되었고, 오늘은 당신의 상자가 그 위를 지나갑니다.<br>220여 개 국가와 지역, 어디로 향하든.'}
+  {x:-556,z:-96,w:355,h:222,at:0.30,no:'01',tag:'OUR STORY',t:'SINCE 1969',p:'왜 배가 도착할 때까지 서류작업을 기다려야 할까요?<br>서류 한 통을 먼저 띄운 것이 그 질문의 답이었습니다.'},
+  {x:276,z:70,w:348,h:187,at:0.60,no:'02',tag:'NETWORK',t:'220+ COUNTRIES',p:'그 답은 길이 되었고, 오늘은 당신의 상자가 그 위를 지나갑니다.<br>220여 개 국가와 지역, 어디로 향하든.'}
 ];
 
 const $=id=>document.getElementById(id);
@@ -312,9 +312,12 @@ function build(){
 
   // 바닥 문구 (탑뷰)
   COPY.forEach(c=>{
-    const t=plane(S,230,95,T(c.x,-0.8,c.z)+' rotateX(90deg)','f flat');
-    t.innerHTML=`<div class="no" style="font-size:${px(5.2)};margin-bottom:${px(5)}"><b>${c.no}</b> / ${c.tag}</div>
-      <h3 style="font-size:${px(19)}">${c.t}</h3><p style="font-size:${px(7.4)};margin-top:${px(7)};white-space:nowrap">${c.p}</p>`;
+    // c.x,c.z = 문구 영역 가운데, c.w×c.h = 영역 크기(u). 글은 영역 안에서 세로 가운데
+    // 화면이 좁으면(16:9 등) 탑뷰에서 잘리지 않게 화면 안쪽으로 당김
+    const half=(W/2)/(1.2*H/(0-TOPCAM.y)), cx=clamp(c.x,TOPCAM.x-half+c.w/2+16,TOPCAM.x+half-c.w/2-16);
+    const t=plane(S,c.w,c.h,T(cx,-0.8,c.z)+' rotateX(90deg)','f flat',{display:'flex',flexDirection:'column',justifyContent:'center',padding:`0 ${px(8)}`,boxSizing:'border-box'});
+    t.innerHTML=`<div class="no" style="font-size:${px(6)};margin-bottom:${px(6)}"><b>${c.no}</b> / ${c.tag}</div>
+      <h3 style="font-size:${px(34)};white-space:nowrap">${c.t}</h3><p style="font-size:${px(9.6)};margin-top:${px(10)};white-space:nowrap">${c.p}</p>`;
     texts.push({el:t,at:c.at});
   });
 
@@ -460,7 +463,7 @@ function render(){
   if(tg>0){c={x:lerp(c.x,GROUNDCAM.x,tg),y:lerp(c.y,GROUNDCAM.y,tg),z:lerp(c.z,GROUNDCAM.z,tg)};pitch=lerp(-90,0,tg);}
   $('scene').style.transform=`translateZ(${P}px) rotateX(${pitch}deg) translate3d(${-c.x*U}px,${-c.y*U}px,${-c.z*U}px)`;
   // 탑뷰에 거의 다 왔을 때만 렌더 이미지, 나머지는 3D 컨베이어
-  const topK=clamp((tt*(1-tg)-0.85)/0.15), convOp=1-topK;
+  const topK=clamp((tt*(1-tg)-0.85)/0.15), convOp=topK>=0.999?0:1;   // 3D 컨베이어는 반투명으로 섞지 않음 (겹쳐 보이는 오류 방지)
   convTiles.forEach(e=>e.style.opacity=topK);
   BX_STATE={U,P,cam:{x:c.x,y:c.y,z:c.z,pitch},boxes:poses,show:true,convOp};
 
