@@ -307,8 +307,7 @@ function build(){
   //  경로를 바꾸면 블렌더에서 GLB를 다시 뽑아야 함 (README 참고)
   sD0=sAtZ(DECLINE.z0); sD1=sAtZ(DECLINE.z1);
   // 초록 포털 프레임 + 노란 캣워크 (레퍼런스)
-  gantry(S,0,420,0,170);
-  gantry(S,0,880,0,190);
+  // (예전 노란 임시 문틀 2개 gantry(S,0,420,…), gantry(S,0,880,…)는 철골 GLB로 교체 → 아래 three.js의 STEEL)
 
   // 바닥 문구 (탑뷰)
   COPY.forEach(c=>{
@@ -565,6 +564,20 @@ new GLTFLoader().load('models/DHL_Conveyor_web.glb',gl=>{
   convMats.forEach(m=>{ if(m.map){ m.map.wrapS=m.map.wrapT=THREE.RepeatWrapping; m.map.anisotropy=8; m.map.needsUpdate=true; } });
   scene.add(conv); window.BXGL_draw();
 },undefined,e=>console.error('[boxstory] 컨베이어 GLB를 불러오지 못했어요.',e));
+// 철골 구조물 (DHL_SteelStructures_Baked.py로 만든 GLB, 실제 m 단위 → 1m = 100u, 루트 스케일 1)
+//  at: 루트 바닥 원점의 웹 좌표 (x, z) / ry: 세로축 회전(도)
+//  - 캣워크: 예전 경사 벨트 위 문틀(z=420, 기둥 x=±85)의 두 기둥 바닥 중간. 벨트(+z 진행)를 직각으로 가로지르고 계단은 왼쪽(-x)
+//  - 기둥: 예전 오른쪽 굵은 기둥(z=880 문틀의 오른쪽 기둥 x=+95) 바닥 중심
+const STEEL=[{src:'models/Catwalk_Baked.glb',at:[0,420],ry:0},{src:'models/Column_Baked.glb',at:[95,880],ry:0}];
+const steel=[];
+STEEL.forEach(d=>new GLTFLoader().load(d.src,gl=>{
+  const g=gl.scene; g.traverse(m=>{ if(m.isMesh){ m.castShadow=true; m.receiveShadow=true; } });
+  g.userData=d; scene.add(g); steel.push(g); window.BXGL_draw();
+},undefined,e=>console.error('[boxstory] 철골 GLB를 불러오지 못했어요.',d.src,e)));
+function setGroupOp(g,op){
+  if(Math.abs((g.userData.op??-1)-op)<0.002) return; g.userData.op=op; g.visible=op>0.01;
+  g.traverse(m=>{ if(m.isMesh){ m.material.transparent=op<1; m.material.opacity=op; m.material.depthWrite=op>=1; m.castShadow=op>=1; } });
+}
 let convOp0=-1;
 function setConvOp(op){
   if(Math.abs(op-convOp0)<0.002) return; convOp0=op;
@@ -600,6 +613,11 @@ window.BXGL_draw=()=>{
   cam.position.set(st.cam.x*U,-st.cam.y*U,st.cam.z*U);
   cam.rotation.set(st.cam.pitch*D2R,0,0);
   if(conv){ conv.scale.setScalar(100*U); setConvOp(st.convOp??1); }
+  for(const g of steel){ g.scale.setScalar(100*U); g.position.set(g.userData.at[0]*U,0,g.userData.at[1]*U); g.rotation.set(0,g.userData.ry*D2R,0);
+    // 탑뷰에서 내려오는 카메라가 캣워크 발판을 뚫고 지나가는 구간에서는 숨겼다가, 지나간 뒤 서서히 나타남
+    let op=(st.convOp??1)>0.01?1:0;
+    if(g.userData.src.includes('Catwalk')) op*=Math.min(1,Math.max(0,(st.cam.z-g.userData.at[1]-140)/200));
+    setGroupOp(g,op); }
   // 그림자 범위: 바닥 전체 (x -1000~800, z -800~1200)
   ground.scale.set(1800*U,2000*U,1); ground.position.set(-100*U,0,200*U); ground.visible=(st.convOp??1)>0.01;
   const sc2=key.shadow.camera; sc2.left=-1150*U; sc2.right=1150*U; sc2.top=1150*U; sc2.bottom=-1150*U; sc2.near=1; sc2.far=6000*U;
