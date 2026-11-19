@@ -171,9 +171,8 @@ function branchAt(d,side){const t=BR[Math.max(0,Math.min(BR.length-1,Math.round(
 // 2컷 정면 뷰: 카메라가 상자 오른쪽으로 dx만큼, 거리 d, 높이 y (벨트 윗면 -30 바로 위)
 const FRONT={dx:80,d:190,y:BELT_UP-6};
 const COPY=[
-  {x:-530,z:-150,at:0.30,no:'01',tag:'SINCE 1969',t:'1969년,<br><em>첫 국제 특송.</em>',p:'샌프란시스코에서 호놀룰루로 서류를 직접 들고 날아간 것이 시작이었습니다. (임시 카피)'},
-  {x:-480,z:70,at:0.60,no:'02',tag:'220+ COUNTRIES',t:'220개 이상의<br><em>국가와 지역.</em>',p:'전 세계를 잇는 네트워크가 오늘도 하나의 화물을 다음 목적지로 보냅니다. (임시 카피)'},
-  {x:200,z:90,at:0.85,no:'03',tag:'OUR PURPOSE',t:'Connecting people.<br><em>Improving lives.</em>',p:'사람과 사람을 잇고, 삶을 더 낫게. DHL이 일하는 이유입니다.'}
+  {x:-530,z:-150,at:0.30,no:'01',tag:'OUR STORY',t:'SINCE 1969',p:'왜 배가 도착할 때까지 서류작업을 기다려야 할까요?<br>서류 한 통을 먼저 띄운 것이 그 질문의 답이었습니다.'},
+  {x:-480,z:70,at:0.60,no:'02',tag:'NETWORK',t:'220+ COUNTRIES',p:'그 답은 길이 되었고, 오늘은 당신의 상자가 그 위를 지나갑니다.<br>220여 개 국가와 지역, 어디로 향하든.'}
 ];
 
 const $=id=>document.getElementById(id);
@@ -306,7 +305,7 @@ function build(){
   COPY.forEach(c=>{
     const t=plane(S,230,95,T(c.x,-0.8,c.z)+' rotateX(90deg)','f flat');
     t.innerHTML=`<div class="no" style="font-size:${px(5.2)};margin-bottom:${px(5)}"><b>${c.no}</b> / ${c.tag}</div>
-      <h3 style="font-size:${px(19)}">${c.t}</h3><p style="font-size:${px(6.2)};margin-top:${px(7)}">${c.p}</p>`;
+      <h3 style="font-size:${px(19)}">${c.t}</h3><p style="font-size:${px(7.4)};margin-top:${px(7)};white-space:nowrap">${c.p}</p>`;
     texts.push({el:t,at:c.at});
   });
 
