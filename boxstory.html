@@ -559,7 +559,8 @@ new GLTFLoader().load('models/DHL_Boxes_All.glb',gl=>{
 // 컨베이어 (블렌더 DHL_conveyor_final.blend → 웹 경로에 맞춰 뽑은 GLB, 1m = 100u)
 let conv=null; const convMats=[];
 new GLTFLoader().load('models/DHL_Conveyor_web.glb',gl=>{
-  conv=gl.scene; conv.traverse(m=>{ if(m.isMesh&&/Cabinet/.test(m.material.name)) m.material.color.multiplyScalar(0.55); });   // 흰 제어함이 튀지 않게
+  conv=gl.scene;
+  { const cb=conv.getObjectByName('Conveyor_ControlBox'); if(cb) cb.parent.remove(cb); }   // 흰 제어함(블렌더 원본에 있던 부품)은 안 씀
   conv.traverse(m=>{ if(m.isMesh){ m.castShadow=true; m.receiveShadow=true; convMats.push(m.material); m.material.userData.t0=m.material.transparent; } });
   convMats.forEach(m=>{ if(m.map){ m.map.wrapS=m.map.wrapT=THREE.RepeatWrapping; m.map.anisotropy=8; m.map.needsUpdate=true; } });
   scene.add(conv); window.BXGL_draw();
