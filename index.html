@@ -1675,7 +1675,7 @@ onScroll();
                  [8.0,6500],    // 트럭이 달리며 서비스 카드
                  [8.8,2000],    // 옆 → 위 시점
                  [11.6,4500]];  // 위에서 본 도로 → 배 빈칸에 컨테이너 (여기서 멈춤, 배부터는 스크롤)
-  const AP_IDLE=2200;           // 첫 화면에서 가만히 있으면 자동 시작(ms), 0이면 끔
+  const AP_IDLE=0;              // 첫 화면에서 가만히 있으면 자동 시작(ms), 0이면 끔 → 0: 히어로에서 스크롤해야 시작
   const yS=s=>{const t=lg.getBoundingClientRect().top+scrollY,h=lg.offsetHeight-innerHeight;return t+h*(s+LGZ_)/(LGS+LGZ_);};
   // 시간표: [scrollY, 누적 시간]
   const plan=()=>{const P=[[0,0],[yS(0),AP_BOX]];let T=AP_BOX;for(const [s,ms] of AP_KEYS){T+=ms;P.push([yS(s),T]);}return P;};
