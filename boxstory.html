@@ -57,7 +57,7 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 /* 히어로 UI (상자 면 위의 실제 검색바) */
 /* ===== 히어로 (디자인 시안 Frame_87 / 배경 Frame_90) =====
    위치는 화면 높이 %, 크기는 vw(16:9 기준). 시안 3840×2160에서 잰 값 */
-.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:#FFC84B url(img/hero/hero_bg.webp) center/cover no-repeat;opacity:var(--bgo,1)}
+.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:#FFC84B url(img/hero/hero_bg.webp) center/cover no-repeat;opacity:var(--bgo,1);clip-path:var(--bgclip,none);box-shadow:0 0 0 0 transparent}
 .hero{position:absolute;inset:0;z-index:10;will-change:opacity;
   font-family:'Pretendard','Inter',var(--sans)}
 .hero .hlogo{position:absolute;left:50%;top:39.3%;width:40vw;transform:translate(-50%,-50%);user-select:none;pointer-events:none}
@@ -148,7 +148,7 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
    SORT  : 4컷에서 갈색 상자들이 하나씩 옆 분기 컨베이어로 빠지는 지점
    ========================================================= */
 const PH = {
-  heroOut:[0.00,0.03], trackOut:[0.00,0.05], bgOut:[0.05,0.08], zoomOut:[0.02,0.10], exit:[0.10,0.18], toTop:[0.19,0.26],
+  heroOut:[0.00,0.03], trackOut:[0.00,0.05], bgOut:[0.05,0.09], logoOut:[0.09,0.105], zoomOut:[0.10,0.16], exit:[0.14,0.20], toTop:[0.20,0.27],
   route:[0.18,0.63], toGround:[0.63,0.71], approach:[0.63,0.805], black:[0.805,0.825],   // route: 탑뷰에서 상자가 컨베이어 따라 가는 구간 (글 읽을 시간 위해 예전보다 1.67배 길게)
   doorIn:[0.835,0.87], reveal:[0.875,0.95],
   lift:[0.96,1.00], truckIn:[1.00,1.05], lower:[1.05,1.09], release:[1.09,1.11], truckOut:[1.12,1.18]
@@ -438,12 +438,20 @@ function render(){
   // 히어로: 로고·문구·SCROLL은 바로 사라지고, 운송장 입력란은 한 번 위로 떴다가 아래로 내려가며 사라짐
   const hu=$('heroUI'), tk=seg(p,PH.trackOut);
   hu.classList.toggle('moved',BXP>0.0005);
-  for(const el of hu.children) if(el.id!=='trackForm') el.style.opacity=1-ho;
+  // 로고는 남겨 둠(상자 앞면 로고와 같은 자리) → 골판지 배경이 상자 앞면 크기로 오므라든 뒤 3D 상자로 바뀌며 로고도 넘겨줌
+  const lo=seg(p,PH.logoOut);
+  for(const el of hu.children){ if(el.id==='trackForm') continue; el.style.opacity=el.classList.contains('hlogo')?1-lo:1-ho; }
   { const up=ease(clamp(tk/0.35)), dn=ease(clamp((tk-0.35)/0.65));
     const y=-1.4*up*(1-dn)+4.2*dn;                                   // vw: 위로 1.4 → 아래로 4.2
     const tf=$('trackForm'); tf.style.transform=`translateX(-50%) translateY(${y}vw)`; tf.style.opacity=1-dn; }
-  const bo=seg(p,PH.bgOut); hu.style.setProperty('--bgo',1-bo);   // 입력란이 다 내려간 뒤 골판지 배경이 걷히며 물류센터로
-  hu.style.pointerEvents=bo>.5?'none':'auto';
+  // 입력란이 다 내려간 뒤: 화면 가득한 골판지가 '상자 앞면' 크기로 오므라듦 → 사실 이게 상자였다 → 3D 상자로 바뀜 → 줌아웃
+  { const bo=ease(seg(p,PH.bgOut)), k=HERO_LOGO.wFrac*W/HERO_LOGO.logoW, cyL=HERO_LOGO.cy*H;
+    const fw=MAIN.w*k, top=cyL-(MAIN.h-HERO_LOGO.logoY)*k, bot=cyL+HERO_LOGO.logoY*k;     // 상자 앞면이 화면에서 차지하는 자리(px)
+    const L=(W-fw)/2*bo, T=Math.max(0,top)*bo, B=Math.max(0,H-bot)*bo;
+    hu.style.setProperty('--bgclip',bo>0?`inset(${T.toFixed(1)}px ${L.toFixed(1)}px ${B.toFixed(1)}px ${L.toFixed(1)}px)`:'none');
+    hu.style.setProperty('--bgo',1-lo); }
+  const bo=seg(p,PH.bgOut);
+  hu.style.pointerEvents=lo>.5?'none':'auto';
 
   // 메인 상자의 경로 위치 s
   const sExit=sAtX(-640+FRONT.dx+FRONT.d*(W/2)/P+45), sRE=sAtZ(200), sEnd=sAtZ(GROUNDCAM.z-MAIN.w/2-dLead*0.15);
