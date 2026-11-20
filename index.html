@@ -306,7 +306,7 @@
   /* 배 장면 구름: 바다 위로 옅은 구름이 흘러가다가(문구 아래) → 하늘로 올라가며 구름이 다가와 화면이 하얗게 덮임 → 비행기 */
   /* 배: 물 위에 떠 있는 것처럼 살짝 위아래로 흔들림 (스크롤 위치와 따로, translate 속성이라 기존 transform과 겹치지 않음) */
   #lgShip{animation:shipBob 4.2s ease-in-out infinite}
-  @keyframes shipBob{0%,100%{translate:0 0}50%{translate:0 -.6vh}}
+  @keyframes shipBob{0%,100%{translate:0 0}50%{translate:0 -1.1vh}}
   @media (prefers-reduced-motion:reduce){#lgShip{animation:none}}
   .lg-mist{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;visibility:hidden}
   .lg-mist img{position:absolute;left:0;top:0;will-change:transform,opacity;opacity:0}
