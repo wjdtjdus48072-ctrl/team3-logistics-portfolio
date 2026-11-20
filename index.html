@@ -1618,7 +1618,9 @@ const MIST=[
   {i:'a',x:88,y:470,w:64,d:.65,f:1},{i:'b',x:25,y:500,w:60,d:.9,f:0}];
 const lgMist=$('lgMist'),mistVeil=lgMist.querySelector('.veil'),mistEls=MIST.map(m=>{const im=document.createElement('img');im.alt='';im.decoding='async';im.src=`img/lg/mist_${m.i}.webp`;lgMist.appendChild(im);return im});
 const MIST_A=[12.9,16.15],MIST_B=[16.15,17.05];
-const MIST_FAINT=0.3;   // 바다 위에서 흘러갈 때 구름 진하기 (0~1, 작을수록 옅음). 하늘로 오를 때는 다시 진해지며 덮음   // A: 바다 위로 흘러감 / B: 하늘로 올라가며 덮임 (물류 장면 진행 s)
+const MIST_FAINT=0.3;
+// 큰 타이틀(물류는 멈추지 않습니다) 동안 구름이 배 쪽으로 살짝 모임 → 세부 설명 4개가 나오며 배가 멀어질 때 양옆으로 빠짐
+const MIST_GATHER=[14.35,15.0], MIST_SPREAD=[15.1,15.9];   // 바다 위에서 흘러갈 때 구름 진하기 (0~1, 작을수록 옅음). 하늘로 오를 때는 다시 진해지며 덮음   // A: 바다 위로 흘러감 / B: 하늘로 올라가며 덮임 (물류 장면 진행 s)
 // 구름 움직임: 스크롤을 바로 따라가지 않고 살짝 늦게 미끄러지듯 따라감 + 스크롤 안 해도 바람에 천천히 흘러감
 const MS={on:false,target:0,cur:null,raf:0,last:0,t:0};
 function mistStart(){if(!MS.raf){MS.last=performance.now();MS.raf=requestAnimationFrame(mistLoop);}}
@@ -1636,7 +1638,11 @@ function mistLoop(now){
     const span=W+w*1.6, wind=MS.t*W*(.006+.012*m.d)*(i%2?1:-1);
     let x=((m.x/100)*W+w*.8+wind)%span; if(x<0)x+=span; x-=w*.8;
     let cx=x+w/2, cy=(m.y-up*m.d)/100*H+h/2-MS.t*H*.004*m.d;
-    const sc=(1+be*(1.4+2.2*m.d))*(1+.025*Math.sin(MS.t*.35+i*1.7));            // 하늘로 오르며 다가옴 + 숨 쉬듯 살짝
+    // 모였다가 → 양옆으로 빠짐 (가까운 구름일수록 더 크게 빠지고 살짝 커짐 → 공간감). 하늘로 오를 때는 다시 화면 안으로
+    const ez=t=>t*t*(3-2*t), sp=ez(sv(s,MIST_SPREAD[0],MIST_SPREAD[1])), g=ez(sv(s,MIST_GATHER[0],MIST_GATHER[1]))*(1-sp), spr=sp*(1-be);
+    { const dx=cx-W/2, dy=cy-H/2, side=dx>=0?1:-1;
+      cx=W/2+dx*(1-.38*g)+side*spr*W*(.1+.2*m.d); cy=H/2+dy*(1-.3*g); }
+    const sc=(1+be*(1.4+2.2*m.d))*(1+.025*Math.sin(MS.t*.35+i*1.7))*(1+.3*spr*m.d);   // 하늘로 오르며 다가옴 + 숨 쉬듯 살짝 + 옆으로 빠질 때 살짝 커짐
     cx=W/2+(cx-W/2)*(1+be*.6); cy=H/2+(cy-H/2)*(1+be*.6)-be*H*.25*m.d;
     el.style.width=w+'px';
     el.style.transform=`translate3d(${(cx-w/2).toFixed(1)}px,${(cy-h/2).toFixed(1)}px,0) scale(${(m.f?-sc:sc).toFixed(3)},${sc.toFixed(3)})`;
