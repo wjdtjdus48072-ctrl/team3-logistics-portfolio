@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DHL 박스 스토리</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Inter:wght@600;700;800&family=Big+Shoulders+Stencil+Display:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <!-- 상자 3D 모델(GLB)을 그리는 three.js -->
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
@@ -44,12 +44,13 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
 
 /* 바닥 문구: 바닥에 흰 페인트 스텐실로 칠한 느낌 (노랑·빨강 안 씀 → 노란 상자가 제일 잘 보이게) */
 .flat{color:#ECECE8}
-.flat .no{font-family:var(--mono);color:#E2E3E0;letter-spacing:.08em;opacity:.85}
-.flat .no b{color:#E2E3E0;font-weight:500}
-.flat h3{font-family:'Big Shoulders Stencil Display','Pretendard',var(--sans);font-weight:700;letter-spacing:.04em;line-height:1.02;
+@font-face{font-family:'FloorMono';src:url(fonts/DejaVuSansMono-sub.woff2) format('woff2');font-weight:400;font-display:swap}
+.flat .no{font-family:'FloorMono',monospace;color:#E2E3E0;letter-spacing:.08em;opacity:.85}
+.flat .no b{color:#E2E3E0;font-weight:400}
+.flat h3{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.04em;line-height:1.02;
   color:#ECECE8;opacity:.8;mix-blend-mode:screen;filter:url(#paintWear)}   /* 벗겨진 페인트 효과는 영문 타이틀에만 */
 .flat h3 em{font-style:normal;color:#ECECE8}
-.flat p{color:#E2E3E0;line-height:1.55;opacity:.92}
+.flat p{font-family:'Noto Sans KR',sans-serif;font-weight:400;color:#E2E3E0;line-height:1.55;opacity:.92}
 
 /* 히어로 UI (상자 면 위의 실제 검색바) */
 /* ===== 히어로 (디자인 시안 Frame_87 / 배경 Frame_90) =====
