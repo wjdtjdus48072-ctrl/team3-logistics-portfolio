@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta name="robots" content="noindex,nofollow,noarchive">
+<link rel="preload" as="image" href="img/hero/hero_bg.webp" fetchpriority="high">   <!-- 히어로 골판지 배경 먼저 받기 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>박스 스토리 · 포트폴리오 시안</title>
@@ -158,7 +159,7 @@ const BELT_Y=-30, BELT_UP=-140;
 const MAIN={w:60.32,h:39.6,d:40.32};
 const KINDS={A:{w:30.32,h:21.6,d:24.32},B:{w:42.32,h:27.6,d:31.32},C:{w:50.32,h:32.6,d:38.32},D:{w:60.32,h:41.6,d:44.32}};
 // 탑뷰 컨베이어 렌더 이미지 (블렌더). 탑뷰 화면 캡처와 1:1로 맞춰 뽑은 이미지라 TOPCAM 기준으로 바닥에 깖
-const CONV={src:'img/conveyor_top_web.png',pw:2576,ph:1245};
+const CONV={src:'img/conveyor_top_web.png',pw:2576,ph:1245,use:false};   // use:true면 탑뷰 렌더 사진 다시 받음
 // 히어로 로고 위치 (시안 기준: 화면 너비 40%, 화면 높이 39.3% 지점) → GLB 상자 앞면 로고(폭 0.42m)와 겹치게 카메라 배치
 const HERO_LOGO={wFrac:0.40,cy:0.393,logoW:42,logoY:20};
 // 남은 CSS 벨트 윗면 색 (렌더 이미지의 회색에 맞춤). 예전 초록으로 되돌리려면 GRN
@@ -334,7 +335,7 @@ function build(){
     const cb=convBounds(), nx=8, ny=4, tw=(cb.x1-cb.x0)/nx, th=(cb.z1-cb.z0)/ny;
     for(let ix=0;ix<nx;ix++) for(let iz=0;iz<ny;iz++)
       convTiles.push(plane(S,tw+0.4,th+0.4,T(cb.x0+tw*(ix+.5),BELT_UP-0.3,cb.z0+th*(iz+.5))+' rotateX(90deg)','f',{
-        backgroundImage:`url(${CONV.src})`,backgroundRepeat:'no-repeat',
+        backgroundImage:CONV.use?`url(${CONV.src})`:'none',backgroundRepeat:'no-repeat',   // 탑뷰 렌더 사진 안 쓰는 동안은 받지도 않음 (2.5MB)
         backgroundSize:`${(cb.x1-cb.x0)*U}px ${(cb.z1-cb.z0)*U}px`,
         backgroundPosition:`${-(tw*ix-0.2)*U}px ${-(th*iz-0.2)*U}px`}));
   }

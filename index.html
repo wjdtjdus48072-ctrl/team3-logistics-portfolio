@@ -1574,12 +1574,19 @@ const $=id=>document.getElementById(id);
 const easeIn=t=>t*t,easeOut=t=>1-(1-t)*(1-t);
 const LG=$('logiScene'),lgPin=$('lgPin'),lgSide=$('lgSide'),lgWorld=$('lgWorld'),lgCv=$('lgCv'),lgCtx=lgCv.getContext('2d');
 const LGN=140,LGF=[];const LGCX=[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7.0, 6.9697, 6.8828, 6.7452, 6.5629, 6.3419, 6.088, 5.8074, 5.5059, 5.1895, 4.8642, 4.5358, 4.2105, 3.8941, 3.5926, 3.312, 3.0581, 2.8371, 2.6548, 2.5172, 2.4303, 2.4, 2.4, 2.3986, 2.3945, 2.3881, 2.3794, 2.3688, 2.3565, 2.3426, 2.3275, 2.3114, 2.2944, 2.2769, 2.259, 2.241, 2.2231, 2.2056, 2.1886, 2.1725, 2.1574, 2.1435, 2.1312, 2.1206, 2.1119, 2.1055, 2.1014, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1];let lgLast=-1;
-for(let i=0;i<LGN;i++){const im=new Image();im.decoding='async';im.src=`img/lg/f${String(i).padStart(3,'0')}.webp`;im.onload=()=>{if(i===lgLast)lgDraw(i,true)};LGF.push(im)}
+for(let i=0;i<LGN;i++){const im=new Image();im.decoding='async';im.onload=()=>{if(i===lgLast)lgDraw(i,true)};LGF.push(im)}
+// 리치스태커·트럭 사진(170여 장)은 첫 화면(박스 스토리)이 다 뜬 뒤에 받기 시작 → 히어로가 먼저 빨리 뜨게
+let lgLoaded=false;
+function lgLoad(){if(lgLoaded)return;lgLoaded=true;
+  LGF.forEach((im,i)=>im.src=`img/lg/f${String(i).padStart(3,'0')}.webp`);
+  TLF.forEach((im,i)=>im.src=`img/lg/t${String(i).padStart(2,'0')}.webp`);}
+{const fr=document.getElementById('bxFrame');fr.addEventListener('load',()=>setTimeout(lgLoad,800));setTimeout(lgLoad,8000);
+ addEventListener('scroll',()=>{if(scrollY>innerHeight*3)lgLoad();},{passive:true});}
 function lgDraw(i,force){if(i===lgLast&&!force)return;const im=LGF[i];if(!im.complete||!im.naturalWidth){for(let k=i;k>=0;k--)if(LGF[k].complete&&LGF[k].naturalWidth){lgCtx.clearRect(0,0,lgCv.width,lgCv.height);lgCtx.drawImage(LGF[k],0,0,lgCv.width,lgCv.height);break}lgLast=i;return}
   lgCtx.clearRect(0,0,lgCv.width,lgCv.height);lgCtx.drawImage(im,0,0,lgCv.width,lgCv.height);lgLast=i}
 lgCv.width=1600;lgCv.height=1000;
 /* 옆 → 위로 기울어지는 트럭 (직교 카메라, 화면 중심 = 트럭 중심 지면) */
-const TLN=31,TLF=[];for(let i=0;i<TLN;i++){const im=new Image();im.decoding='async';im.src=`img/lg/t${String(i).padStart(2,'0')}.webp`;TLF.push(im)}
+const TLN=31,TLF=[];for(let i=0;i<TLN;i++){const im=new Image();im.decoding='async';TLF.push(im)}   // src는 위 lgLoad()에서
 const lgTilt=$('lgTilt'),tCtx=lgTilt.getContext('2d'),lgTRoad=$('lgTRoad');let tLast=-1;
 function tDraw(i){if(i===tLast)return;const im=TLF[i];if(!im.complete||!im.naturalWidth)return;tCtx.clearRect(0,0,1600,1000);tCtx.drawImage(im,0,0,1600,1000);tLast=i}
 const UNIT=0.02124,COFF=-111.6; // 위에서 본 세계 1단위 = 0.02124m, 컨테이너 중심은 트럭 중심보다 111.6단위 뒤
