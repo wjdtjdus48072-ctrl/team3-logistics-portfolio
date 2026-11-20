@@ -1613,12 +1613,12 @@ const lgTW=$('lgTW'),road=$('lgRoadPath'),RLEN=road.getTotalLength(),truckTop=$(
 const SHORE=2350; // 도로 끝 = 바다 시작 (월드 y)
 
 const cgs=[...document.querySelectorAll('.lg-cg')];
-// 배 장면 구름 (img/lg/mist_a/b.webp). x·y: 화면 비율(vw·vh), w: 너비(vw), d: 가까운 정도(클수록 빨리 지나가고, 하늘로 오를 때 크게 다가옴), f: 좌우 뒤집기
+// 배 장면 구름 (img/lg/mist_b.webp 한 종류만 씀 — 흩어진 모양 mist_a는 안 씀). x·y: 화면 비율(vw·vh), w: 너비(vw), d: 가까운 정도(클수록 빨리 지나가고, 하늘로 오를 때 크게 다가옴), f: 좌우 뒤집기
 const MIST=[
-  {i:'a',x:-8,y:105,w:62,d:.55,f:0},{i:'b',x:78,y:120,w:48,d:.45,f:1},{i:'a',x:62,y:175,w:70,d:.8,f:1},{i:'b',x:-12,y:205,w:52,d:.7,f:0},
-  {i:'a',x:30,y:250,w:46,d:.35,f:0},{i:'b',x:85,y:270,w:60,d:.9,f:0},{i:'a',x:-15,y:300,w:72,d:1,f:1},{i:'b',x:50,y:330,w:44,d:.5,f:1},
-  {i:'a',x:72,y:360,w:66,d:.75,f:0},{i:'b',x:5,y:395,w:58,d:.6,f:1},{i:'a',x:40,y:430,w:80,d:1,f:0},{i:'b',x:-20,y:450,w:70,d:.85,f:0},
-  {i:'a',x:88,y:470,w:64,d:.65,f:1},{i:'b',x:25,y:500,w:60,d:.9,f:0}];
+  {i:'b',x:-8,y:105,w:62,d:.55,f:0},{i:'b',x:78,y:120,w:48,d:.45,f:1},{i:'b',x:62,y:175,w:70,d:.8,f:1},{i:'b',x:-12,y:205,w:52,d:.7,f:0},
+  {i:'b',x:30,y:250,w:46,d:.35,f:0},{i:'b',x:85,y:270,w:60,d:.9,f:0},{i:'b',x:-15,y:300,w:72,d:1,f:1},{i:'b',x:50,y:330,w:44,d:.5,f:1},
+  {i:'b',x:72,y:360,w:66,d:.75,f:0},{i:'b',x:5,y:395,w:58,d:.6,f:1},{i:'b',x:40,y:430,w:80,d:1,f:0},{i:'b',x:-20,y:450,w:70,d:.85,f:0},
+  {i:'b',x:88,y:470,w:64,d:.65,f:1},{i:'b',x:25,y:500,w:60,d:.9,f:0}];
 const lgMist=$('lgMist'),mistVeil=lgMist.querySelector('.veil'),mistEls=MIST.map(m=>{const im=document.createElement('img');im.alt='';im.decoding='async';im.src=`img/lg/mist_${m.i}.webp`;lgMist.appendChild(im);return im});
 const MIST_A=[12.9,16.15],MIST_B=[16.15,17.05];
 const MIST_FAINT=0.3;
