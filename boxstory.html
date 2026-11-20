@@ -480,8 +480,9 @@ function render(){
   if(tg>0){c={x:lerp(c.x,GROUNDCAM.x,tg),y:lerp(c.y,GROUNDCAM.y,tg),z:lerp(c.z,GROUNDCAM.z,tg)};pitch=lerp(-90,0,tg);}
   $('scene').style.transform=`translateZ(${P}px) rotateX(${pitch}deg) translate3d(${-c.x*U}px,${-c.y*U}px,${-c.z*U}px)`;
   // 탑뷰에 거의 다 왔을 때만 렌더 이미지, 나머지는 3D 컨베이어
-  const topK=clamp((tt*(1-tg)-0.85)/0.15), convOp=topK>=0.999?0:1;   // 3D 컨베이어는 반투명으로 섞지 않음 (겹쳐 보이는 오류 방지)
-  convTiles.forEach(e=>e.style.opacity=topK);
+  // 탑뷰에서도 3D 컨베이어 그대로 씀 (예전 탑뷰 렌더 이미지 convTiles는 안 씀 → 되살리려면 opacity를 topK로, convOp=topK>=0.999?0:1)
+  const convOp=1;
+  convTiles.forEach(e=>e.style.opacity=0);
   BX_STATE={U,P,cam:{x:c.x,y:c.y,z:c.z,pitch},boxes:poses,show:true,convOp};
 
   // 노란 상자 가운데가 trigX(위쪽 줄 벨트의 빨간 표시 지점)에 닿으면 라벨 → 타이틀 → 설명 순서로 아래에서 위로 떠오름
