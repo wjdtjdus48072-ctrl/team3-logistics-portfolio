@@ -322,16 +322,13 @@
   .lg-seacopy li{position:absolute;left:0;top:0;width:min(340px,43vw);word-break:keep-all;text-align:left;will-change:transform}.lg-seacopy li:nth-child(odd){text-align:right}
   
   .lg-seacopy b{display:block;font-size:clamp(22px,1.9vw,34px);font-weight:800;letter-spacing:-.03em}.lg-seacopy li span{display:block;margin-top:10px;font-size:clamp(14px,1vw,17px);line-height:1.6;color:rgba(255,255,255,.7)}
-  /* 배 장면 세부 설명: 화면에 들어오면 아이콘 → 제목(아래에서 위로 올라옴) → 설명 순서로 등장, 오른쪽 칸은 조금 늦게 */
-  .lg-seacopy li .ic{display:block;width:clamp(24px,1.7vw,32px);height:clamp(24px,1.7vw,32px);margin-bottom:14px;opacity:0;transform:translateY(22px);transition:opacity .32s ease,transform .46s ease-out}
+  .lg-seacopy li .ic{display:block;width:clamp(24px,1.7vw,32px);height:clamp(24px,1.7vw,32px);margin-bottom:14px}
   .lg-seacopy li:nth-child(odd) .ic{margin-left:auto}
   .lg-seacopy li .ic svg{width:100%;height:100%;stroke:#FFCC00;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .lg-seacopy b{overflow:hidden;padding-bottom:.06em}.lg-seacopy b em{display:inline-block;font-style:normal;transform:translateY(108%);transition:transform .52s ease-out .11s}
-  .lg-seacopy li span{opacity:0;transform:translateY(16px);transition:opacity .4s ease .22s,transform .56s ease-out .22s}
-
+  .lg-seacopy b em{font-style:normal}
   .lg-seacopy li:last-child{width:min(440px,90vw);text-align:center}.lg-seacopy li:last-child .ic{margin-inline:auto}
   @media(max-width:640px){.lg-seacopy h3{font-size:clamp(30px,8vw,44px)}.lg-seacopy b{font-size:18px}.lg-seacopy li span{font-size:14px;line-height:1.45}}
-  .lg-seacopy li.in .ic{opacity:1;transform:none}.lg-seacopy li.in b em{transform:none}.lg-seacopy li.in span{opacity:1;transform:none}
+
   #lgPlane{position:absolute;left:0;top:50%;z-index:8;will-change:transform}
   .lg-white{position:absolute;inset:0;background:#F7F6F2;z-index:7}
 
@@ -1783,22 +1780,27 @@ function logi(){
     const sc2=$('lgSeaCopy');sc2.style.opacity=s>=titleStart&&s<17.1?1:0;
     const intro=sc2.querySelector('.sea-intro');
     const items=[...sc2.querySelectorAll('li')],half=SHW*k*z/2;
-    let rowY=0;
-    const offsets=items.map((li,i)=>{
-      if(i && i%2===0) rowY+=Math.max(H*.42,items[i-2].offsetHeight+32,items[i-1].offsetHeight+32);
-      return rowY;
-    });
-    const lead=Math.max(H*.72,intro.offsetHeight+H*.12);
-    const travel=H+lead+rowY+items[4].offsetHeight;
-    const distance=travel*sv(s,titleStart,17.05);
+    const distance=H*1.65*sv(s,titleStart,15.45);
     intro.style.transform=`translate3d(0,${H*.7-distance}px,0)`;
-    const gy=H+lead-distance;
+    const heights=items.map(li=>li.offsetHeight);
+    const upper=Math.max(heights[0],heights[1]),lower=Math.max(heights[2],heights[3]);
+    const stacked=upper+lower+64<H*.8;
+    const pairTop=stacked?(H-upper-lower-40)/2:0;
     items.forEach((li,i)=>{
-      const gap=Math.min(half+Math.min(W*.035,54),Math.max(0,W/2-li.offsetWidth-12));
-      const x=i===4?(W-li.offsetWidth)/2:i%2?W/2+gap:W/2-gap-li.offsetWidth;
-      const y=gy+offsets[i]+(i%2)*H*.035;
+      const center=i===4,row=Math.floor(i/2),right=i%2===1;
+      const gap=Math.min(half+Math.min(W*.025,42),Math.max(0,W/2-li.offsetWidth-12));
+      const x=center?(W-li.offsetWidth)/2:right?W/2+gap:W/2-gap-li.offsetWidth;
+      const y=center?(H-heights[i])*.68:stacked?pairTop+(row?upper+40:0):(H-heights[i])*.52;
       li.style.transform=`translate3d(${x}px,${y}px,0)`;
-      li.classList.toggle('in',y<H*.98 && y+li.offsetHeight>0);
+      const start=[14.55,stacked?15.18:15.53,16.35][row]+(right?.055:0);
+      const end=center?16.95:!stacked&&!row?15.35:16.23;
+      li.style.opacity=1-sv(s,end,end+.15);
+      Array.from(li.children).forEach((part,j)=>{
+        const t=sv(s,start+j*.09,start+j*.09+.32);
+        const offset=(1-t)**3*Math.min(W*.16,240)*(center?0:right?1:-1);
+        part.style.transform=`translateX(${offset}px)`;
+        part.style.opacity=t;
+      });
     });
     const c=easeOut(sv(s,16.2,17.1)),c2=sv(s,17.1,18.1);
     cgs.forEach(g=>{const t=g.dataset.g,o=1-c;
