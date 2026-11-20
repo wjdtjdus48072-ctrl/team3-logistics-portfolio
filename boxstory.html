@@ -304,7 +304,7 @@ function build(){
   for(let x=-1000;x<800;x+=400) for(let z=-800;z<1200;z+=400)
     plane(S,400,400,T(x+200,0,z+200)+' rotateX(90deg)','f',floorBg(x,z,400));
   // 안쪽 벽: 창고 선반 사진 (img/bg_warehouse.webp, 사진 아래 바닥 부분은 잘라냄). 가로로 이어 붙임
-  { const BW=1800, BH=BW*628/1914;
+  { const BW=1800, BH=BW*625/1916;
     // 한 장짜리 큰 면은 브라우저가 못 그려서 사진 한 장 크기씩 나눠서 깖 (가운데 + 좌우)
     for(const k of [-1,0,1]) plane(S,BW+1,BH,T(-100+k*BW,-BH/2,-720),'f',{backgroundColor:'#121A22',
       backgroundImage:'url(img/bg_warehouse.webp)',backgroundSize:'100% 100%'}); }
