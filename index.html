@@ -1669,7 +1669,7 @@ const lgPlane=$('lgPlane'),HP={c:[-2,442,773],b:[481,137,638],r:[827,442,775]};
 const sv=(s,a,b)=>clamp((s-a)/(b-a));
 const LG_GROUND_Y=.66;
 const LG_END=18.2;   // 물류 장면 끝(장면 진행 s). 예전 22.5 = 비행기 뒤 서비스 장면(svpScene)까지. 되살리려면 22.5 + .logi 높이 2570vh
-const LG_LIFT=[12.6,13.3];   // 배에 실린 뒤 앞 장면이 위로 올라가는 구간(장면 진행 s). 길게 잡을수록 천천히
+const LG_LIFT=[11.6,13.3];   // 배에 실린 뒤 앞 장면이 위로 올라가는 구간(장면 진행 s). 길게 잡을수록 천천히
 const SVC_START=4.75, SVC_GAP=.16;   // 서비스 항목 등장 시작 시점(장면 진행 s)과 항목 사이 간격   // 트럭 서비스 장면에서 지면(검은 바닥 시작) 위치: 화면 높이의 66%
 function logi(){
   const r=LG.getBoundingClientRect(),W=innerWidth,H=innerHeight;
@@ -1759,7 +1759,7 @@ function logi(){
     lgTW.style.transform=`translate3d(${(W/2-Fx*k*z).toFixed(1)}px,${(H/2-Fy*k*z+landUp).toFixed(1)}px,0) scale(${z})`;
     lgTW.style.opacity=lift<1?1:0;
     const place=(el,wx,wy,deg,w,px,py,oy=0)=>{el.style.width=w*k+'px';el.style.transform=`translate3d(${SX(wx).toFixed(1)}px,${(SY(wy)-oy).toFixed(1)}px,0) rotate(${deg}deg) scale(${z.toFixed(4)}) translate(${(-px*k).toFixed(1)}px,${(-py*k).toFixed(1)}px)`};
-    place(truckTop,q0.x,q0.y,ang,TW,TW/2,TW*TAR/2);truckTop.style.opacity=(1-sv(s,12.3,12.6)).toFixed(3);
+    place(truckTop,q0.x,q0.y,ang,TW,TW/2,TW*TAR/2,-landUp);truckTop.style.opacity=(1-sv(s,12.3,12.6)).toFixed(3);
     // 컨테이너 이미지도 트럭 중심 기준 같은 틀 → 내려놓은 뒤에는 빈칸 중심 - 오프셋 위치에 고정
     const ct=$('lgContTop'),pcx=left?1000:q0.x,pcy=left?cY-COFF:q0.y;place(ct,pcx,pcy,cA,TW,TW/2,TW*TAR/2);ct.classList.toggle('onship',left);   // 배에 실린 뒤엔 배와 같이 흔들림
     ct.style.filter=`drop-shadow(${(5*z).toFixed(1)}px ${(7*z).toFixed(1)}px ${(5*z+1).toFixed(1)}px rgba(0,0,0,.3))`;
@@ -1776,9 +1776,16 @@ function logi(){
     lgSea.style.backgroundPosition=`${(s*-30).toFixed(1)}px ${((SY(0)-seaTop)%(ws*.375)).toFixed(1)}px`;
     $('lgCopyB').style.opacity=(sv(s,9.45,9.85)*(1-sv(s,10.2,10.45))).toFixed(3);
     [...$('lgFeats').children].forEach((li,i)=>li.classList.toggle('in',s>9.5+i*.22&&s<10.45));
-    const sc2=$('lgSeaCopy');sc2.style.opacity=s>14.3&&s<17.1?1:0;
+    // The reference frame shows open water and the deck spanning about one eighth of the viewport width.
+    const titleZoom=(W/8)/(SHW*k);
+    const zoomFraction=clamp(Math.log(titleZoom/.8)/Math.log(.032/.8));
+    const titleStart=Math.max(LG_LIFT[1],12.5+4.4*(1-Math.sqrt(1-zoomFraction)));
+    const sc2=$('lgSeaCopy');sc2.style.opacity=s>=titleStart&&s<17.1?1:0;
     const intro=sc2.querySelector('.sea-intro');
-    intro.style.transform=`translateY(${lerp(H*.75,-H*.9,sv(s,14.45,15.85))}px)`;
+    const enter=sv(s,titleStart,titleStart+.95);
+    const leave=sv(s,15,15.85);
+    // The intro rests at 30% height, so another 70% places its top at the bottom edge.
+    intro.style.transform=`translateY(${H*(.7*(1-enter)-.9*leave)}px)`;
     const items=[...sc2.querySelectorAll('li')],half=SHW*k*z/2;
     let rowY=0;
     const offsets=items.map((li,i)=>{
@@ -1986,7 +1993,7 @@ onScroll();
   const B=()=>Math.round(yS(AP_KEYS[AP_KEYS.length-1][0]));
   const tAt=(P,y)=>{for(let i=1;i<P.length;i++)if(y<=P[i][0]){const [y0,t0]=P[i-1],[y1,t1]=P[i];return t0+(t1-t0)*Math.max(0,(y-y0)/(y1-y0||1));}return P[P.length-1][1];};
   const yAt=(P,t)=>{for(let i=1;i<P.length;i++)if(t<=P[i][1]){const [y0,t0]=P[i-1],[y1,t1]=P[i];let k=(t-t0)/(t1-t0||1);if(i===P.length-1)k=k*k*(3-2*k)*.5+k*.5;return y0+(y1-y0)*k;}return P[P.length-1][0];};
-  let anim=null,hold=false,lockUntil=0,started=false,lastW=0;
+  let anim=null,hold=false,started=false,lastW=0;
   const html=document.documentElement;
   function stop(){if(anim){cancelAnimationFrame(anim.raf);anim=null;}html.classList.remove('ap-on');}
   function play(){
@@ -1994,30 +2001,30 @@ onScroll();
     let last=performance.now(),st=last;anim={};html.classList.add('ap-on');
     const step=now=>{const dt=Math.min(50,now-last);last=now;t+=dt*Math.min(1,(now-st)/450);   // 처음 0.45초는 살살 출발
       t=Math.min(T,t);scrollTo({top:yAt(P,t),behavior:'instant'});
-      if(t<T)anim.raf=requestAnimationFrame(step);else{anim=null;html.classList.remove('ap-on');lockUntil=performance.now()+700;}};
+      if(t<T)anim.raf=requestAnimationFrame(step);else{anim=null;html.classList.remove('ap-on');}};
     anim.raf=requestAnimationFrame(step);
   }
   // fresh: 새 스크롤 동작의 첫 입력인지 (트랙패드 관성으로 같은 동작이 여러 번 들어오는 것 구분). true = 그 입력은 막음
   function input(dy,fresh=true){
-    const now=performance.now(),y=scrollY,b=B();
+    const y=scrollY,b=B();
     if(anim){if(dy<0&&fresh){stop();hold=true;}return true;}       // 재생 중: 위로 → 그 자리 멈춤, 나머지는 막음
     if(hold){if(!fresh)return true;hold=false;}                     // 멈춘 동작의 관성은 버림
-    if(now<lockUntil){if(dy>0){lockUntil=now+350;return true;}}      // 재생 끝난 직후 아래 관성은 흘려보냄
+
     if(dy>0&&y<b-2){if(fresh||!anim)play();return true;}            // 아래로 → (이어서) 재생
     return false;                                                    // 위로 → 보통 스크롤 (조금씩)
   }
   // 부드러운 스크롤: 휠 한 번에 툭 끊기지 않고 '슈웅' 미끄러지듯 이동 (자동 재생 구간이 아닐 때)
-  const SM={t:0,raf:0,last:0};
+  const SM={t:0,y:0,raf:0,last:0};
   function smoothStop(){if(SM.raf){cancelAnimationFrame(SM.raf);SM.raf=0;}}
   function smoothBy(dy){
-    if(!SM.raf){SM.t=scrollY;SM.last=performance.now();}
+    if(!SM.raf){SM.t=SM.y=scrollY;SM.last=performance.now();}
     const max=document.documentElement.scrollHeight-innerHeight;
     SM.t=Math.max(0,Math.min(max,SM.t+dy*1.5));
     if(!SM.raf)SM.raf=requestAnimationFrame(smoothStep);
   }
   function smoothStep(now){
     const dt=Math.min(50,now-SM.last);SM.last=now;
-    const y=scrollY+(SM.t-scrollY)*(1-Math.exp(-dt/240));               // 0.24초 시정수 → 1초 남짓 걸쳐 감속하며 멈춤 (값↑ = 더 길게 미끄러짐)
+    const y=SM.y+=(SM.t-SM.y)*(1-Math.exp(-dt/240));               // 0.24초 시정수 → 1초 남짓 걸쳐 감속하며 멈춤 (값↑ = 더 길게 미끄러짐)
     if(Math.abs(SM.t-y)<.5){scrollTo({top:SM.t,behavior:'instant'});SM.raf=0;return;}
     scrollTo({top:y,behavior:'instant'});SM.raf=requestAnimationFrame(smoothStep);
   }
