@@ -1615,6 +1615,31 @@ const MIST=[
 const lgMist=$('lgMist'),mistVeil=lgMist.querySelector('.veil'),mistEls=MIST.map(m=>{const im=document.createElement('img');im.alt='';im.decoding='async';im.src=`img/lg/mist_${m.i}.webp`;lgMist.appendChild(im);return im});
 const MIST_A=[12.9,16.15],MIST_B=[16.15,17.05];
 const MIST_FAINT=0.3;   // 바다 위에서 흘러갈 때 구름 진하기 (0~1, 작을수록 옅음). 하늘로 오를 때는 다시 진해지며 덮음   // A: 바다 위로 흘러감 / B: 하늘로 올라가며 덮임 (물류 장면 진행 s)
+// 구름 움직임: 스크롤을 바로 따라가지 않고 살짝 늦게 미끄러지듯 따라감 + 스크롤 안 해도 바람에 천천히 흘러감
+const MS={on:false,target:0,cur:null,raf:0,last:0,t:0};
+function mistStart(){if(!MS.raf){MS.last=performance.now();MS.raf=requestAnimationFrame(mistLoop);}}
+function mistLoop(now){
+  const dt=Math.min(64,now-MS.last);MS.last=now;MS.t+=dt/1000;
+  if(MS.cur===null||Math.abs(MS.target-MS.cur)>2) MS.cur=MS.target;            // 크게 건너뛰면(새로고침·점프) 바로 맞춤
+  MS.cur+= (MS.target-MS.cur)*(1-Math.exp(-dt/260));                             // 0.26초 정도 늦게 부드럽게 따라감
+  const s=MS.cur,W=innerWidth,H=innerHeight;
+  lgMist.style.visibility=MS.on?'visible':'hidden';
+  if(!MS.on&&Math.abs(MS.target-MS.cur)<.001){MS.raf=0;return;}
+  const a=sv(s,MIST_A[0],MIST_A[0]+.5), up=(s-MIST_A[0])*46, b=sv(s,MIST_B[0],MIST_B[1]), be=b*b*(3-2*b);
+  lgMist.style.zIndex=b>.15?6:4;   // 처음엔 문구 아래, 덮을 때는 문구 위
+  MIST.forEach((m,i)=>{const el=mistEls[i],w=m.w*W/100,h=w*1080/(m.i==='a'?1237:1092);
+    // 바람: 가까운 구름일수록 빨리 옆으로 흐름(화면 밖으로 나가면 반대편에서 다시 들어옴) + 아주 천천히 위로
+    const span=W+w*1.6, wind=MS.t*W*(.006+.012*m.d)*(i%2?1:-1);
+    let x=((m.x/100)*W+w*.8+wind)%span; if(x<0)x+=span; x-=w*.8;
+    let cx=x+w/2, cy=(m.y-up*m.d)/100*H+h/2-MS.t*H*.004*m.d;
+    const sc=(1+be*(1.4+2.2*m.d))*(1+.025*Math.sin(MS.t*.35+i*1.7));            // 하늘로 오르며 다가옴 + 숨 쉬듯 살짝
+    cx=W/2+(cx-W/2)*(1+be*.6); cy=H/2+(cy-H/2)*(1+be*.6)-be*H*.25*m.d;
+    el.style.width=w+'px';
+    el.style.transform=`translate3d(${(cx-w/2).toFixed(1)}px,${(cy-h/2).toFixed(1)}px,0) scale(${(m.f?-sc:sc).toFixed(3)},${sc.toFixed(3)})`;
+    el.style.opacity=(a*(.55+.45*m.d)*lerp(MIST_FAINT,1,be)*(1-sv(s,17.6,18.1))).toFixed(3);});
+  mistVeil.style.opacity=(Math.pow(sv(s,MIST_B[0]+.25,MIST_B[1]),1.6)*(1-sv(s,17.9,18.15))).toFixed(3);
+  MS.raf=requestAnimationFrame(mistLoop);
+}
 const lgWhite=document.createElement('div');lgWhite.className='lg-white';lgWhite.style.opacity=0;lgWhite.dataset.text='<div class="svp-line" data-i="w"><p class="k">01 · TIME DEFINITE EXPRESS</p><h3>원하는 시간에 맞춰,<br><b>정시 국제특송</b></h3><p class="d">익스프레스 9:00·12:00부터 월드와이드까지 도착 시간을 고르면<br>220여 개 국가·지역으로 문에서 문까지 배송해요.</p></div>';$('lgTop').appendChild(lgWhite);
 const lgPlane=$('lgPlane'),HP={c:[-2,442,773],b:[481,137,638],r:[827,442,775]};
 const sv=(s,a,b)=>clamp((s-a)/(b-a));
@@ -1733,25 +1758,13 @@ function logi(){
       const tx=t==='l'?-o*60-c2*6:t==='r'?o*60+c2*6:0,ty=t==='b'?o*70+c2*-4:0;
       g.style.opacity=Math.min(1,c*1.4).toFixed(3);
       g.style.transform=`translate3d(${tx.toFixed(2)}vw,${ty.toFixed(2)}vh,0) scale(${(1+c*.18+c2*.1).toFixed(4)})`});
-    { // 배 장면 구름
-      const on=s>MIST_A[0]-.3&&s<18.15; lgMist.style.visibility=on?'visible':'hidden';
-      if(on){ const a=sv(s,MIST_A[0],MIST_A[0]+.5), up=(s-MIST_A[0])*46, b=sv(s,MIST_B[0],MIST_B[1]), be=b*b*(3-2*b);
-        lgMist.style.zIndex=b>.15?6:4;   // 처음엔 문구 아래, 덮을 때는 문구 위
-        MIST.forEach((m,i)=>{const el=mistEls[i],w=m.w*W/100,h=w*1080/(m.i==='a'?1237:1092);
-          let cx=(m.x/100)*W+w/2+Math.sin(s*.6+i)*W*.012, cy=(m.y-up*m.d)/100*H+h/2;
-          const sc=1+be*(1.4+2.2*m.d);                                  // 하늘로 오르며 카메라 쪽으로 다가옴
-          cx=W/2+(cx-W/2)*(1+be*.6); cy=H/2+(cy-H/2)*(1+be*.6)-be*H*.25*m.d;
-          el.style.width=w+'px';
-          el.style.transform=`translate3d(${(cx-w/2).toFixed(1)}px,${(cy-h/2).toFixed(1)}px,0) scale(${(m.f?-sc:sc).toFixed(3)},${sc.toFixed(3)})`;
-          el.style.opacity=(a*(.55+.45*m.d)*lerp(MIST_FAINT,1,be)*(1-sv(s,17.6,18.1))).toFixed(3);});
-        mistVeil.style.opacity=(Math.pow(sv(s,MIST_B[0]+.25,MIST_B[1]),1.6)*(1-sv(s,17.9,18.15))).toFixed(3);
-      }
-    }
+    // 배 장면 구름: 스크롤 값만 넘기고, 움직임은 아래 mistLoop가 매 프레임 부드럽게 따라감
+    MS.on=s>MIST_A[0]-.3&&s<18.15; MS.target=s; if(MS.on) mistStart();
     const pw=W*1.25,ph=pw*1533/1591,pt=sv(s,16.9,18.1),px=lerp(-pw*1.05,W*1.1,pt);
     lgPlane.style.width=pw+'px';lgPlane.style.transform=`translate3d(${px.toFixed(1)}px,${(-ph*.46).toFixed(1)}px,0)`;
     const psc=pw/1591,Xc=px+840*psc,Yc=H/2-ph*.46+735*psc,SL=.365;lgWhite.style.opacity=pt>0?1:0;lgWhite.style.clipPath=pt>=1?'none':`polygon(-10px 0,${(Xc-Yc*SL).toFixed(1)}px 0,${Xc.toFixed(1)}px ${Yc.toFixed(1)}px,${(Xc-(H-Yc)*SL).toFixed(1)}px ${H}px,-10px ${H}px)`;
     LG.dataset.theme=s>10.9&&pt<.55?'dark':'light';
-  }else LG.dataset.theme='light';
+  }else{LG.dataset.theme='light';MS.on=false;}
   const sOn=false;SVP.style.visibility='hidden';   // 서비스 장면 숨김 (되살리려면 sOn=s>=18.1 + svp(s-18.1,W,H))
 }
 addEventListener('resize',()=>{lgLast=-1;logi()});
