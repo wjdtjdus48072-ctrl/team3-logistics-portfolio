@@ -302,7 +302,11 @@
   .lg-feats i{font-style:normal;font-size:28px;color:#111}
   .lg-feats b{display:block;margin-top:10px;font-size:22px;font-weight:700;letter-spacing:-.02em}
   .lg-feats span{display:block;margin-top:8px;font-size:14px;line-height:1.6;color:#6b6963}
-  .lg-cl{position:absolute;inset:0;z-index:6;pointer-events:none}
+  .lg-cl{position:absolute;inset:0;z-index:6;pointer-events:none;display:none}   /* 예전 구름 3장 (안 씀, 되살리려면 display:none 삭제) */
+  /* 배 장면 구름: 바다 위로 옅은 구름이 흘러가다가(문구 아래) → 하늘로 올라가며 구름이 다가와 화면이 하얗게 덮임 → 비행기 */
+  .lg-mist{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;visibility:hidden}
+  .lg-mist img{position:absolute;left:0;top:0;will-change:transform,opacity;opacity:0}
+  .lg-mist .veil{position:absolute;inset:-10%;background:radial-gradient(ellipse at 50% 50%,#F7F6F2 0 35%,rgba(247,246,242,.85) 60%,rgba(247,246,242,0) 85%);opacity:0;will-change:opacity}
   .lg-cg{position:absolute;opacity:0;will-change:transform,opacity}.lg-cg[data-g=l]{left:-6vw;top:-18vh;height:136vh;width:auto}.lg-cg[data-g=r]{right:-6vw;top:-18vh;height:136vh;width:auto}.lg-cg[data-g=b]{left:-15vw;width:130vw;bottom:-14vh}
   .lg-seacopy{position:absolute;inset:0;z-index:5;color:#fff;text-align:center;pointer-events:none;opacity:0;overflow:hidden}
   .lg-seacopy h3{position:absolute;left:0;right:0;top:34%;font-size:clamp(44px,5vw,96px);line-height:1.05;font-weight:800;letter-spacing:-.04em}
@@ -839,6 +843,7 @@
         <li><i>◍</i><b>글로벌 네트워크</b><span>220여 개 국가와 지역, 주요 공항과 항만을 잇는 직영망.</span></li>
         <li><i>☏</i><b>언제든 물어보세요</b><span>챗봇은 24시간, 상담원은 평일과 토요일에 이어져요.</span></li>
       </ul>
+      <div class="lg-mist" id="lgMist"><div class="veil"></div></div>
       <div class="lg-cl" id="lgClouds"><img class="lg-cg" data-g="b" src="img/lg/cloud_b.webp" alt=""><img class="lg-cg" data-g="l" src="img/lg/cloud_l.webp" alt=""><img class="lg-cg" data-g="r" src="img/lg/cloud_r.webp" alt=""></div>
       <div class="lg-seacopy" id="lgSeaCopy"><h3><span>물류는</span><span>멈추지 않습니다.</span></h3>
         <ul><li><b>한 명의 담당자</b><span>여러 업체를 오갈 필요 없이 한 팀이 끝까지.</span></li><li><b>전 구간 가시성</b><span>출발부터 도착까지 모든 단계를 투명하게.</span></li><li><b>믿을 수 있는 통관</b><span>규정이 바뀌어도 전문가가 미리 챙겨요.</span></li><li><b>빠른 문제 해결</b><span>문제가 생기면 먼저 연락드리고 해결합니다.</span></li></ul></div>
@@ -1601,6 +1606,14 @@ const lgTW=$('lgTW'),road=$('lgRoadPath'),RLEN=road.getTotalLength(),truckTop=$(
 const SHORE=2350; // 도로 끝 = 바다 시작 (월드 y)
 
 const cgs=[...document.querySelectorAll('.lg-cg')];
+// 배 장면 구름 (img/lg/mist_a/b.webp). x·y: 화면 비율(vw·vh), w: 너비(vw), d: 가까운 정도(클수록 빨리 지나가고, 하늘로 오를 때 크게 다가옴), f: 좌우 뒤집기
+const MIST=[
+  {i:'a',x:-8,y:105,w:62,d:.55,f:0},{i:'b',x:78,y:120,w:48,d:.45,f:1},{i:'a',x:62,y:175,w:70,d:.8,f:1},{i:'b',x:-12,y:205,w:52,d:.7,f:0},
+  {i:'a',x:30,y:250,w:46,d:.35,f:0},{i:'b',x:85,y:270,w:60,d:.9,f:0},{i:'a',x:-15,y:300,w:72,d:1,f:1},{i:'b',x:50,y:330,w:44,d:.5,f:1},
+  {i:'a',x:72,y:360,w:66,d:.75,f:0},{i:'b',x:5,y:395,w:58,d:.6,f:1},{i:'a',x:40,y:430,w:80,d:1,f:0},{i:'b',x:-20,y:450,w:70,d:.85,f:0},
+  {i:'a',x:88,y:470,w:64,d:.65,f:1},{i:'b',x:25,y:500,w:60,d:.9,f:0}];
+const lgMist=$('lgMist'),mistVeil=lgMist.querySelector('.veil'),mistEls=MIST.map(m=>{const im=document.createElement('img');im.alt='';im.decoding='async';im.src=`img/lg/mist_${m.i}.webp`;lgMist.appendChild(im);return im});
+const MIST_A=[12.9,16.15],MIST_B=[16.15,17.05];   // A: 바다 위로 흘러감 / B: 하늘로 올라가며 덮임 (물류 장면 진행 s)
 const lgWhite=document.createElement('div');lgWhite.className='lg-white';lgWhite.style.opacity=0;lgWhite.dataset.text='<div class="svp-line" data-i="w"><p class="k">01 · TIME DEFINITE EXPRESS</p><h3>원하는 시간에 맞춰,<br><b>정시 국제특송</b></h3><p class="d">익스프레스 9:00·12:00부터 월드와이드까지 도착 시간을 고르면<br>220여 개 국가·지역으로 문에서 문까지 배송해요.</p></div>';$('lgTop').appendChild(lgWhite);
 const lgPlane=$('lgPlane'),HP={c:[-2,442,773],b:[481,137,638],r:[827,442,775]};
 const sv=(s,a,b)=>clamp((s-a)/(b-a));
@@ -1703,7 +1716,9 @@ function logi(){
     // 바다(해안선 아래, 배는 바다 레이어 안에서 잘려 보임 → 트럭은 바다 밑으로 사라지고 컨테이너만 배에 남음)
     lgSea.style.top=seaTop.toFixed(1)+'px';
     place(lgShip,1000-SHW/2,shipTop,0,SHW,0,0,seaTop);
-    const ws=160*Math.max(z,.4);lgSea.style.backgroundSize=`${ws}px ${ws*.375}px`;
+    const mb0=sv(s,MIST_B[0],MIST_B[1]),mk=1-.4*mb0*mb0*(3-2*mb0);   // 하늘로 오를수록 배·물결이 작아짐 (멀어지는 느낌)
+    if(mk<1) lgShip.style.transform+=` scale(${mk.toFixed(4)})`;
+    const ws=160*Math.max(z,.4)*mk;lgSea.style.backgroundSize=`${ws}px ${ws*.375}px`;
     lgSea.style.backgroundPosition=`${(s*-30).toFixed(1)}px ${((SY(0)-seaTop)%(ws*.375)).toFixed(1)}px`;
     $('lgCopyB').style.opacity=(sv(s,9.45,9.85)*(1-sv(s,10.2,10.45))).toFixed(3);
     [...$('lgFeats').children].forEach((li,i)=>li.classList.toggle('in',s>9.5+i*.22&&s<10.45));
@@ -1717,6 +1732,20 @@ function logi(){
       const tx=t==='l'?-o*60-c2*6:t==='r'?o*60+c2*6:0,ty=t==='b'?o*70+c2*-4:0;
       g.style.opacity=Math.min(1,c*1.4).toFixed(3);
       g.style.transform=`translate3d(${tx.toFixed(2)}vw,${ty.toFixed(2)}vh,0) scale(${(1+c*.18+c2*.1).toFixed(4)})`});
+    { // 배 장면 구름
+      const on=s>MIST_A[0]-.3&&s<18.15; lgMist.style.visibility=on?'visible':'hidden';
+      if(on){ const a=sv(s,MIST_A[0],MIST_A[0]+.5), up=(s-MIST_A[0])*46, b=sv(s,MIST_B[0],MIST_B[1]), be=b*b*(3-2*b);
+        lgMist.style.zIndex=b>.15?6:4;   // 처음엔 문구 아래, 덮을 때는 문구 위
+        MIST.forEach((m,i)=>{const el=mistEls[i],w=m.w*W/100,h=w*1080/(m.i==='a'?1237:1092);
+          let cx=(m.x/100)*W+w/2+Math.sin(s*.6+i)*W*.012, cy=(m.y-up*m.d)/100*H+h/2;
+          const sc=1+be*(1.4+2.2*m.d);                                  // 하늘로 오르며 카메라 쪽으로 다가옴
+          cx=W/2+(cx-W/2)*(1+be*.6); cy=H/2+(cy-H/2)*(1+be*.6)-be*H*.25*m.d;
+          el.style.width=w+'px';
+          el.style.transform=`translate3d(${(cx-w/2).toFixed(1)}px,${(cy-h/2).toFixed(1)}px,0) scale(${(m.f?-sc:sc).toFixed(3)},${sc.toFixed(3)})`;
+          el.style.opacity=(a*(.55+.45*m.d)*(1-sv(s,17.6,18.1))).toFixed(3);});
+        mistVeil.style.opacity=(Math.pow(sv(s,MIST_B[0]+.25,MIST_B[1]),1.6)*(1-sv(s,17.9,18.15))).toFixed(3);
+      }
+    }
     const pw=W*1.25,ph=pw*1533/1591,pt=sv(s,16.9,18.1),px=lerp(-pw*1.05,W*1.1,pt);
     lgPlane.style.width=pw+'px';lgPlane.style.transform=`translate3d(${px.toFixed(1)}px,${(-ph*.46).toFixed(1)}px,0)`;
     const psc=pw/1591,Xc=px+840*psc,Yc=H/2-ph*.46+735*psc,SL=.365;lgWhite.style.opacity=pt>0?1:0;lgWhite.style.clipPath=pt>=1?'none':`polygon(-10px 0,${(Xc-Yc*SL).toFixed(1)}px 0,${Xc.toFixed(1)}px ${Yc.toFixed(1)}px,${(Xc-(H-Yc)*SL).toFixed(1)}px ${H}px,-10px ${H}px)`;
