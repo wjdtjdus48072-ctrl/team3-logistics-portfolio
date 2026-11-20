@@ -323,12 +323,12 @@
   
   .lg-seacopy b{display:block;font-size:clamp(22px,1.9vw,34px);font-weight:800;letter-spacing:-.03em}.lg-seacopy li span{display:block;margin-top:10px;font-size:clamp(14px,1vw,17px);line-height:1.6;color:rgba(255,255,255,.7)}
   /* 배 장면 세부 설명: 화면에 들어오면 아이콘 → 제목(아래에서 위로 올라옴) → 설명 순서로 등장, 오른쪽 칸은 조금 늦게 */
-  .lg-seacopy li .ic{display:block;width:clamp(24px,1.7vw,32px);height:clamp(24px,1.7vw,32px);margin-bottom:14px;opacity:0;transform:scale(.55) rotate(-20deg);transition:opacity .5s ease,transform .7s cubic-bezier(.2,.9,.25,1.25)}
+  .lg-seacopy li .ic{display:block;width:clamp(24px,1.7vw,32px);height:clamp(24px,1.7vw,32px);margin-bottom:14px;opacity:0;transform:translateY(22px);transition:opacity .32s ease,transform .46s ease-out}
   .lg-seacopy li:nth-child(odd) .ic{margin-left:auto}
   .lg-seacopy li .ic svg{width:100%;height:100%;stroke:#FFCC00;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .lg-seacopy b{overflow:hidden;padding-bottom:.06em}.lg-seacopy b em{display:inline-block;font-style:normal;transform:translateY(108%);transition:transform .85s cubic-bezier(.2,.8,.2,1) .1s}
-  .lg-seacopy li span{opacity:0;transform:translateY(16px);transition:opacity .7s ease .28s,transform .9s cubic-bezier(.2,.8,.2,1) .28s}
-  .lg-seacopy li:nth-child(even) .ic,.lg-seacopy li:nth-child(even) b em,.lg-seacopy li:nth-child(even) span{transition-delay:.12s,.22s}
+  .lg-seacopy b{overflow:hidden;padding-bottom:.06em}.lg-seacopy b em{display:inline-block;font-style:normal;transform:translateY(108%);transition:transform .52s ease-out .11s}
+  .lg-seacopy li span{opacity:0;transform:translateY(16px);transition:opacity .4s ease .22s,transform .56s ease-out .22s}
+
   .lg-seacopy li:last-child{width:min(440px,90vw);text-align:center}.lg-seacopy li:last-child .ic{margin-inline:auto}
   @media(max-width:640px){.lg-seacopy h3{font-size:clamp(30px,8vw,44px)}.lg-seacopy b{font-size:18px}.lg-seacopy li span{font-size:14px;line-height:1.45}}
   .lg-seacopy li.in .ic{opacity:1;transform:none}.lg-seacopy li.in b em{transform:none}.lg-seacopy li.in span{opacity:1;transform:none}
@@ -1782,23 +1782,23 @@ function logi(){
     const titleStart=Math.max(LG_LIFT[1],12.5+4.4*(1-Math.sqrt(1-zoomFraction)));
     const sc2=$('lgSeaCopy');sc2.style.opacity=s>=titleStart&&s<17.1?1:0;
     const intro=sc2.querySelector('.sea-intro');
-    const enter=sv(s,titleStart,titleStart+.95);
-    const leave=sv(s,15,15.85);
-    // The intro rests at 30% height, so another 70% places its top at the bottom edge.
-    intro.style.transform=`translateY(${H*(.7*(1-enter)-.9*leave)}px)`;
     const items=[...sc2.querySelectorAll('li')],half=SHW*k*z/2;
     let rowY=0;
     const offsets=items.map((li,i)=>{
       if(i && i%2===0) rowY+=Math.max(H*.42,items[i-2].offsetHeight+32,items[i-1].offsetHeight+32);
       return rowY;
     });
-    const gy=lerp(H*1.05,-rowY-H*.24,sv(s,15.35,16.95));
+    const lead=Math.max(H*.72,intro.offsetHeight+H*.12);
+    const travel=H+lead+rowY+items[4].offsetHeight;
+    const distance=travel*sv(s,titleStart,17.05);
+    intro.style.transform=`translate3d(0,${H*.7-distance}px,0)`;
+    const gy=H+lead-distance;
     items.forEach((li,i)=>{
-      const gap=Math.min(half+(i<2?56:150),Math.max(0,W/2-li.offsetWidth-12));
+      const gap=Math.min(half+Math.min(W*.035,54),Math.max(0,W/2-li.offsetWidth-12));
       const x=i===4?(W-li.offsetWidth)/2:i%2?W/2+gap:W/2-gap-li.offsetWidth;
-      const y=gy+offsets[i];
+      const y=gy+offsets[i]+(i%2)*H*.035;
       li.style.transform=`translate3d(${x}px,${y}px,0)`;
-      li.classList.toggle('in',y<H*.9 && y+li.offsetHeight>0);
+      li.classList.toggle('in',y<H*.98 && y+li.offsetHeight>0);
     });
     const c=easeOut(sv(s,16.2,17.1)),c2=sv(s,17.1,18.1);
     cgs.forEach(g=>{const t=g.dataset.g,o=1-c;
