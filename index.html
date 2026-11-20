@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="ko">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DHL Express | 메인</title>
+<title>이젠 3조 포트폴리오 시안 · 메인</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
@@ -912,7 +913,7 @@
         <p class="sec-label">RECEIVE</p>
         <h2 style="margin-top:14px">해외에서 오는 물건, <br><em>지금 어디쯤</em>일까요?</h2>
         <p class="p-lead">운송장 번호만 넣으면 통관 단계까지 쉬운 말로 알려드려요. 세금이 생기면 조회 화면에서 바로 납부할 수 있어요.</p>
-        <form class="track"><input placeholder="운송장 번호를 입력하세요 (여러 개는 쉼표로)" aria-label="운송장 번호"><button>조회</button></form>
+        <form onsubmit="return false" class="track"><input placeholder="운송장 번호를 입력하세요 (여러 개는 쉼표로)" aria-label="운송장 번호" readonly><button>조회</button></form>
         <p class="note"></p>
         <p class="sec-label" style="margin-top:40px">예시 · 1234567890</p>
         <ol class="steps">
@@ -937,7 +938,7 @@
         <p class="sec-label">SEND</p>
         <h2 style="margin-top:14px">해외로 보내기, <br><em>3단계</em>면 끝나요</h2>
         <p class="p-lead">요금을 확인하면 운송장 작성으로, 운송장을 쓰면 픽업 예약으로 자연스럽게 이어져요.</p>
-        <form class="track"><input placeholder="보낸 물품의 운송장 번호로 조회" aria-label="운송장 번호"><button>조회</button></form>
+        <form onsubmit="return false" class="track"><input placeholder="보낸 물품의 운송장 번호로 조회" aria-label="운송장 번호" readonly><button>조회</button></form>
         <p class="note"></p>
       </div>
       <div class="flow">

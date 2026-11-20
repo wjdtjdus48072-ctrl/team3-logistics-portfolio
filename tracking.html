@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="ko">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DHL Express | 배송조회</title>
+<title>이젠 3조 포트폴리오 시안 · 배송조회</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -241,9 +242,9 @@
 <section class="search" id="search" aria-label="배송 조회">
   <p class="eyebrow">TRACK YOUR SHIPMENT</p>
   <h2>내 물건,<br>지금 <em>어디쯤</em> 왔을까요?</h2>
-  <form class="s-form" id="sForm">
+  <form onsubmit="return false" class="s-form" id="sForm">
     <select aria-label="조회 기준"><option>운송장 번호</option><option>참조 번호</option></select>
-    <input id="sInput" inputmode="numeric" placeholder="운송장 번호 10자리를 입력하세요" aria-label="운송장 번호">
+    <input id="sInput" inputmode="numeric" placeholder="운송장 번호 10자리를 입력하세요" aria-label="운송장 번호" readonly>
     <button>조회하기 →</button>
   </form>
   <div class="s-help">
@@ -311,7 +312,7 @@
     <div class="ch"><label><input type="checkbox" checked><span>카카오 알림톡</span></label><label><input type="checkbox"><span>문자</span></label><label><input type="checkbox"><span>이메일</span></label></div>
   </div>
   <div>
-    <form class="n-form" id="nForm"><input placeholder="휴대폰 번호 ( - 없이)" inputmode="numeric" aria-label="휴대폰 번호"><button>알림 받기</button></form>
+    <form onsubmit="return false" class="n-form" id="nForm"><input placeholder="알림 연락처 (데모 · 입력 불가)" inputmode="numeric" aria-label="휴대폰 번호" readonly><button>알림 받기</button></form>
     <p class="n-done" id="nDone"></p>
   </div>
 </section>

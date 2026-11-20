@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DHL 박스 스토리</title>
+<title>박스 스토리 · 포트폴리오 시안</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -128,8 +129,8 @@ header .util{display:flex;gap:18px;font-size:13px;color:#555}
     <div class="hero" id="heroUI">
       <img class="hlogo" src="img/hero/hero_logo.png" alt="DHL">
       <p class="slogan">Excellence. Simply delivered.</p>
-      <form class="track" id="trackForm">
-        <input type="text" placeholder="운송장 번호 입력하기" aria-label="운송장 번호">
+      <form onsubmit="return false" class="track" id="trackForm">
+        <input type="text" placeholder="운송장 번호 입력하기" aria-label="운송장 번호" readonly>
         <button type="submit">조회</button>
       </form>
       <div class="demo-msg" id="demoMsg"></div>
