@@ -692,7 +692,7 @@
 
   /* v4.1 박스 스토리로 교체: 기존 히어로·숫자·브랜드 소개 숨김 */
   .hero,.since-sky,.nums,.brand-intro{display:none!important}
-  .bx-wrap{height:1032vh;position:relative}
+  .bx-wrap{height:1422vh;position:relative}   /* 컨베이어 구간 늘림: 1032vh → 1422vh */
   .bx-pin{position:sticky;top:0;height:100vh}
   #bxFrame{width:100%;height:100%;border:0;display:block}
   #bxWrap{z-index:3}
@@ -1882,7 +1882,7 @@ onScroll();
 (function(){
   if(/[?&]noap/.test(location.search))return;   // 테스트용: 자동 재생 끄기
   const lg=document.getElementById('logiScene'),LGZ_=2.2,LGS=LG_END;
-  const AP_BOX=21000;           // 택배 히어로 → 컨테이너 문 줌아웃 끝(리치스태커 첫 구도)
+  const AP_BOX=29800;           // 택배 히어로 → 컨테이너 문 줌아웃 끝(리치스태커 첫 구도)
   const AP_KEYS=[[3.6,7000],    // 리치스태커가 컨테이너를 들어 트럭에 올림
                  [4.4,1800],    // 카메라가 멀어짐
                  [8.0,6500],    // 트럭이 달리며 서비스 카드
