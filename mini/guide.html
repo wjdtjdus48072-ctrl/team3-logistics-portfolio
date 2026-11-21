@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#F4F3EF">
+<title>보내기 전 가이드 시안 · 이젠 3조 (비공식 학습용)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Inter:ital,wght@0,500;0,700;0,800;0,900;1,800;1,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ───────── 기본 ───────── */
+:root{--y:#FFCC00;--r:#D40511;--ink:#121212;--sub:#5c5c5c;--mute:#8d8a83;--line:#e3e0d8;--bg:#F4F3EF;--card:#fff;--mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter','Noto Sans KR',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+.wrap{max-width:1320px;margin:0 auto;padding:0 40px}
+@media (max-width:720px){.wrap{padding:0 20px}}
+.tag{font:700 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--sub);display:inline-flex;gap:10px;align-items:center}
+.tag b{color:var(--ink);background:var(--y);padding:4px 6px;border-radius:3px}
+h1,h2{font-weight:900;letter-spacing:-.045em;line-height:1.04}
+h2{font-size:clamp(40px,5.4vw,84px)}
+.hl{position:relative;white-space:nowrap;z-index:0}
+.hl::after{content:'';position:absolute;left:-.04em;right:-.04em;bottom:.08em;height:.26em;background:var(--y);z-index:-1;transform-origin:left;transform:scaleX(var(--k,1));transition:transform .9s cubic-bezier(.2,.8,.2,1) .2s}
+.rv .hl{--k:0}.rv.in .hl{--k:1}
+.lead{font-size:clamp(16px,1.2vw,19px);line-height:1.75;color:var(--sub);max-width:560px}
+.btn{display:inline-flex;align-items:center;flex:none;white-space:nowrap;gap:10px;border:0;border-radius:999px;padding:15px 24px;font-weight:800;font-size:15px}
+.btn.pri{background:var(--r);color:#fff}.btn.ghost{background:transparent;border:1.5px solid var(--ink)}
+.btn.y{background:var(--y);color:var(--ink)}
+section{position:relative}
+.demo{font:500 11px/1.4 var(--mono);color:var(--mute);letter-spacing:.04em}
+/* 등장 모션 */
+.rv{opacity:0;transform:translateY(36px);transition:opacity .8s ease,transform 1s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}
+
+/* ───────── 2. 내비 + 운송 표시줄 ───────── */
+.nav{position:fixed;left:0;right:0;top:0;z-index:50;transition:background .3s,box-shadow .3s}
+.nav.solid{background:rgba(244,243,239,.88);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:34px;height:72px}
+.nav .logo img{height:22px}
+.nav ul{display:flex;gap:26px;list-style:none;font-weight:700;font-size:15px}
+.nav ul a{opacity:.75}.nav ul a:hover,.nav ul a.on{opacity:1}
+.nav .sp{flex:1}
+.nav .mini{font-size:14px;font-weight:600;color:var(--sub);display:flex;gap:18px}
+@media (max-width:980px){.nav ul,.nav .mini{display:none}}
+/* ───────── 11. 푸터 (레퍼런스 구성) ───────── */
+footer{background:#f7efcf;color:var(--ink);padding:70px 0 0;overflow:hidden;position:relative}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.6fr;gap:30px}footer .cols>*{min-width:0}
+@media (max-width:900px){footer .cols{grid-template-columns:1fr 1fr}footer .cols .brand,footer .cols .news{grid-column:1/-1}}
+footer h4{font:700 11px/1 var(--mono);letter-spacing:.14em;color:var(--mute);margin-bottom:18px}
+footer ul{list-style:none;display:grid;gap:12px;font-size:15px;color:#3a3a3a}
+footer ul a{color:inherit;text-decoration:none}footer ul a:hover{color:var(--r)}
+footer .brand img{height:22px;margin-bottom:16px}
+footer .brand p{color:var(--sub);line-height:1.7;font-size:15px}
+footer .nl{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px}
+footer .nl input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);padding:0 14px;font:500 14px var(--sans)}
+footer .nl button{border:0;border-radius:999px;background:var(--r);color:#fff;font-weight:800;padding:10px 18px}
+footer .legal{margin-top:56px;padding-top:24px;border-top:1px solid #e6dcb8;display:flex;justify-content:space-between;color:var(--mute);font-size:13px;gap:20px;flex-wrap:wrap}
+footer .legal a{color:inherit;text-decoration:none;margin-left:18px}
+footer .wordmark{font:900 italic clamp(50px,14.5vw,250px)/.78 var(--sans);letter-spacing:-.06em;text-align:center;color:transparent;background:linear-gradient(180deg,rgba(255,204,0,.55),rgba(255,204,0,0) 90%);-webkit-background-clip:text;background-clip:text;margin-top:40px;user-select:none;white-space:nowrap}
+/* ───────── 가이드 페이지 ───────── */
+.nav.solid{background:rgba(244,243,239,.9)}
+h1{font-size:clamp(48px,6.6vw,104px)}
+.btn.lg{padding:17px 28px;font-size:16px}
+/* 1. 첫 화면 */
+.gh{padding:150px 0 90px}
+.gh-in{display:grid;grid-template-columns:1.35fr 1fr;gap:60px;align-items:end}
+.gh-in>*{min-width:0}
+@media (max-width:900px){.gh-in{grid-template-columns:1fr;gap:36px}.gh{padding:120px 0 60px}}
+.gh h1{margin-top:22px}.gh .lead{margin-top:24px}
+.gh-jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:30px}
+.gh-jump a{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:99px;padding:10px 16px;font-weight:800;font-size:15px;transition:.2s}
+.gh-jump a b{font:800 11px/1 var(--mono);background:var(--y);padding:4px 5px;border-radius:3px}
+.gh-jump a:hover{border-color:var(--ink);transform:translateY(-2px)}
+.prog{background:var(--ink);color:#fff;border-radius:24px;padding:26px}
+.prog small{font:700 11px/1 var(--mono);letter-spacing:.12em;color:#aaa}
+.prog-n{display:flex;align-items:baseline;gap:8px;margin-top:12px}.prog-n b{font:800 56px/1 var(--mono);color:var(--y)}.prog-n span{color:#bbb;font-weight:700}
+.prog-bar{height:6px;border-radius:6px;background:#333;margin:16px 0 18px;overflow:hidden}.prog-bar i{display:block;height:100%;width:0;background:var(--y);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.prog-l{list-style:none;display:grid;gap:8px}
+.prog-l li a{display:flex;justify-content:space-between;font-weight:700;font-size:14px;color:#ddd}
+.prog-l li span{font:700 12px var(--mono);color:#888}.prog-l li.ok span{color:var(--y)}
+.prog-msg{margin-top:16px;font-size:12px;color:#999}
+/* 2~5. 할 일 섹션 */
+.gs{padding:clamp(70px,10vh,120px) 0;border-top:1px solid var(--line);scroll-margin-top:72px}
+.gs-in{display:grid;grid-template-columns:1fr 1.35fr;gap:60px;align-items:start}
+.gs-in>*{min-width:0}
+@media (max-width:900px){.gs-in{grid-template-columns:1fr;gap:28px}}
+.gs-h{position:sticky;top:100px}
+@media (max-width:900px){.gs-h{position:static}}
+.gs-pic{position:relative;overflow:hidden;height:180px;border-radius:20px;border:1px solid var(--line);margin-bottom:26px;background:#e9e3d2}
+.gs-pic::before{content:"";position:absolute;width:1448px;height:1086px;left:calc(50% - var(--x) * .5px);top:calc(50% - var(--y) * .5px);background:url(img/map.webp) 0 0/100% 100% no-repeat;transition:transform 6s ease-out}
+.gs:hover .gs-pic::before{transform:scale(1.04)}
+.gs-n{font:800 14px/1 var(--mono);background:var(--y);padding:5px 7px;border-radius:3px}
+.gs h2{font-size:clamp(38px,4.4vw,64px);margin-top:16px}
+.gs-h>p{margin-top:14px;font-size:17px;line-height:1.7;color:var(--sub)}
+.gs-c{display:inline-block;margin-top:16px;font:700 12px/1 var(--mono);color:var(--mute)}
+.gs-c.ok{color:#1E7D3A}
+.gs-b{display:grid;gap:18px}
+.ck{list-style:none;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 20px}
+.ck li+li{border-top:1px solid var(--line)}
+.ck label{display:flex;gap:14px;align-items:flex-start;padding:16px 0;cursor:pointer;font-weight:600;line-height:1.5}
+.ck input{appearance:none;flex:none;width:22px;height:22px;border:2px solid #cfc9b9;border-radius:6px;margin-top:1px;display:grid;place-items:center;transition:.2s;cursor:pointer}
+.ck input::after{content:'';width:6px;height:11px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) scale(0);margin-top:-3px;transition:transform .2s}
+.ck input:checked{background:var(--r);border-color:var(--r)}.ck input:checked::after{transform:rotate(45deg) scale(1)}
+.ck input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.ck input:checked+span{color:var(--mute);text-decoration:line-through;text-decoration-color:var(--y);text-decoration-thickness:3px}
+.gs-link{justify-self:start;font-weight:800;border-bottom:2px solid var(--y)}
+/* 부피무게 계산기 */
+.vw{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}
+.vw-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.vw-h b{font-size:17px}
+.vw-f{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+@media (max-width:600px){.vw-f{grid-template-columns:1fr 1fr}}
+.vw-f label{display:flex;flex-direction:column;gap:6px;font:700 11px/1 var(--mono);color:var(--mute);position:relative}
+.vw-f input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 34px 12px 12px;font:700 18px var(--mono);color:var(--ink);background:var(--bg)}
+.vw-f input:focus{outline:0;border-color:var(--ink)}.vw-f input.bad{border-color:var(--r)}
+.vw-f small{position:absolute;right:12px;bottom:15px;font-size:12px}
+.vw-r{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.vw-r div{background:var(--bg);border-radius:12px;padding:12px}.vw-r dt{font:700 10px/1 var(--mono);color:var(--mute)}.vw-r dd{font:800 20px/1 var(--mono);margin-top:8px}
+.vw-r .chg{background:var(--y)}
+.vw-tip{margin-top:12px;font-size:14px;line-height:1.6;color:var(--sub);min-height:22px}.vw-tip b{color:var(--r)}
+.vw-err{font-size:13px;font-weight:700;color:var(--r);min-height:0}
+/* 서류 */
+.docs{background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 20px}
+.docs details+details{border-top:1px solid var(--line)}
+.docs summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto 14px;gap:12px;align-items:center;padding:18px 0}
+.docs summary::-webkit-details-marker{display:none}.docs summary b{font-size:17px}.docs summary span{font-size:12px;font-weight:700;color:var(--mute);background:var(--bg);padding:5px 9px;border-radius:99px}
+.docs summary i{width:14px;height:14px;position:relative}.docs summary i::before,.docs summary i::after{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:var(--ink);transition:.3s}.docs summary i::after{transform:rotate(90deg)}
+.docs details[open] summary i::after{transform:none}.docs p{padding:0 0 18px;color:var(--sub);line-height:1.75}
+/* 관세 자가 확인 */
+.duty{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;display:grid;gap:18px}
+.dq b{font-size:16px}.opt{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.opt button{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:10px 16px;font-weight:800;font-size:14px;transition:.2s}
+.opt button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.opt.off{opacity:.35;pointer-events:none}
+.dr{background:var(--bg);border-radius:14px;padding:16px 18px;border-left:0}
+.dr small{font:700 10px/1 var(--mono);letter-spacing:.12em;color:var(--mute)}.dr p{margin-top:8px;font-weight:700;line-height:1.6}
+.dr.go{background:#eaf6ec}.dr.warn{background:#fff3cf}
+/* 메시지 */
+.msg{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}
+.msg-h{display:flex;justify-content:space-between;align-items:center}.msg-h b{font-size:17px}.msg-h .btn{padding:9px 16px;font-size:14px}
+.msg-awb{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;font-weight:700;color:var(--sub)}
+.msg-awb input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font:700 15px var(--mono);background:var(--bg)}
+.bubble{margin-top:14px;background:#fae100;border-radius:18px 18px 18px 4px;padding:16px 18px;line-height:1.75;font-size:15px;white-space:pre-line;max-width:440px}
+.msg-st{min-height:20px;margin-top:10px;font-size:13px;font-weight:700;color:#1E7D3A}.msg-st.err{color:var(--r)}
+/* 6. 금지 품목 */
+.gx h2{font-size:clamp(38px,4.4vw,64px);margin-top:18px}
+.gx-l{display:flex;flex-wrap:wrap;gap:10px;margin:30px 0 18px}
+.gx-l span{background:#fff;border:1.5px solid var(--line);border-radius:99px;padding:12px 18px;font-weight:800;position:relative;padding-left:40px}
+.gx-l span::before{content:'';position:absolute;left:14px;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;border:2.5px solid var(--r)}
+.gx-l span::after{content:'';position:absolute;left:15px;top:50%;width:15px;height:2.5px;margin-top:-1px;background:var(--r);transform:rotate(-45deg)}
+/* 7. 마지막 */
+.gd-end{background:var(--y);padding:clamp(80px,12vh,140px) 0}
+.gd-end-in{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap}
+.gd-end h2 .hl::after{background:#fff}
+.gd-end-a{display:flex;gap:10px;flex-wrap:wrap}
+footer{margin-top:0}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}*{animation:none!important}}
+</style>
+</head>
+<body>
+<div style="position:fixed;left:12px;bottom:12px;z-index:9999;font:500 11px/1.5 system-ui,sans-serif;background:rgba(0,0,0,.75);color:#fff;padding:6px 10px;border-radius:6px;pointer-events:none">이젠 3조 · 물류 웹 리뉴얼 포트폴리오 시안 (비공식 학습용 데모 · 실제 서비스 아님)</div>
+<header class="nav solid" id="nav"><div class="wrap">
+  <a class="logo" href="index.html"><img src="img/dhl-logo.png" alt="DHL"></a>
+  <ul><li><a href="track.html">배송조회</a></li><li><a href="index.html#ship">발송</a></li><li><a href="index.html#services">서비스</a></li><li><a class="on" href="guide.html">가이드</a></li><li><a href="index.html#support">고객지원</a></li></ul>
+  <div class="sp"></div>
+  <div class="mini"><a href="#">로그인</a><a href="#">KR</a></div>
+  <a class="btn pri" href="index.html#ship" style="padding:11px 18px;font-size:14px">발송하기 →</a>
+</div></header>
+
+<main>
+<!-- 1. 첫 화면: 할 일 4가지 + 준비 체크 -->
+<section class="gh" id="top"><div class="wrap gh-in">
+  <div>
+    <div class="tag rv"><b>GUIDE</b> 보내기 전 가이드</div>
+    <h1 class="rv d1">보내기 전에,<br>이 <span class="hl">4가지</span>만.</h1>
+    <p class="lead rv d2">처음 보내도 괜찮아요. 아래 순서대로 체크하면 세관에서 멈추지 않고, 받는 분도 한 번에 받을 수 있어요.</p>
+    <nav class="gh-jump rv d3" aria-label="가이드 바로가기"><a href="#g1"><b>01</b>포장하기</a><a href="#g2"><b>02</b>서류 챙기기</a><a href="#g3"><b>03</b>관세 확인하기</a><a href="#g4"><b>04</b>받는 분께 알리기</a></nav>
+  </div>
+  <aside class="prog rv d2" aria-live="polite">
+    <small>내 준비 상황</small>
+    <div class="prog-n"><b id="pN">0</b><span>/ <i id="pT">0</i> 완료</span></div>
+    <div class="prog-bar"><i id="pBar"></i></div>
+    <ol class="prog-l" id="pList"></ol>
+    <p class="prog-msg" id="pMsg">체크한 항목은 이 브라우저에 저장돼요.</p>
+  </aside>
+</div></section>
+
+<!-- 2. 01 포장하기 -->
+<section class="gs" id="g1" data-g="0"><div class="wrap gs-in">
+  <div class="gs-h"><div class="gs-pic" style="--x:670;--y:1750" aria-hidden="true"></div><b class="gs-n">01</b><h2>포장하기</h2><p>튼튼한 상자에 빈틈없이. 상자 크기가 요금을 정하기도 해요.</p><span class="gs-c" data-c="0"></span></div>
+  <div class="gs-b">
+    <ul class="ck" data-g="0">
+      <li><label><input type="checkbox"><span>새 상자나 튼튼한 이중 골판지 상자를 골랐어요</span></label></li>
+      <li><label><input type="checkbox"><span>물건이 흔들리지 않게 빈 곳을 완충재로 채웠어요</span></label></li>
+      <li><label><input type="checkbox"><span>테이프를 H자로 붙여 모든 이음새를 막았어요</span></label></li>
+      <li><label><input type="checkbox"><span>예전 운송장·바코드는 떼거나 가렸어요</span></label></li>
+    </ul>
+    <div class="vw">
+      <div class="vw-h"><b>부피무게 계산기</b><span class="demo">가로×세로×높이(cm) ÷ 5,000</span></div>
+      <div class="vw-f">
+        <label>가로<input id="vL" type="number" inputmode="decimal" value="40" min="1"><small>cm</small></label>
+        <label>세로<input id="vW" type="number" inputmode="decimal" value="30" min="1"><small>cm</small></label>
+        <label>높이<input id="vH" type="number" inputmode="decimal" value="20" min="1"><small>cm</small></label>
+        <label>실제 무게<input id="vK" type="number" inputmode="decimal" value="2" min="0.1" step="0.1"><small>kg</small></label>
+      </div>
+      <div class="vw-r"><div><dt>부피무게</dt><dd id="vV">—</dd></div><div><dt>실제 무게</dt><dd id="vA">—</dd></div><div class="chg"><dt>요금 기준</dt><dd id="vC">—</dd></div></div>
+      <p class="vw-tip" id="vTip"></p>
+      <p class="vw-err" id="vErr" role="alert"></p>
+    </div>
+    <a class="gs-link" href="index.html#planner">빈틈없이 싣는 체험 해보기 →</a>
+  </div>
+</div></section>
+
+<!-- 3. 02 서류 챙기기 -->
+<section class="gs" id="g2" data-g="1"><div class="wrap gs-in">
+  <div class="gs-h"><div class="gs-pic" style="--x:1080;--y:960" aria-hidden="true"></div><b class="gs-n">02</b><h2>서류 챙기기</h2><p>상자 밖에 붙는 서류가 세관과 기사님께 길을 알려줘요.</p><span class="gs-c" data-c="1"></span></div>
+  <div class="gs-b">
+    <div class="docs">
+      <details open><summary><b>운송장 (배송 라벨)</b><span>모든 발송물</span><i></i></summary><p>받는 분 주소와 연락처를 영문으로 적어요. 온라인으로 만들면 출력해서 상자 윗면에 붙이면 돼요.</p></details>
+      <details><summary><b>상업 송장 (인보이스)</b><span>서류가 아닌 물건일 때</span><i></i></summary><p>무엇을, 몇 개, 얼마어치 보내는지 적는 서류예요. 세관이 이 서류로 관세를 계산해요. 보통 3부를 준비해요.</p></details>
+      <details><summary><b>추가 서류</b><span>도착 국가·물품에 따라</span><i></i></summary><p>원산지 증명서, 수출 신고서 등이 필요할 수 있어요. 물품과 나라에 따라 달라서 발송 전에 확인해 주세요.</p></details>
+    </div>
+    <ul class="ck" data-g="1">
+      <li><label><input type="checkbox"><span>받는 분 주소·연락처를 영문으로 정확히 적었어요</span></label></li>
+      <li><label><input type="checkbox"><span>물품 이름을 구체적으로 적었어요 (예: '선물' 대신 '면 티셔츠 2장')</span></label></li>
+      <li><label><input type="checkbox"><span>인보이스를 투명 봉투에 넣어 상자에 붙였어요</span></label></li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- 4. 03 관세 확인하기 -->
+<section class="gs" id="g3" data-g="2"><div class="wrap gs-in">
+  <div class="gs-h"><div class="gs-pic" style="--x:1880;--y:440" aria-hidden="true"></div><b class="gs-n">03</b><h2>관세 확인하기</h2><p>누가, 얼마를 낼지 미리 정해 두면 세관에서 멈추지 않아요.</p><span class="gs-c" data-c="2"></span></div>
+  <div class="gs-b">
+    <div class="duty" id="duty">
+      <div class="dq"><b>1. 무엇을 보내나요?</b><div class="opt" data-q="what"><button type="button" data-v="doc">서류만</button><button type="button" data-v="goods">물건</button></div></div>
+      <div class="dq"><b>2. 물건 값이 도착 국가의 면세 기준을 넘나요?</b><div class="opt" data-q="over"><button type="button" data-v="no">안 넘어요</button><button type="button" data-v="yes">넘어요</button><button type="button" data-v="idk">모르겠어요</button></div></div>
+      <div class="dq"><b>3. 관세는 누가 내나요?</b><div class="opt" data-q="who"><button type="button" data-v="dap">받는 분</button><button type="button" data-v="ddp">보내는 분</button></div></div>
+      <div class="dr" id="dr" aria-live="polite"><small>결과</small><p id="drT">세 가지를 고르면 결과가 나와요.</p></div>
+      <p class="demo">※ 시안 · 실제 관세는 도착 국가 규정과 물품에 따라 달라요. 참고용 예시예요.</p>
+    </div>
+    <ul class="ck" data-g="2">
+      <li><label><input type="checkbox"><span>도착 국가의 면세 기준을 확인했어요</span></label></li>
+      <li><label><input type="checkbox"><span>관세를 누가 낼지 받는 분과 정했어요</span></label></li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- 5. 04 받는 분께 알리기 -->
+<section class="gs" id="g4" data-g="3"><div class="wrap gs-in">
+  <div class="gs-h"><div class="gs-pic" style="--x:1230;--y:1530" aria-hidden="true"></div><b class="gs-n">04</b><h2>받는 분께 알리기</h2><p>운송장 번호와 받을 시간을 미리 알려 주면 한 번에 받아요.</p><span class="gs-c" data-c="3"></span></div>
+  <div class="gs-b">
+    <div class="msg">
+      <div class="msg-h"><b>보낼 메시지</b><button type="button" class="btn ghost" id="mCopy">복사하기</button></div>
+      <label class="msg-awb">운송장 번호<input id="mAwb" inputmode="numeric" maxlength="10" placeholder="10자리" value="1234567890"></label>
+      <div class="bubble" id="mText"></div>
+      <p class="msg-st" id="mSt" role="status"></p>
+    </div>
+    <ul class="ck" data-g="3">
+      <li><label><input type="checkbox"><span>운송장 번호와 조회 링크를 보냈어요</span></label></li>
+      <li><label><input type="checkbox"><span>받는 분이 집에 있는 시간을 확인했어요</span></label></li>
+      <li><label><input type="checkbox"><span>관세를 받는 분이 낸다면 미리 알려드렸어요</span></label></li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- 6. 보낼 수 없는 물품 -->
+<section class="sec gx" id="never"><div class="wrap">
+  <div class="tag rv"><b>!</b> 보내기 전 한 번 더</div>
+  <h2 class="rv d1">이건 <span class="hl">보낼 수 없어요</span>.</h2>
+  <div class="gx-l rv d2">
+    <span>현금·유가증권</span><span>귀금속·보석</span><span>배터리 단독 발송</span><span>인화성 물질 (라이터, 일부 향수)</span><span>무기·모형총</span><span>마약류·의약품 일부</span><span>살아있는 동식물</span><span>육류·유제품 등 신선식품</span>
+  </div>
+  <p class="demo rv d3">※ 시안 · 대표 예시예요. 실제 금지·제한 품목은 도착 국가와 물품에 따라 달라요.</p>
+</div></section>
+
+<!-- 7. 다음 행동 -->
+<section class="gd-end"><div class="wrap gd-end-in">
+  <h2>준비 끝.<br><span class="hl">이제 보내볼까요?</span></h2>
+  <div class="gd-end-a"><a class="btn pri lg" href="index.html#ship">발송하기 →</a><a class="btn ghost lg" href="track.html">배송조회</a></div>
+</div></section>
+</main>
+
+<!-- 11. 푸터 -->
+<footer><div class="wrap">
+  <div class="cols">
+    <div class="brand"><img src="img/dhl-logo.png" alt="DHL"><p>보이는 물류, 이어지는 사람.<br>Connecting People, Improving Lives</p></div>
+    <nav><h4>서비스</h4><ul><li><a href="track.html">배송 조회</a></li><li><a href="index.html#ship">발송하기</a></li><li><a href="index.html#services">서비스 비교</a></li><li><a href="index.html#planner">적재 체험</a></li><li><a href="index.html#faq">통관 안내</a></li></ul></nav>
+    <nav><h4>회사</h4><ul><li><a href="index.html">회사 소개</a></li><li><a href="index.html">지속가능경영</a></li><li><a href="index.html">채용</a></li><li><a href="index.html#support">문의</a></li></ul></nav>
+    <nav><h4>도움말</h4><ul><li><a href="index.html#faq">FAQ</a></li><li><a href="index.html#support">공지사항</a></li><li><a href="index.html#support">고객센터 1588-0001</a></li><li><a href="guide.html">보내기 전 가이드</a></li></ul></nav>
+    <form class="news" onsubmit="return false"><h4>한 달에 한 번, 물류 소식</h4><div class="nl"><input type="email" readonly placeholder="구독 (데모 · 입력 불가)" aria-label="이메일 주소"><button type="button">구독</button></div></form>
+  </div>
+  <div class="legal"><span>이젠 3조 · 물류 웹 리뉴얼 포트폴리오 시안 (비공식 학습용 데모 · 실제 서비스 아님)</span><span><a href="index.html">개인정보처리방침</a><a href="index.html">이용약관</a></span></div>
+</div><div class="wordmark" aria-hidden="true">DHL EXPRESS</div></footer>
+<script>
+(()=>{const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+$$('.rv').forEach(e=>io.observe(e));
+/* 준비 체크 — 이 브라우저에만 저장 (저장 안 되면 그냥 화면에서만 기억) */
+const KEY='dhl-guide-check',NAMES=['포장하기','서류 챙기기','관세 확인하기','받는 분께 알리기'];
+const boxes=$$('.ck input');let saved=[];try{saved=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+boxes.forEach((b,i)=>{b.checked=!!saved[i];b.addEventListener('change',upd)});
+function upd(){const st=boxes.map(b=>b.checked);try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}
+  const n=st.filter(Boolean).length,T=boxes.length;$('#pN').textContent=n;$('#pT').textContent=T;$('#pBar').style.width=n/T*100+'%';
+  $('#pList').innerHTML=NAMES.map((nm,g)=>{const bs=$$(`.ck[data-g="${g}"] input`),k=bs.filter(b=>b.checked).length,ok=k===bs.length;
+    const c=$(`.gs-c[data-c="${g}"]`);c.textContent=ok?'✓ 다 챙겼어요':`${k}/${bs.length} 체크`;c.classList.toggle('ok',ok);
+    return `<li class="${ok?'ok':''}"><a href="#g${g+1}">${nm}<span>${ok?'완료':k+'/'+bs.length}</span></a></li>`}).join('');
+  $('#pMsg').textContent=n===T?'준비 끝! 이제 발송만 하면 돼요.':'체크한 항목은 이 브라우저에 저장돼요.'}
+upd();
+/* 부피무게 계산기 — 가로×세로×높이 ÷ 5,000, 실제 무게와 비교해 큰 쪽이 요금 기준 */
+const f=n=>(Math.round(n*10)/10).toFixed(1)+' kg',up=x=>Math.ceil(x*2)/2;
+function vw(){const ids=['vL','vW','vH','vK'],v=ids.map(id=>+$('#'+id).value),bad=ids.filter((id,i)=>!(v[i]>0));
+  ids.forEach(id=>$('#'+id).classList.toggle('bad',bad.includes(id)));
+  if(bad.length){$('#vErr').textContent='0보다 큰 숫자를 넣어 주세요.';['vV','vA','vC'].forEach(i=>$('#'+i).textContent='—');$('#vTip').textContent='';return}
+  $('#vErr').textContent='';const vol=v[0]*v[1]*v[2]/5000,ch=up(Math.max(vol,v[3]));
+  $('#vV').textContent=f(vol);$('#vA').textContent=f(v[3]);$('#vC').textContent=f(ch);
+  $('#vTip').innerHTML=vol>v[3]?`상자가 무게보다 커서 <b>부피무게</b>로 요금이 매겨져요. 한 치수 작은 상자를 쓰면 줄일 수 있어요.`:'실제 무게로 요금이 매겨져요. 상자 크기는 알맞아요.'}
+$$('.vw-f input').forEach(i=>i.addEventListener('input',vw));vw();
+/* 관세 자가 확인 */
+const A={};
+$('#duty').addEventListener('click',e=>{const b=e.target.closest('.opt button');if(!b)return;const q=b.parentElement.dataset.q;A[q]=b.dataset.v;
+  b.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));duty()});
+function duty(){const o=$('[data-q="over"]'),w=$('[data-q="who"]'),r=$('#dr'),t=$('#drT');const doc=A.what==='doc';
+  o.classList.toggle('off',doc);w.classList.toggle('off',doc||A.over==='no');r.className='dr';
+  if(doc){r.classList.add('go');t.textContent='서류는 대부분 관세가 붙지 않아요. 운송장만 잘 붙이면 돼요.';return}
+  if(!A.what||!A.over){t.textContent='세 가지를 고르면 결과가 나와요.';return}
+  if(A.over==='no'){r.classList.add('go');t.textContent='관세 없이 통과할 가능성이 커요. 인보이스에 물품 값을 정확히 적어 주세요.';return}
+  if(A.over==='idk'&&!A.who){r.classList.add('warn');t.textContent='도착 국가의 면세 기준부터 확인해 주세요. 기준을 넘으면 관세·세금이 붙어요. 누가 낼지도 골라 보세요.';return}
+  if(!A.who){t.textContent='관세를 누가 낼지 골라 주세요.';return}
+  r.classList.add('warn');t.textContent=A.who==='dap'?'받는 분이 관세를 내요(DAP). 받기 전에 납부 안내가 가니, 미리 알려 주세요.':'보내는 분이 관세를 내요(DDP). 받는 분은 그냥 받기만 하면 돼요. 발송할 때 이 조건을 골라 주세요.'}
+/* 받는 분께 보낼 메시지 */
+function msg(){const a=$('#mAwb').value.replace(/\D/g,'');$('#mAwb').value=a;const ok=a.length===10,sp=ok?a.replace(/(\d{4})(\d{3})(\d{3})/,'$1 $2 $3'):'(운송장 번호 10자리)';
+  const dt=A.who==='dap'?'\n관세는 받는 쪽에서 내야 해서, 납부 안내가 가면 확인 부탁해요.':'';
+  $('#mText').textContent=`DHL로 택배 보냈어요!\n운송장 번호: ${sp}\nDHL 배송조회에 이 번호를 넣으면 지금 어디쯤인지 볼 수 있어요.${dt}\n받기 편한 시간 알려주면 맞춰볼게요.`;return ok}
+$('#mAwb').addEventListener('input',()=>{$('#mSt').textContent='';msg()});
+$('#duty').addEventListener('click',msg);msg();
+$('#mCopy').onclick=()=>{const st=$('#mSt');if(!msg()){st.classList.add('err');st.textContent='운송장 번호 10자리를 넣어 주세요.';$('#mAwb').focus();return}
+  st.classList.remove('err');const t=$('#mText').textContent;
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>st.textContent='복사했어요. 메신저에 붙여넣으면 돼요.',()=>st.textContent='복사가 안 되면 말풍선 글을 길게 눌러 복사해 주세요.')};
+})();
+</script>
+
+</body>
+</html>

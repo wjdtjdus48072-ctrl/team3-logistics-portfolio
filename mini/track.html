@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#F4F3EF">
+<title>배송조회 시안 · 이젠 3조 (비공식 학습용)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Inter:ital,wght@0,500;0,700;0,800;0,900;1,800;1,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ───────── 기본 ───────── */
+:root{--y:#FFCC00;--r:#D40511;--ink:#121212;--sub:#5c5c5c;--mute:#8d8a83;--line:#e3e0d8;--bg:#F4F3EF;--card:#fff;--mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter','Noto Sans KR',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+.wrap{max-width:1320px;margin:0 auto;padding:0 40px}
+@media (max-width:720px){.wrap{padding:0 20px}}
+.tag{font:700 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--sub);display:inline-flex;gap:10px;align-items:center}
+.tag b{color:var(--ink);background:var(--y);padding:4px 6px;border-radius:3px}
+h1,h2{font-weight:900;letter-spacing:-.045em;line-height:1.04}
+h2{font-size:clamp(40px,5.4vw,84px)}
+.hl{position:relative;white-space:nowrap;z-index:0}
+.hl::after{content:'';position:absolute;left:-.04em;right:-.04em;bottom:.08em;height:.26em;background:var(--y);z-index:-1;transform-origin:left;transform:scaleX(var(--k,1));transition:transform .9s cubic-bezier(.2,.8,.2,1) .2s}
+.rv .hl{--k:0}.rv.in .hl{--k:1}
+.lead{font-size:clamp(16px,1.2vw,19px);line-height:1.75;color:var(--sub);max-width:560px}
+.btn{display:inline-flex;align-items:center;flex:none;white-space:nowrap;gap:10px;border:0;border-radius:999px;padding:15px 24px;font-weight:800;font-size:15px}
+.btn.pri{background:var(--r);color:#fff}.btn.ghost{background:transparent;border:1.5px solid var(--ink)}
+.btn.y{background:var(--y);color:var(--ink)}
+section{position:relative}
+.demo{font:500 11px/1.4 var(--mono);color:var(--mute);letter-spacing:.04em}
+/* 등장 모션 */
+.rv{opacity:0;transform:translateY(36px);transition:opacity .8s ease,transform 1s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}
+
+/* ───────── 2. 내비 + 운송 표시줄 ───────── */
+.nav{position:fixed;left:0;right:0;top:0;z-index:50;transition:background .3s,box-shadow .3s}
+.nav.solid{background:rgba(244,243,239,.88);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:34px;height:72px}
+.nav .logo img{height:22px}
+.nav ul{display:flex;gap:26px;list-style:none;font-weight:700;font-size:15px}
+.nav ul a{opacity:.75}.nav ul a:hover,.nav ul a.on{opacity:1}
+.nav .sp{flex:1}
+.nav .mini{font-size:14px;font-weight:600;color:var(--sub);display:flex;gap:18px}
+@media (max-width:980px){.nav ul,.nav .mini{display:none}}
+/* ───────── 11. 푸터 (레퍼런스 구성) ───────── */
+footer{background:#f7efcf;color:var(--ink);padding:70px 0 0;overflow:hidden;position:relative}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.6fr;gap:30px}footer .cols>*{min-width:0}
+@media (max-width:900px){footer .cols{grid-template-columns:1fr 1fr}footer .cols .brand,footer .cols .news{grid-column:1/-1}}
+footer h4{font:700 11px/1 var(--mono);letter-spacing:.14em;color:var(--mute);margin-bottom:18px}
+footer ul{list-style:none;display:grid;gap:12px;font-size:15px;color:#3a3a3a}
+footer ul a{color:inherit;text-decoration:none}footer ul a:hover{color:var(--r)}
+footer .brand img{height:22px;margin-bottom:16px}
+footer .brand p{color:var(--sub);line-height:1.7;font-size:15px}
+footer .nl{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px}
+footer .nl input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);padding:0 14px;font:500 14px var(--sans)}
+footer .nl button{border:0;border-radius:999px;background:var(--r);color:#fff;font-weight:800;padding:10px 18px}
+footer .legal{margin-top:56px;padding-top:24px;border-top:1px solid #e6dcb8;display:flex;justify-content:space-between;color:var(--mute);font-size:13px;gap:20px;flex-wrap:wrap}
+footer .legal a{color:inherit;text-decoration:none;margin-left:18px}
+footer .wordmark{font:900 italic clamp(50px,14.5vw,250px)/.78 var(--sans);letter-spacing:-.06em;text-align:center;color:transparent;background:linear-gradient(180deg,rgba(255,204,0,.55),rgba(255,204,0,0) 90%);-webkit-background-clip:text;background-clip:text;margin-top:40px;user-select:none;white-space:nowrap}
+/* ───────── 배송조회 페이지 ───────── */
+.nav.solid{background:rgba(244,243,239,.9)}
+h1{font-size:clamp(48px,6.6vw,104px)}
+/* 1. 첫 화면 — 조회에 집중 */
+.th{padding:150px 0 60px}
+.th-in{display:grid;grid-template-columns:1.25fr 1fr;gap:60px;align-items:end}
+@media (max-width:900px){.th-in{grid-template-columns:1fr;gap:36px}.th{padding-top:120px}}
+.th h1{margin-top:22px}
+.th-r{background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px}
+.wb{background:#fffdf5;border:1.5px dashed #d9cfa9;border-radius:14px;padding:16px;font-family:var(--mono)}
+.wb-top{display:flex;justify-content:space-between;align-items:center}.wb-top img{height:16px}.wb-top span{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--mute)}
+.wb-row{display:flex;gap:6px;margin:14px 0}.wb-row i{flex:1;height:8px;border-radius:4px;background:#ece6d3}.wb-row i.s{flex:.5}
+.wb-no{background:var(--y);border-radius:8px;padding:10px 12px;box-shadow:0 0 0 4px rgba(212,5,17,.18);animation:wbp 2.4s ease-in-out infinite}
+@keyframes wbp{50%{box-shadow:0 0 0 9px rgba(212,5,17,.06)}}
+.wb-no small{font-size:10px;font-weight:700;letter-spacing:.12em;display:block}.wb-no b{font-size:22px;letter-spacing:.08em}
+.wb-bar{height:34px;margin-top:12px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 7px,transparent 7px 9px);opacity:.75;border-radius:2px}
+.wb-cap{margin-top:16px;font-size:14px;line-height:1.7;color:var(--sub)}.wb-cap b{color:var(--ink)}
+.recent{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}.recent small{font:700 10px/1 var(--mono);letter-spacing:.12em;color:var(--mute)}
+#recentList{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}#recentList button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:6px 12px;font:700 13px var(--mono)}
+
+.world{position:absolute;left:0;top:0;width:2896px;height:2172px;transform-origin:0 0;will-change:transform}
+.world img{width:100%;height:100%}
+.route{position:absolute;inset:0;width:100%;height:100%}
+.tq{margin-top:36px;display:flex;gap:8px;max-width:560px;background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:6px;box-shadow:0 14px 40px rgba(0,0,0,.08)}
+.tq input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:700 20px/1 var(--mono);letter-spacing:.06em;padding:0 18px;color:var(--ink)}
+.tq input::placeholder{font:500 16px var(--sans);letter-spacing:0;color:var(--mute)}
+.tq.bad{border-color:var(--r);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tq-err{min-height:22px;margin:10px 0 0 22px;color:var(--r);font-size:14px;font-weight:700}
+.tq-ex{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--sub)}
+.tq-ex button{border:1px solid var(--line);background:rgba(255,255,255,.85);border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px}
+.tq-ex button:hover{border-color:var(--ink)}
+.pins{position:absolute;inset:0}
+.pin{position:absolute;transform:translate(-50%,-100%) scale(var(--ps,1));transform-origin:50% 100%;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pin b{font:700 22px/1 var(--mono);letter-spacing:.08em;background:#fff;color:var(--ink);border-radius:999px;padding:10px 16px;box-shadow:0 6px 18px rgba(0,0,0,.15);white-space:nowrap}
+.pin i{width:22px;height:22px;border-radius:50%;background:var(--y);border:5px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.pin.done b{background:var(--ink);color:#fff}.pin.now b{background:var(--r);color:#fff}
+.pin.now i{background:var(--r);animation:ping 1.6s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(212,5,17,.55)}100%{box-shadow:0 0 0 28px rgba(212,5,17,0)}}
+/* 2. 결과 */
+.tr{padding:30px 0 40px;scroll-margin-top:90px}
+.tr-head{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:end;padding-bottom:36px;border-bottom:1px solid var(--line)}
+@media (max-width:900px){.tr-head{grid-template-columns:1fr;gap:24px}}
+.tr-awb{display:flex;align-items:center;gap:12px}
+.tr-awb b{font:800 18px/1 var(--mono);letter-spacing:.08em}
+.tr-copy{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700}
+.tr h2{font-size:clamp(40px,5vw,72px);margin-top:16px}
+.tr h2 em{font-style:normal;color:var(--r)}
+.tr-eta{margin-top:14px;font-size:18px;color:var(--sub)}.tr-eta b{color:var(--ink)}
+.tr-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tr-meta div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tr-meta dt{font:700 10px/1 var(--mono);letter-spacing:.1em;color:var(--mute)}
+.tr-meta dd{font-weight:800;font-size:16px;margin-top:8px}
+/* 진행 막대: 메인 지도 스토리와 같은 5단계 */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);margin:40px 0 50px;position:relative}
+.steps::before,.steps::after{content:'';position:absolute;left:10%;top:23px;height:4px;border-radius:4px;background:var(--line);right:10%}
+.steps::after{background:var(--r);right:auto;width:calc(80% * var(--p,0));transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.steps li{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;cursor:pointer}
+.steps .dot{width:50px;height:50px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font:800 13px/1 var(--mono);color:var(--mute);transition:.4s}
+.steps .nm{font-weight:800;font-size:15px}.steps .en{font:700 10px/1 var(--mono);letter-spacing:.12em;color:var(--mute)}
+.steps .tm{font-size:12px;color:var(--sub);min-height:16px}
+.steps li.done .dot{background:var(--ink);border-color:var(--ink);color:#fff}
+.steps li.now .dot{background:var(--r);border-color:var(--r);color:#fff;animation:ping 1.6s infinite}
+.steps li.sel .nm{text-decoration:underline;text-decoration-color:var(--y);text-decoration-thickness:4px;text-underline-offset:4px}
+@media (max-width:700px){.steps .nm{font-size:12px}.steps .en,.steps .tm{display:none}.steps .dot{width:38px;height:38px}.steps::before,.steps::after{top:17px}}
+.tr-body{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:start}
+@media (max-width:900px){.tr-body{grid-template-columns:1fr}.tr-side{order:-1;position:static}}
+.tr-log-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+.tr-log h3{font-size:22px;font-weight:900;letter-spacing:-.02em}
+#log{list-style:none;position:relative}
+#log::before{content:'';position:absolute;left:11px;top:10px;bottom:10px;width:2px;background:var(--line)}
+#log li{position:relative;padding:0 0 26px 40px;opacity:0;transform:translateY(14px);animation:in .5s forwards;cursor:pointer}
+#log li::before{content:'';position:absolute;left:4px;top:4px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--line);box-sizing:border-box}
+#log li.first::before{background:var(--r);border-color:var(--r)}
+#log li.sel .ev{color:var(--r)}
+#log .t{font:700 12px/1 var(--mono);color:var(--mute);letter-spacing:.04em}
+#log .ev{font-weight:800;font-size:17px;margin-top:8px;transition:color .2s}
+#log .pl{font-size:14px;color:var(--sub);margin-top:4px}
+@keyframes in{to{opacity:1;transform:none}}
+.tr-side{position:sticky;top:96px}
+@media (max-width:900px){.tr-side{position:static}}
+.tr-body>*{min-width:0}
+.th-l,.th-r{min-width:0}
+.mapcard{position:relative;height:clamp(300px,44vh,460px);border-radius:24px;overflow:hidden;background:#e9e3d2;border:1px solid var(--line)}
+.mapcard .world{transition:transform 1.2s cubic-bezier(.6,0,.2,1)}
+.mapcard .route polyline{stroke-linecap:round;stroke-linejoin:round}
+.r-all{stroke:#fff;stroke-width:12;stroke-dasharray:2 26;opacity:.9}
+.r-done{stroke:var(--r);stroke-width:12}
+.parcel{position:absolute;z-index:3;width:110px;height:88px;margin:-44px 0 0 -55px;border-radius:8px;background:#c99f6d;box-shadow:inset 0 -8px 0 rgba(0,0,0,.12),0 12px 24px rgba(0,0,0,.25);transition:left 1.2s cubic-bezier(.6,0,.2,1),top 1.2s cubic-bezier(.6,0,.2,1);animation:bob 1.6s ease-in-out infinite}
+.parcel::after{content:'';position:absolute;left:0;right:0;top:40%;height:18%;background:var(--y)}
+@keyframes bob{50%{translate:0 -10px}}
+.mc-cap{position:absolute;left:14px;bottom:14px;right:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-radius:14px;padding:12px 16px}
+.mc-cap b{font-weight:900}.mc-cap span{font:700 12px/1 var(--mono);color:var(--sub)}
+.acts{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 18px}
+.acts>*{display:flex;align-items:center;justify-content:space-between;padding:14px 0;font-weight:700;font-size:15px}
+.acts>*+*{border-top:1px solid var(--line)}
+.act:hover{color:var(--r)}
+.tog{gap:12px;justify-content:flex-start!important;cursor:pointer}
+.tog input{position:absolute;opacity:0}
+.tog i{width:44px;height:26px;border-radius:99px;background:var(--line);position:relative;transition:.25s;flex:none}
+.tog i::after{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tog input:checked+i{background:var(--r)}.tog input:checked+i::after{left:21px}
+.tog input:focus-visible+i{outline:2px solid var(--ink);outline-offset:2px}
+.tr-note{margin-top:12px}
+/* 3. 도움말 */
+.tg{padding-top:clamp(70px,10vh,120px)}
+.tg-in{display:grid;grid-template-columns:1fr 1.5fr;gap:60px}@media (max-width:900px){.tg-in{grid-template-columns:1fr;gap:30px}}
+.tg h2{font-size:clamp(34px,3.6vw,56px);margin-top:18px}.tg-all{display:inline-block;margin-top:22px;font-weight:800;border-bottom:2px solid var(--y)}
+.tfaq details{border-bottom:1px solid var(--line)}.tfaq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;padding:22px 0;font-weight:800;font-size:18px}
+.tfaq summary::-webkit-details-marker{display:none}.tfaq summary i{width:14px;height:14px;position:relative;flex:none;margin-top:5px}
+.tfaq summary i::before,.tfaq summary i::after{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:var(--ink);transition:.3s}.tfaq summary i::after{transform:rotate(90deg)}
+.tfaq details[open] summary i::after{transform:none}.tfaq p{padding:0 40px 22px 0;color:var(--sub);line-height:1.8}
+.fail{background:#fff;border:1px solid var(--line);border-radius:24px;padding:40px;margin-top:10px}
+.fail h3{font-size:28px;font-weight:900;letter-spacing:-.02em}.fail>p{margin-top:12px;color:var(--sub);line-height:1.7}.fail>p b{color:var(--ink);font-family:var(--mono)}
+.fail ul{list-style:none;margin-top:20px;display:grid;gap:10px}.fail li{display:flex;gap:12px;font-weight:600}.fail li b{font:800 12px/1.6 var(--mono);color:var(--r)}
+.fail-a{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.tr.is-fail .tr-head,.tr.is-fail .steps,.tr.is-fail .tr-body{display:none}
+.nt{margin-top:14px;background:var(--ink);color:#fff;border-radius:20px;padding:20px}
+.nt>b{font-size:16px}.nt-ch{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.nt-ch label{cursor:pointer}.nt-ch input{position:absolute;opacity:0}.nt-ch span{display:block;border:1px solid #444;border-radius:99px;padding:7px 12px;font-size:13px;font-weight:700;color:#bbb;transition:.2s}
+.nt-ch input:checked+span{background:var(--y);border-color:var(--y);color:var(--ink)}.nt-ch input:focus-visible+span{outline:2px solid #fff;outline-offset:2px}
+.nt-f{display:flex;gap:6px;background:#fff;border-radius:99px;padding:4px}.nt-f input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:0 14px;font:600 15px var(--sans);color:var(--ink)}
+.nt-f .btn{padding:11px 16px;font-size:14px}.nt-msg{min-height:20px;margin-top:10px;font-size:13px;font-weight:700;color:var(--y)}.nt-msg.err{color:#ff8a8a}
+.act{background:none;border:0;width:100%;text-align:left;cursor:pointer;font:inherit;font-weight:700;color:inherit}
+.md{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px}.md[hidden]{display:none}
+.md-bg{position:absolute;inset:0;background:rgba(18,18,18,.45);backdrop-filter:blur(3px)}
+.md-sheet{position:relative;width:min(480px,100%);background:#fff;border-radius:24px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.25);animation:mdIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes mdIn{from{opacity:0;transform:translateY(20px) scale(.98)}}
+.md-sheet h3{font-size:22px;font-weight:900}.md-sheet>p{margin-top:8px;color:var(--sub);font-size:14px;line-height:1.6}
+.seg{display:flex;background:var(--bg);border-radius:99px;padding:4px;margin:18px 0}.seg button{flex:1;border:0;background:none;border-radius:99px;padding:10px;font-weight:800}.seg button.on{background:var(--ink);color:#fff}
+.days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.days button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 4px;font-weight:800;font-size:14px}
+.days button small{display:block;font:600 11px var(--mono);color:var(--mute);margin-bottom:4px}.days button.on{border-color:var(--ink);background:var(--ink);color:#fff}.days button.on small{color:var(--y)}
+.places{display:grid;gap:8px}.places label{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:14px;padding:14px;cursor:pointer}
+.places label:has(input:checked){border-color:var(--ink)}.places small{display:block;color:var(--mute);font-size:12px;margin-top:3px}.places input{accent-color:var(--r);margin-top:3px}
+.md-msg{min-height:20px;margin-top:14px;font-weight:700;color:var(--r);font-size:14px}.md-f{display:flex;justify-content:flex-end;gap:8px}
+
+.tg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+@media (max-width:820px){.tg-grid{grid-template-columns:1fr}}
+.tg-c{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px}
+.tg-c b{font:800 12px/1 var(--mono);background:var(--y);padding:4px 6px;border-radius:3px}
+.tg-c h3{font-size:20px;font-weight:900;letter-spacing:-.02em;margin-top:18px}
+.tg-c p{margin-top:10px;color:var(--sub);line-height:1.7;font-size:15px}
+footer{margin-top:clamp(90px,12vh,140px)}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}*{animation:none!important}}
+</style>
+</head>
+<body>
+<div style="position:fixed;left:12px;bottom:12px;z-index:9999;font:500 11px/1.5 system-ui,sans-serif;background:rgba(0,0,0,.75);color:#fff;padding:6px 10px;border-radius:6px;pointer-events:none">이젠 3조 · 물류 웹 리뉴얼 포트폴리오 시안 (비공식 학습용 데모 · 실제 서비스 아님)</div>
+<!-- 내비 (메인과 같음) -->
+<header class="nav solid" id="nav"><div class="wrap">
+  <a class="logo" href="index.html"><img src="img/dhl-logo.png" alt="DHL"></a>
+  <ul><li><a class="on" href="track.html">배송조회</a></li><li><a href="index.html#ship">발송</a></li><li><a href="index.html#services">서비스</a></li><li><a href="guide.html">가이드</a></li><li><a href="index.html#support">고객지원</a></li></ul>
+  <div class="sp"></div>
+  <div class="mini"><a href="#">로그인</a><a href="#">KR</a></div>
+  <a class="btn pri" href="index.html#ship" style="padding:11px 18px;font-size:14px">발송하기 →</a>
+</div></header>
+
+<main>
+<!-- 1. 첫 화면: 조회창에 집중 (메인 지도 스토리와 겹치지 않게 지도는 결과에서만 씀) -->
+<section class="th" id="top"><div class="wrap th-in">
+  <div class="th-l">
+    <div class="tag rv"><b>TRACK</b> 배송조회</div>
+    <h1 class="rv d1">내 택배,<br>지금 <span class="hl">어디쯤</span>?</h1>
+    <form class="tq rv d2" id="tq" novalidate>
+      <input id="tqIn" inputmode="numeric" autocomplete="off" placeholder="운송장 번호 10자리" aria-label="운송장 번호" aria-describedby="tqErr">
+      <button class="btn pri" type="submit">조회</button>
+    </form>
+    <p class="tq-err" id="tqErr" role="alert"></p>
+    <div class="tq-ex rv d3"><span>예시로 보기</span><button type="button" data-ex="1234567890">이동 중</button><button type="button" data-ex="9876543210">도착 완료</button><button type="button" data-ex="0000000000">찾을 수 없는 번호</button></div>
+  </div>
+  <aside class="th-r rv d2">
+    <div class="wb" aria-hidden="true">
+      <div class="wb-top"><img src="img/dhl-logo.png" alt=""><span>EXPRESS WORLDWIDE</span></div>
+      <div class="wb-row"><i></i><i></i><i class="s"></i></div>
+      <div class="wb-no"><small>WAYBILL</small><b>1234 567 890</b></div>
+      <div class="wb-bar"></div>
+    </div>
+    <p class="wb-cap"><b>운송장 번호는 여기 있어요.</b> 라벨 가운데의 10자리 숫자예요. 발송 영수증이나 받은 문자에도 적혀 있어요.</p>
+    <div class="recent" id="recent" hidden><small>최근 조회</small><div id="recentList"></div></div>
+  </aside>
+</div></section>
+
+<!-- 2. 조회 결과 (처음엔 숨김) -->
+<section class="tr" id="result" hidden><div class="wrap">
+  <div class="tr-head">
+    <div>
+      <div class="tr-awb"><span class="demo">운송장</span><b id="rAwb">—</b><button type="button" id="rCopy" class="tr-copy">복사</button></div>
+      <h2 id="rState">—</h2>
+      <p class="tr-eta" id="rEta">—</p>
+    </div>
+    <dl class="tr-meta">
+      <div><dt>보내는 곳</dt><dd id="rFrom">—</dd></div>
+      <div><dt>받는 곳</dt><dd id="rTo">—</dd></div>
+      <div><dt>서비스</dt><dd id="rSvc">—</dd></div>
+      <div><dt>무게</dt><dd id="rKg">—</dd></div>
+    </dl>
+  </div>
+
+  <div class="fail" id="fail" hidden>
+    <h3>운송장 번호를 찾을 수 없어요</h3>
+    <p><b id="fNo">—</b> 번호로 등록된 배송 정보가 없어요. 아래를 한 번 확인해 주세요.</p>
+    <ul><li><b>01</b>DHL 익스프레스 운송장은 숫자 10자리예요</li><li><b>02</b>발송 직후라면 정보가 뜨기까지 몇 시간 걸릴 수 있어요</li><li><b>03</b>다른 택배사 번호는 아닌지 확인해 주세요</li></ul>
+    <div class="fail-a"><button type="button" class="btn ghost" id="retry">다시 입력하기</button><a class="btn pri" href="index.html#support">고객센터 문의</a></div>
+  </div>
+  <ol class="steps" id="steps"></ol>
+
+  <div class="tr-body">
+    <div class="tr-log">
+      <div class="tr-log-h"><h3>이동 기록</h3><span class="demo">한국 시간 기준</span></div>
+      <ul id="log"></ul>
+    </div>
+    <aside class="tr-side">
+      <div class="mapcard" id="mapcard">
+        <div class="world"><img src="img/map.webp" alt="택배가 지나가는 경로를 보여주는 지도"><svg class="route" viewBox="0 0 2896 2172"><polyline class="r-all" id="mRouteAll" fill="none"/><polyline class="r-done" id="mRouteDone" fill="none"/></svg><div class="pins" id="mPins"></div><i class="parcel" id="parcel"></i></div>
+        <div class="mc-cap"><b id="mcName">—</b><span id="mcTime">—</span></div>
+      </div>
+      <div class="acts">
+        <button type="button" class="act" id="openChange">받는 날짜·장소 바꾸기 →</button>
+        <a class="act" href="index.html#support">이 택배 문의하기 →</a>
+      </div>
+      <form class="nt" id="nt" novalidate>
+        <b>상태가 바뀌면 알려드릴까요?</b>
+        <div class="nt-ch" role="group" aria-label="알림 받을 곳"><label><input type="checkbox" checked><span>카카오 알림톡</span></label><label><input type="checkbox"><span>문자</span></label><label><input type="checkbox"><span>이메일</span></label></div>
+        <div class="nt-f"><input id="ntIn" readonly inputmode="numeric" placeholder="알림 연락처 (데모 · 입력 불가)" aria-label="휴대폰 번호" aria-describedby="ntMsg"><button class="btn pri" type="submit">알림 받기</button></div>
+        <p class="nt-msg" id="ntMsg" role="status"></p>
+      </form>
+      <p class="demo tr-note">※ 시안 · 실제 조회가 아닌 예시 데이터예요. 번호에 따라 예시 상황을 만들어 보여줘요.</p>
+    </aside>
+  </div>
+</div></section>
+
+<!-- 3. 조회할 때 자주 묻는 질문 (메인 FAQ에서 '배송 조회' 질문을 이쪽으로 옮김) -->
+<section class="sec tg" id="faq"><div class="wrap tg-in">
+  <div><div class="tag rv"><b>?</b> FAQ</div><h2 class="rv d1">조회할 때<br><span class="hl">자주 묻는</span> 질문.</h2><a class="tg-all rv d2" href="index.html#support">고객센터 전체 보기 →</a></div>
+  <div class="tfaq rv d2">
+    <details open><summary>운송장 번호는 어디서 확인하나요?<i></i></summary><p>발송 영수증이나 운송장 라벨 가운데의 10자리 숫자예요. 받는 분이라면 보내는 분이 보낸 문자·메일에서도 볼 수 있어요.</p></details>
+    <details><summary>기록이 오랫동안 바뀌지 않아요.<i></i></summary><p>비행기로 이동하거나 통관을 기다리는 동안에는 다음 기록까지 시간이 걸릴 수 있어요. 24시간 넘게 그대로라면 고객센터로 알려주세요.</p></details>
+    <details><summary>통관에서 멈춰 있어요.<i></i></summary><p>세관에서 서류나 관세 납부를 요청했을 수 있어요. 안내에 따라 서류를 올리거나 관세를 내면 바로 다음 단계로 넘어가요.</p></details>
+    <details><summary>받는 날짜나 장소를 바꿀 수 있나요?<i></i></summary><p>배송이 출발하기 전이라면 조회 결과의 '받는 날짜·장소 바꾸기'로 바꿀 수 있어요.</p></details>
+  </div>
+</div></section>
+
+<!-- 일정·장소 변경 창 -->
+<div class="md" id="md" hidden><div class="md-bg" data-close></div>
+  <div class="md-sheet" role="dialog" aria-modal="true" aria-labelledby="mdT">
+    <h3 id="mdT">받는 날짜·장소 바꾸기</h3>
+    <p>배송이 출발하기 전까지 바꿀 수 있어요. 확정되면 알림으로 알려드려요.</p>
+    <div class="seg"><button type="button" class="on" data-t="day" aria-pressed="true">날짜</button><button type="button" data-t="place" aria-pressed="false">장소</button></div>
+    <div id="mdDay" class="days"></div>
+    <div id="mdPlace" class="places" hidden>
+      <label><input type="radio" name="pl" checked><span><b>문 앞에 두기</b><small>지금 설정</small></span></label>
+      <label><input type="radio" name="pl"><span><b>경비실에 맡기기</b><small>공동현관 경비실 보관</small></span></label>
+      <label><input type="radio" name="pl"><span><b>가까운 DHL 접수처에서 찾기</b><small>7일간 보관</small></span></label>
+    </div>
+    <p class="md-msg" id="mdMsg" role="status"></p>
+    <div class="md-f"><button type="button" class="btn ghost" data-close>닫기</button><button type="button" class="btn pri" id="mdOk">요청하기</button></div>
+  </div>
+</div>
+</main>
+
+<!-- 11. 푸터 -->
+<footer><div class="wrap">
+  <div class="cols">
+    <div class="brand"><img src="img/dhl-logo.png" alt="DHL"><p>보이는 물류, 이어지는 사람.<br>Connecting People, Improving Lives</p></div>
+    <nav><h4>서비스</h4><ul><li><a href="track.html">배송 조회</a></li><li><a href="index.html#ship">발송하기</a></li><li><a href="index.html#services">서비스 비교</a></li><li><a href="index.html#planner">적재 체험</a></li><li><a href="index.html#faq">통관 안내</a></li></ul></nav>
+    <nav><h4>회사</h4><ul><li><a href="index.html">회사 소개</a></li><li><a href="index.html">지속가능경영</a></li><li><a href="index.html">채용</a></li><li><a href="index.html#support">문의</a></li></ul></nav>
+    <nav><h4>도움말</h4><ul><li><a href="index.html#faq">FAQ</a></li><li><a href="index.html#support">공지사항</a></li><li><a href="index.html#support">고객센터 1588-0001</a></li><li><a href="guide.html">보내기 전 가이드</a></li></ul></nav>
+    <form class="news" onsubmit="return false"><h4>한 달에 한 번, 물류 소식</h4><div class="nl"><input type="email" readonly placeholder="구독 (데모 · 입력 불가)" aria-label="이메일 주소"><button type="button">구독</button></div></form>
+  </div>
+  <div class="legal"><span>이젠 3조 · 물류 웹 리뉴얼 포트폴리오 시안 (비공식 학습용 데모 · 실제 서비스 아님)</span><span><a href="index.html">개인정보처리방침</a><a href="index.html">이용약관</a></span></div>
+</div><div class="wordmark" aria-hidden="true">DHL EXPRESS</div></footer>
+<script>
+(()=>{const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+/* 지도 위 5단계 — 메인 지도 스토리와 같은 위치 */
+const ST=[{k:'PICKUP',n:'집하',xy:[670,1750]},{k:'HUB',n:'허브',xy:[1080,960]},{k:'AIR',n:'항공',xy:[2330,500]},{k:'CUSTOMS',n:'통관',xy:[1880,440]},{k:'DELIVERED',n:'도착',xy:[1230,1530]}];
+const MW=2896,MH=2172,pts=a=>a.map(s=>s.xy.join(',')).join(' ');
+const pinHTML=()=>ST.map((s,i)=>`<div class="pin" data-i="${i}" style="left:${s.xy[0]}px;top:${s.xy[1]}px"><b>${s.k}</b><i></i></div>`).join('');
+/* 등장 모션 */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+$$('.rv').forEach(e=>io.observe(e));
+
+
+/* 2. 조회 — 실제 조회가 아니라 번호로 예시 상황을 만듦 */
+const pad=n=>String(n).padStart(2,'0'),DAY='일월화수목금토';
+const fmt=(d,t=true)=>`${d.getMonth()+1}월 ${d.getDate()}일 (${DAY[d.getDay()]})`+(t?` ${pad(d.getHours())}:${pad(d.getMinutes())}`:'');
+function makeData(awb){const sum=[...awb].reduce((a,c)=>a+ +c,0);
+  const cur=awb==='1234567890'?3:awb==='9876543210'?4:sum%5;
+  const now=new Date(),t0=new Date(now.getTime()-(cur*20+6)*3600e3);t0.setMinutes(sum%60);
+  const at=h=>new Date(t0.getTime()+h*3600e3);
+  const ev=[[0,0,'택배 접수','서울 강서구 · 온라인 접수'],[0,2.5,'기사님이 택배를 받았어요','서울 강서 집하장'],
+    [1,7,'인천 허브에 도착했어요','인천 국제 허브'],[1,9.5,'목적지별로 분류했어요','인천 국제 허브'],
+    [2,15,'비행기에 실렸어요','인천공항 출발'],[2,18,'도착 공항에 내렸어요','나리타공항'],
+    [3,21,'통관 심사를 시작했어요','나리타 통관센터'],[3,30,'통관을 마쳤어요','나리타 통관센터'],
+    [4,36,'배송 기사님이 출발했어요','도쿄 시부야 배송센터'],[4,40,'받는 분께 전달했어요','도쿄 시부야구 · 문 앞']];
+  // 지금 단계까지만 보여줌 (지금 단계는 앞쪽 기록만)
+  const log=ev.filter(e=>e[0]<cur||(e[0]===cur&&(cur===4||e===ev.find(x=>x[0]===cur)))).map(e=>({i:e[0],d:at(e[1]),ev:e[2],pl:e[3]}));
+  return{awb,cur,log,eta:cur===4?at(40):new Date(now.getTime()+(4-cur)*16*3600e3),stTime:ST.map((_,i)=>{const f=log.find(l=>l.i===i);return f?f.d:null})}}
+let D=null,sel=0;
+function show(awb){const r=$('#result');r.hidden=false;addRecent(awb);
+  if(/^0/.test(awb)){r.classList.add('is-fail');$('#fail').hidden=false;$('#fNo').textContent=awb.replace(/(\d{4})(\d{3})(\d{3})/,'$1 $2 $3');history.replaceState(null,'','?awb='+awb);setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}),60);return}
+  r.classList.remove('is-fail');$('#fail').hidden=true;D=makeData(awb);
+  $('#rAwb').textContent=awb.replace(/(\d{4})(\d{3})(\d{3})/,'$1 $2 $3');
+  $('#rState').innerHTML=D.cur===4?'<em>도착</em>했어요':`지금 <em>${ST[D.cur].n}</em> 중이에요`;
+  $('#rEta').innerHTML=D.cur===4?`<b>${fmt(D.eta)}</b> 받는 분께 전달됐어요`:`도착 예정 <b>${fmt(D.eta,false)} 18:00까지</b>`;
+  $('#rFrom').textContent='대한민국 · 서울';$('#rTo').textContent='일본 · 도쿄';$('#rSvc').textContent='Express Worldwide';$('#rKg').textContent=(1+(+awb[9])*.5).toFixed(1)+' kg';
+  $('#steps').innerHTML=ST.map((s,i)=>`<li data-i="${i}" class="${i<D.cur||D.cur===4?'done':i===D.cur?'now':''}" tabindex="0" role="button" aria-label="${s.n} 단계 보기"><span class="dot">${i<D.cur||D.cur===4?'✓':i+1}</span><span class="nm">${s.n}</span><span class="en">${s.k}</span><span class="tm">${D.stTime[i]?fmt(D.stTime[i]).replace(/\(.\) /,''):''}</span></li>`).join('');
+  $('#steps').style.setProperty('--p',0);requestAnimationFrame(()=>requestAnimationFrame(()=>$('#steps').style.setProperty('--p',D.cur/4)));
+  $('#log').innerHTML=[...D.log].reverse().map((l,n)=>`<li data-i="${l.i}" class="${n===0?'first':''}" style="animation-delay:${n*.06}s"><div class="t">${fmt(l.d)}</div><div class="ev">${l.ev}</div><div class="pl">${l.pl}</div></li>`).join('');
+  $('#mRouteAll').setAttribute('points',pts(ST));$('#mRouteDone').setAttribute('points',pts(ST.slice(0,D.cur+1)));
+  $('#mPins').innerHTML=pinHTML();$$('#mPins .pin').forEach((p,i)=>p.classList.add(i<D.cur||D.cur===4?'done':i===D.cur?'now':'x'));
+  const pc=$('#parcel'),[px,py]=ST[D.cur].xy;pc.style.left=px+'px';pc.style.top=(py-120)+'px';
+  select(D.cur,true);history.replaceState(null,'','?awb='+awb);
+  setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}),60)}
+/* 단계를 고르면 지도가 그곳으로 이동, 기록도 강조 */
+function select(i,instant){sel=i;const mc=$('#mapcard'),w=mc.querySelector('.world'),W=mc.clientWidth,H=mc.clientHeight;
+  const s=Math.max(W/MW,H/MH)*2.1,[x0,y0]=ST[i].xy;let x=W/2-x0*s,y=H*.45-y0*s;x=Math.min(0,Math.max(W-MW*s,x));y=Math.min(0,Math.max(H-MH*s,y));
+  if(instant){w.style.transition='none';requestAnimationFrame(()=>w.style.transition='')}
+  w.style.transform=`translate(${x}px,${y}px) scale(${s})`;w.style.setProperty('--ps',(13/(22*s)).toFixed(3));
+  $('#mcName').textContent=`${ST[i].n} · ${ST[i].k}`;$('#mcTime').textContent=D.stTime[i]?fmt(D.stTime[i]):'아직 도착 전';
+  $$('#steps li').forEach(l=>l.classList.toggle('sel',+l.dataset.i===i));$$('#log li').forEach(l=>l.classList.toggle('sel',+l.dataset.i===i))}
+$('#steps').addEventListener('click',e=>{const l=e.target.closest('li');if(l)select(+l.dataset.i)});
+$('#steps').addEventListener('keydown',e=>{const l=e.target.closest('li');if(l&&(e.key==='Enter'||e.key===' ')){e.preventDefault();select(+l.dataset.i)}});
+$('#log').addEventListener('click',e=>{const l=e.target.closest('li');if(l)select(+l.dataset.i)});
+addEventListener('resize',()=>{if(D&&!$('#result').classList.contains('is-fail'))select(sel,true)});
+/* 입력 확인 */
+const inp=$('#tqIn'),err=$('#tqErr'),form=$('#tq');
+inp.addEventListener('input',()=>{inp.value=inp.value.replace(/\D/g,'').slice(0,10);err.textContent='';form.classList.remove('bad')});
+form.addEventListener('submit',e=>{e.preventDefault();const v=inp.value.trim();
+  if(!v){err.textContent='운송장 번호를 입력해 주세요.';form.classList.add('bad');inp.focus();return}
+  if(v.length!==10){err.textContent=`10자리 숫자예요. 지금 ${v.length}자리를 입력했어요.`;form.classList.add('bad');inp.focus();return}
+  show(v)});
+$$('.tq-ex button').forEach(b=>b.onclick=()=>{inp.value=b.dataset.ex;err.textContent='';form.classList.remove('bad');show(b.dataset.ex)});
+$('#rCopy').onclick=()=>{navigator.clipboard?.writeText(D.awb);$('#rCopy').textContent='복사됨';setTimeout(()=>$('#rCopy').textContent='복사',1400)};
+/* 조회 실패 · 최근 조회 · 알림 · 일정 변경 */
+const RK='dhl-track-recent';
+const getRecent=()=>{try{return JSON.parse(localStorage.getItem(RK)||'[]')}catch(e){return[]}};
+function addRecent(a){const l=[a,...getRecent().filter(x=>x!==a)].slice(0,4);try{localStorage.setItem(RK,JSON.stringify(l))}catch(e){}drawRecent()}
+function drawRecent(){const l=getRecent();$('#recent').hidden=!l.length;$('#recentList').innerHTML=l.map(a=>`<button type="button" data-ex="${a}">${a.replace(/(\d{4})(\d{3})(\d{3})/,'$1 $2 $3')}</button>`).join('')}
+$('#recentList').addEventListener('click',e=>{const b=e.target.closest('button');if(b){inp.value=b.dataset.ex;show(b.dataset.ex)}});drawRecent();
+$('#retry').onclick=()=>{scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{inp.value='';inp.focus()},500)};
+$('#nt').addEventListener('submit',e=>{e.preventDefault();const v=$('#ntIn').value.replace(/\D/g,''),m=$('#ntMsg'),ch=[...$$('.nt-ch input')].filter(c=>c.checked).map(c=>c.nextElementSibling.textContent);
+  m.classList.add('err');if(!ch.length){m.textContent='알림 받을 곳을 하나 이상 골라 주세요.';return}
+  if(!/^01\d{8,9}$/.test(v)){m.textContent='휴대폰 번호를 정확히 입력해 주세요. 예: 01012345678';$('#ntIn').focus();return}
+  m.classList.remove('err');m.textContent=`${ch.join(' · ')}(으)로 알려드릴게요. (예시)`});
+$('#ntIn').addEventListener('input',()=>{$('#ntMsg').textContent=''});
+const md=$('#md');let lastFocus=null;
+function openMd(){lastFocus=document.activeElement;const base=D.cur===4?null:new Date(D.eta);
+  $('#mdDay').innerHTML=base?[0,1,2,3,4].map(k=>{const d=new Date(base.getTime()+k*864e5);return`<button type="button" class="${k?'':'on'}"><small>${DAY[d.getDay()]}</small>${d.getMonth()+1}.${d.getDate()}</button>`}).join(''):'';
+  $('#mdMsg').textContent=D.cur===4?'이미 도착한 택배는 바꿀 수 없어요.':'';$('#mdOk').hidden=D.cur===4;md.hidden=false;$('#mdOk').hidden?md.querySelector('[data-close].btn').focus():$('#mdOk').focus()}
+function closeMd(){md.hidden=true;lastFocus&&lastFocus.focus()}
+$('#openChange').onclick=openMd;
+md.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeMd();const d=e.target.closest('#mdDay button');if(d){$$('#mdDay button').forEach(b=>b.classList.toggle('on',b===d))}
+  const t=e.target.closest('.seg button');if(t){$$('.seg button').forEach(b=>{b.classList.toggle('on',b===t);b.setAttribute('aria-pressed',b===t)});$('#mdDay').hidden=t.dataset.t!=='day';$('#mdPlace').hidden=t.dataset.t!=='place'}});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!md.hidden)closeMd()});
+$('#mdOk').onclick=()=>{$('#mdMsg').style.color='var(--ink)';$('#mdMsg').textContent='요청했어요. 확정되면 알림으로 알려드릴게요. (예시)';setTimeout(()=>{closeMd();$('#mdMsg').style.color=''},1400)};
+const q=new URLSearchParams(location.search).get('awb');if(q&&/^\d{10}$/.test(q)){inp.value=q;show(q)}
+})();
+</script>
+
+</body>
+</html>
