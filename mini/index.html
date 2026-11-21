@@ -270,13 +270,13 @@ input[type=range]{width:100%;accent-color:var(--r)}
 .roll-dock::after{content:'';position:absolute;left:0;right:0;top:8px;height:3px;background:repeating-linear-gradient(90deg,var(--ink) 0 14px,var(--y) 14px 28px);opacity:.5}
 .roll-pile{position:absolute;right:8px;bottom:100%;width:140px;height:0;transform:scale(var(--ps,1));transform-origin:100% 100%}
 .roll-pile i{position:absolute;bottom:0;border-radius:4px;background:var(--c);box-shadow:inset 0 -4px 0 rgba(0,0,0,.1);cursor:pointer;transition:transform .2s}
-.roll-pile i::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:var(--r)}
+.roll-pile i::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:5px;transform:translateX(-50%);background:#C95B52}
 .roll-pile i.dhl::after{background:var(--r);opacity:.85}
 .roll-pile i:hover{transform:translateY(-4px)}
 .roll-pile i{touch-action:none;cursor:grab}.roll-fly.hold{box-shadow:0 14px 26px rgba(0,0,0,.22),inset 0 -4px 0 rgba(0,0,0,.1);cursor:grabbing}
 .roll-truck img{transition:filter .25s}.roll-truck.want img{filter:saturate(1.3) brightness(1.13) contrast(1.02) drop-shadow(0 0 14px rgba(255,204,0,.9))}
 .roll-fly{position:absolute;z-index:3;border-radius:4px;pointer-events:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.1)}
-.roll-fly::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:var(--r)}
+.roll-fly::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:5px;transform:translateX(-50%);background:#C95B52}
 .roll-fly.dhl::after{background:var(--r);opacity:.85}
 .roll-cv{position:absolute;left:0;top:-260px;width:100%;height:calc(100% + 260px);z-index:3;pointer-events:none}
 .roll-truck{position:absolute;bottom:40px;left:calc(50% - var(--tw)*.46);width:var(--tw);will-change:transform;z-index:2}
@@ -625,7 +625,7 @@ toShip();
 /* 10. 마무리: 하역장 상자를 트럭에 싣기 → 3개면 출발, 새 트럭이 들어옴
    물리(matter.js)를 불러오면 상자가 진짜처럼 굴러다니고 던질 수 있음. 못 불러오면 단순 버전으로 동작 */
 (()=>{const stg=$('#rollStage'),pile=$('#rollPile'),trk=$('#rollTruck');if(!stg)return;
-  const PB=[[46,34,'#F6CA18'],[40,30,'#FFDA42'],[34,40,'#FFCC00'],[44,26,'#EDBE09'],[30,30,'#FFD52C'],[38,28,'#F9CF21']];
+  const PB=[[46,34],[40,30],[34,40],[44,26],[30,30],[38,28]].map(([w,h],i)=>[w,h,LPC[i]]);
   const POS=[[0,0],[48,0],[92,0],[8,34],[54,30],[30,62]];
   let n=0,busy=false,driving=false,tx=0,drag=null,PH=null;
   function fillPile(){if(PH)return PH.refill();pile.innerHTML=PB.map(([w,h,c],i)=>`<i data-i="${i}" class="${c==='#FFCC00'?'dhl':''}" style="--c:${c};width:${w}px;height:${h}px;left:${POS[i][0]}px;bottom:${POS[i][1]}px"></i>`).join('')}
@@ -726,7 +726,7 @@ toShip();
       const draw=(b,x,y,a,k,sq)=>{const ww=b.w0,hh=b.h0;
         ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(k*(1+sq),k*(1-sq));ctx.fillStyle=b.c;rr(-ww/2,-hh/2,ww,hh,4);ctx.fill();
         ctx.fillStyle='rgba(0,0,0,.1)';ctx.fillRect(-ww/2,hh/2-4,ww,4);ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(-ww/2,-hh/2,ww,3);
-        ctx.fillStyle='#D40511';ctx.fillRect(-ww/2,-hh*.08,ww,hh*.16);ctx.restore()};
+        ctx.fillStyle='#C95B52';ctx.fillRect(-2.5,-hh/2,5,hh);ctx.restore()};
       for(const b of boxes){// 찌그러짐은 스프링처럼 출렁이며 돌아옴
         b.sqv=((b.sqv||0)-(b.sq||0)*.28)*.78;b.sq=(b.sq||0)+b.sqv;
         const gk=b.gk=(b.gk||1)+(((grab&&grab.body===b)?1.08:1)-(b.gk||1))*.25;
