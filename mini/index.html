@@ -343,6 +343,25 @@ footer .wordmark{font:900 italic clamp(50px,14.5vw,250px)/.78 var(--sans);letter
 #services #race .off{opacity:1;background:#f6f7f4;color:#71746e}
 #services #race .off .metrics{visibility:hidden}
 @media(max-width:820px){#services #race .lane{grid-template-columns:1fr auto;gap:6px 12px;padding:14px;min-height:0}#services #race .metrics{gap:12px}#services #race .metrics strong{font-size:12px}#services #race .trk{height:38px}#services #race .off .trk{display:none}#services .race-tools{gap:8px}#services #raceAgain{font-size:12px;padding:7px 10px}}
+#ship .sum{padding:clamp(18px,2.6vw,36px);border-radius:22px}
+#ship .sum>label{display:block;text-transform:none;letter-spacing:0;font:700 14px/1.5 var(--sans);color:#403c35}
+#ship .sizes{gap:7px}#ship .sizes button{padding:12px 3px;border-radius:11px}
+#ship .sizes button.on{color:var(--ink);background:#fff5cf;border-color:#d2a125;box-shadow:inset 0 0 0 1px #d2a125}
+#ship .sizes button span{color:#675f52}
+#ship .sum .weight-label{display:flex;align-items:baseline;justify-content:space-between;margin-top:24px}
+#ship #kgv{font:700 16px/1.4 var(--mono)}
+#ship #kg{width:100%;accent-color:#bf3534;margin:8px 0 2px}
+#ship .sum .wtrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:14px 0 24px}
+#ship .wtrow div{display:block;border:0;padding:14px clamp(7px,1vw,16px);border-radius:12px;background:#f5f4f0}
+#ship .wtrow dt{font:600 12px/1.4 var(--sans);letter-spacing:0;color:#635d51}
+#ship .wtrow dd{margin:6px 0 0;font:750 clamp(15px,1.4vw,21px)/1.25 var(--mono);white-space:nowrap}
+#ship .wtrow .chg{background:#fff0bb}#ship .wtrow .chg dt{color:#715410}
+#ship .sum dl:not(.wtrow) div{padding:10px 0;border:0;align-items:baseline;gap:12px}
+#ship .est{padding-top:19px;margin-top:12px;border-top:1px solid var(--line);align-items:center}
+#ship .est>span{font-weight:750}#ship .est small{display:block;margin:3px 0 0;font:500 11px/1.5 var(--sans)}
+#ship .est b{font:800 clamp(25px,2.4vw,36px)/1.1 var(--sans);font-variant-numeric:tabular-nums}
+#ship .sum .links{margin-top:16px;font-size:13px}
+@media(max-width:420px){#ship .sum .wtrow{gap:5px}#ship .sizes button span{font-size:10px}#ship .sum{padding:16px}}
 </style>
 </head>
 <body>
@@ -421,14 +440,14 @@ footer .wordmark{font:900 italic clamp(50px,14.5vw,250px)/.78 var(--sans);letter
   <div class="sec-head"><div><div class="tag rv"><b>09</b> SHIP</div><h2 class="rv d1">상자만 정하면,<br><span class="hl">운송장</span> 완성.</h2></div><p class="lead rv d2">레이스에서 고른 서비스에 상자 크기와 무게만 더하면 운송장이 완성돼요. 부피무게와 실제 무게 중 큰 쪽으로 요금이 매겨져요.</p></div>
   <div class="shipbox rv d2">
     <div class="panel sum">
-      <label>상자 크기</label><div class="sizes" id="sizes"></div>
-      <label style="margin-top:22px">무게 · <b id="kgv" style="color:var(--ink)">2.0 kg</b></label><input type="range" id="kg" min="0.5" max="30" step="0.5" value="2">
-      <dl class="wtrow"><div><dt>실제 무게</dt><dd id="wA">—</dd></div><div><dt>부피무게 (÷5,000)</dt><dd id="wV">—</dd></div><div class="chg"><dt>요금 기준</dt><dd id="wC">—</dd></div></dl>
+      <label>상자 크기 <small>(cm)</small></label><div class="sizes" id="sizes"></div>
+      <label class="weight-label" for="kg">상자 무게 <b id="kgv">2.0 kg</b></label><input type="range" id="kg" min="0.5" max="30" step="0.5" value="2">
+      <dl class="wtrow"><div><dt>실제 무게</dt><dd id="wA">—</dd></div><div><dt>부피무게</dt><dd id="wV">—</dd></div><div class="chg"><dt>요금 기준 무게</dt><dd id="wC">—</dd></div></dl>
       <dl style="margin-top:14px">
         <div><dt>서비스</dt><dd id="sSvc">Express 12:00</dd></div>
         <div><dt>도착 국가</dt><dd id="sDest">일본</dd></div>
       </dl>
-      <div class="est"><span>예상 요금 <small class="demo">(예시 계산 · 실제 요금 아님)</small></span><b id="price">₩0</b></div>
+      <div class="est"><span>예상 요금 <small class="demo">시안용 예시 금액</small></span><b id="price">₩0</b></div>
       <div class="links"><a href="#services">← 서비스 다시 고르기</a></div>
     </div>
     <div class="label" id="wb">
