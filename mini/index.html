@@ -181,9 +181,8 @@ input[type=range]{width:100%;accent-color:var(--r)}
 .lp-head .hint{font:700 11px/1.4 var(--mono);letter-spacing:.1em;color:var(--mute);text-transform:uppercase}
 .lp-act{display:flex;gap:8px}.lp-act .btn{flex:1;justify-content:center;padding:12px 14px;font-size:14px}
 .lp-parcels{list-style:none;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
-.lp-parcels button{--u:26px;width:calc(var(--w)*var(--u) + (var(--w) - 1)*4px);height:calc(var(--h)*var(--u) + (var(--h) - 1)*4px);border:0;border-radius:6px;background:var(--c);position:relative;cursor:grab;box-shadow:inset 0 -5px 0 rgba(0,0,0,.08),0 2px 0 rgba(0,0,0,.06);transition:transform .2s,opacity .3s}
-.lp-parcels button::after,.lp-fly::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:var(--r)}
-.lp-parcels button.dhl::after{background:var(--r);opacity:.85}
+.lp-parcels button{--u:26px;width:calc(var(--w)*var(--u) + (var(--w) - 1)*4px);height:calc(var(--h)*var(--u) + (var(--h) - 1)*4px);border:0;border-radius:6px;background:var(--c);position:relative;cursor:grab;box-shadow:inset 0 -2px 0 rgba(88,61,17,.09),0 1px 3px rgba(88,61,17,.08);transition:transform .2s,opacity .3s}
+.lp-parcels button::after,.lp-fly::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:5px;transform:translateX(-50%);background:#C95B52}
 .lp-parcels button{touch-action:none;user-select:none}.lp-parcels button:hover{transform:translateY(-3px)}
 .lp-fly{position:fixed;z-index:200;pointer-events:none;margin:0;--u:26px;width:calc(var(--w)*var(--u) + (var(--w) - 1)*4px);height:calc(var(--h)*var(--u) + (var(--h) - 1)*4px);border-radius:6px;background:var(--c);box-shadow:0 14px 30px rgba(0,0,0,.2);transform:rotate(-4deg) scale(1.08);transition:opacity .15s}
 .lp-parcels button.in{opacity:.18;pointer-events:none}
@@ -570,7 +569,7 @@ new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){race();o.di
 /* 8. 적재 플래너 — 컨테이너 앞면을 8칸×4칸 격자로 봄. 원하는 위치에 놓으면 그 칸 위에서 떨어져 아래에 쌓임 (3D는 아래 module 스크립트) */
 const LP_W=8, LP_H=4;
 const LPP=[[3,2],[2,2],[2,2],[3,1],[2,1],[2,1],[1,2],[2,2],[1,1],[2,1],[1,2],[1,1],[3,1],[1,1],[2,1],[1,1]];
-const LPC=['#F6CA18','#FFD52C','#EDBE09','#FFDA42','#F6CA18','#F9CF21','#EDBE09','#FFCC00','#FFDA42','#F6CA18','#FFD52C','#EDBE09','#F9CF21','#FFDA42','#F6CA18','#FFD52C'];
+const LPC=LPP.map((_,i)=>['#F7D46C','#F9D975','#F4CF62','#F8D771'][i%4]);
 const LP={placed:[],onChange:null,ghost:null};
 const lpH=(x,w,skip)=>{let t=0;LP.placed.forEach(p=>{if(p.k!==skip&&p.x<x+w&&x<p.x+p.w)t=Math.max(t,p.y+p.h)});return t}; // 그 칸들 위 가장 높은 곳
 function lpDrop(k,x){const[w,h]=LPP[k];x=Math.max(0,Math.min(LP_W-w,x));const y=lpH(x,w);return y+h<=LP_H?{x,y}:null}
@@ -776,10 +775,40 @@ const stripe=new THREE.Mesh(new THREE.BoxGeometry(W+PAD*2,.16,.02),new THREE.Mes
 const gl=new THREE.LineBasicMaterial({color:0xbfb49a,transparent:true,opacity:.6});
 for(let i=1;i<W;i++){const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(i,.005,0),new THREE.Vector3(i,.005,D)]);root.add(new THREE.Line(g,gl))}
 const meshes=new Map(), G=.06;
-function boxMesh(k){const [w,h]=PP[k],g=new THREE.Group();
-  const m=new THREE.Mesh(new THREE.BoxGeometry(w-G,h-G,D-G*2),new THREE.MeshStandardMaterial({color:new THREE.Color(PC[k]),roughness:.85})); m.castShadow=m.receiveShadow=true; m.userData.k=k; g.add(m);
-  const t=new THREE.Mesh(new THREE.BoxGeometry(w-G+.005,.12,D-G*2+.005),new THREE.MeshStandardMaterial({color:0xD40511,roughness:.7})); t.userData.k=k; g.add(t);
-  return g;}
+const parcelShapes=new Map(),parcelMaterials=new Map();
+function boxMesh(k){
+  const [w,h]=PP[k], key=w+'x'+h, radius=.055;
+  if(!parcelShapes.has(key)){
+    const geo=new THREE.BoxGeometry(w-G,h-G,D-G*2,4,4,4);
+    const pos=geo.attributes.position,norm=geo.attributes.normal;
+    const half=[(w-G)/2,(h-G)/2,(D-G*2)/2];
+    for(let i=0;i<pos.count;i++){
+      const coords=[pos.getX(i),pos.getY(i),pos.getZ(i)];
+      const core=coords.map((v,j)=>Math.sign(v)*(Math.abs(v)<.001?0:half[j]-radius));
+      const dir=new THREE.Vector3(...coords.map((v,j)=>Math.abs(v)>half[j]-.001?Math.sign(v):0)).normalize();
+      pos.setXYZ(i,core[0]+radius*dir.x,core[1]+radius*dir.y,core[2]+radius*dir.z);
+      norm.setXYZ(i,dir.x,dir.y,dir.z);
+    }
+    parcelShapes.set(key,geo);
+  }
+  const matKey=PC[k]+key;
+  if(!parcelMaterials.has(matKey)){
+    const plain=new THREE.MeshStandardMaterial({color:PC[k],roughness:.94});
+    const painted=(full)=>{
+      const c=document.createElement('canvas');c.width=c.height=256;
+      const ctx=c.getContext('2d');ctx.fillStyle=PC[k];ctx.fillRect(0,0,256,256);
+      const tapeWidth=256*.16/(w-G);
+      ctx.fillStyle='#C95B52';ctx.fillRect((256-tapeWidth)/2,0,tapeWidth,full?256:256*.32/(h-G));
+      const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;
+      return new THREE.MeshStandardMaterial({map,roughness:.94});
+    };
+    const end=painted(false);
+    parcelMaterials.set(matKey,[plain,plain,painted(true),plain,end,end]);
+  }
+  const m=new THREE.Mesh(parcelShapes.get(key),parcelMaterials.get(matKey));
+  m.castShadow=m.receiveShadow=true;m.userData.k=k;
+  const group=new THREE.Group();group.add(m);return group;
+}
 function sync(){const now=new Set(LP.placed.map(p=>p.k));
   for(const [k,m] of meshes) if(!now.has(k)){root.remove(m);meshes.delete(k)}
   LP.placed.forEach(p=>{let m=meshes.get(p.k);if(!m){m=boxMesh(p.k);root.add(m);meshes.set(p.k,m)}m.userData=p})}
