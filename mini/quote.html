@@ -1,0 +1,823 @@
+<!doctype html><html lang="ko"><head><meta name="robots" content="noindex,nofollow,noarchive"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>발송하기 통합 시안 · 요금산출+운송장+픽업 · DHL Express 리뉴얼</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap">
+<style>
+:root{--yellow:#FFCC00;--yellow-2:#FFE27A;--red:#D40511;--ink:#141414;--ink-2:#4a4a4a;--ink-3:#8a8a8a;--paper:#F7F5EF;--line:#E4E0D4;--navy:#0B1B2B;--navy-2:#13283d;--green:#1F8A4C;--rc:#FFFDF7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Pretendard,"Noto Sans KR",-apple-system,"Apple SD Gothic Neo",sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;padding-bottom:110px}
+a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font-family:inherit}
+.wrap{max-width:1360px;margin:0 auto;padding:0 48px}
+.mono{font-family:"Courier New",Courier,monospace}
+/* header */
+header{position:sticky;top:0;z-index:50;background:rgba(247,245,239,.92);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line)}
+header .inner{display:flex;align-items:center;height:76px;gap:40px}
+.logo{display:flex;align-items:baseline;gap:6px}
+.logo b{font-weight:900;font-style:italic;color:var(--red);font-size:30px;letter-spacing:-.04em;background:var(--yellow);padding:0 10px;border-radius:4px}
+.logo span{font-size:13px;font-weight:700;letter-spacing:.08em}
+nav.gnb{display:flex;gap:6px;font-size:16px;font-weight:600}
+nav.gnb a{padding:8px 14px;border-radius:999px}nav.gnb a.on{color:var(--red)}
+.hd-right{margin-left:auto;display:flex;gap:18px;font-size:14px;font-weight:600;align-items:center}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:54px;padding:0 26px;border-radius:999px;font-weight:800;font-size:16px;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}
+.btn:hover{transform:translateY(-2px)}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{box-shadow:0 12px 26px rgba(212,5,17,.28)}
+.btn-yellow{background:var(--yellow);color:var(--ink)}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ghost{background:#fff;border:1.5px solid var(--line)}
+.btn-sm{height:40px;padding:0 18px;font-size:14px}
+.arrow{transition:transform .2s;display:inline-block}.btn:hover .arrow{transform:translateX(4px)}
+/* hero */
+.sub-hero{padding:46px 0 26px}
+.crumb{font-size:13px;color:var(--ink-3);font-weight:600;margin-bottom:14px}.crumb b{color:var(--ink)}
+.sub-title{font-size:56px;letter-spacing:-.04em;line-height:1.1;font-weight:800}
+.sub-title em{font-style:normal;background:linear-gradient(transparent 62%,var(--yellow) 62%)}
+.sub-desc{margin-top:14px;font-size:18px;color:var(--ink-2)}
+/* ===== 단계형 stepper ===== */
+.stepper{position:relative;margin:8px 0 30px;padding-top:50px}
+.stepper .rail,.stepper .fill{position:absolute;left:20px;right:20px;top:70px;height:4px;border-radius:4px;background:var(--line)}
+.stepper .fill{right:auto;background:var(--red);width:0;transition:width .8s cubic-bezier(.6,0,.2,1)}
+.stepper .nodes{display:flex;justify-content:space-between;position:relative}
+.stepper .nd{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--ink-3);width:120px;cursor:pointer}
+.stepper .nd:first-child{align-items:flex-start}.stepper .nd:last-child{align-items:flex-end}
+.stepper .nd i{width:44px;height:44px;border-radius:50%;background:#fff;border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:15px;transition:all .35s}
+.stepper .nd.done i{background:var(--red);border-color:var(--red);color:#fff}
+.stepper .nd.cur{color:var(--ink)}.stepper .nd.cur i{border-color:var(--red);color:var(--red);box-shadow:0 0 0 6px rgba(212,5,17,.12)}
+.stepper .nd small{font-size:12px;font-weight:600;color:var(--ink-3);margin-top:-6px}
+.rider{position:absolute;top:0;left:0;width:62px;height:46px;transition:left .8s cubic-bezier(.6,0,.2,1);pointer-events:none}
+.rider svg{width:100%;height:100%;animation:bob .9s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+/* ===== 탭형 ===== */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:6px 0 18px}
+.tab{position:relative;display:flex;gap:16px;align-items:center;padding:20px 22px;border-radius:20px;background:#fff;border:1.5px solid var(--line);text-align:left;transition:all .25s}
+.tab:hover{border-color:var(--ink)}
+.tab .no{width:46px;height:46px;flex:none;border-radius:14px;background:var(--paper);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}
+.tab b{font-size:19px;display:block}.tab span{font-size:13px;color:var(--ink-3);font-weight:600}
+.tab .st{margin-left:auto;font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;background:#EEE;color:#666}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 14px 30px rgba(0,0,0,.15)}
+.tab.on .no{background:var(--yellow);color:var(--ink)}.tab.on span{color:#aaa}
+.tab .st.ok{background:#E3F4EA;color:var(--green)}.tab .st.go{background:var(--yellow);color:var(--ink)}
+.tab.on::after{content:"";position:absolute;left:50%;bottom:-9px;width:16px;height:16px;background:var(--ink);transform:translateX(-50%) rotate(45deg);border-radius:3px}
+.subnav{display:flex;gap:8px;margin:0 0 18px;flex-wrap:wrap}
+.subnav button{height:40px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.subnav button i{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--paper);font-size:12px;display:flex;align-items:center;justify-content:center}
+.subnav button.on{border-color:var(--red);color:var(--red)}.subnav button.on i{background:var(--red);color:#fff}
+.subnav button.done i{background:var(--green);color:#fff}
+.carry{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;background:#FFF8D6;color:#5a4800;font-size:14px;font-weight:600;margin-bottom:16px}
+.carry b{color:var(--ink)}
+/* ===== layout ===== */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:28px;align-items:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:24px}
+.panel{display:none;padding:36px}
+.panel.on{display:block;animation:slideIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.p-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.p-head h3{font-size:26px;letter-spacing:-.02em}
+.p-head .mini{width:52px;height:48px;display:none}
+.v-C .p-head .mini{display:block}
+.p-sub{color:var(--ink-3);font-size:15px;margin-bottom:24px}
+.blk{padding:24px 0;border-top:1px solid var(--line)}.blk:first-of-type{border-top:0;padding-top:4px}
+.blk-t{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:12px}
+.blk-t b{font-size:17px}.blk-t span{font-size:13px;color:var(--ink-3)}
+.field{display:flex;flex-direction:column;gap:7px;flex:1;min-width:0}
+.field label{font-size:13px;font-weight:700;color:var(--ink-2)}.field label em{color:var(--red);font-style:normal}
+.field label .opt{color:var(--ink-3);font-weight:600}
+.inp{height:50px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;font-size:15px;background:#fff;color:var(--ink);outline:none;transition:border .2s,box-shadow .2s;width:100%}
+.inp:focus{border-color:var(--ink);box-shadow:0 0 0 4px rgba(20,20,20,.06)}
+.inp:disabled,.inp[readonly]{background:var(--paper);color:var(--ink-2)}
+textarea.inp{height:84px;padding:12px 14px;resize:none;line-height:1.5}
+.row{display:flex;gap:12px;margin-bottom:12px}.row:last-child{margin-bottom:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--ink)}.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.tag{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:800;background:#FFF4C2;color:#7A5B00}
+.tag.g{background:#E3F4EA;color:var(--green)}.tag.r{background:#FDE8E9;color:var(--red)}
+.check{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;cursor:pointer;user-select:none}
+.check input{width:20px;height:20px;accent-color:var(--red)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.fs{padding:22px;border-radius:18px;background:var(--paper)}
+.fs-t{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;margin-bottom:14px}
+.fs-t i{width:10px;height:10px;border-radius:50%;background:var(--red)}
+.fs .inp{background:#fff}
+.nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}
+.hint{font-size:13px;color:var(--ink-3)}
+/* quote */
+.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pre{position:relative;border:1.5px solid var(--line);border-radius:16px;padding:10px 8px 12px;background:#fff;text-align:center;transition:all .2s}
+.pre:hover{border-color:var(--ink);transform:translateY(-2px)}
+.pre.on{border-color:var(--red);background:#FFFBEA;box-shadow:0 8px 20px rgba(212,5,17,.12)}
+.pre svg{width:100%;height:74px;display:block}
+.pre b{display:block;font-size:13px;margin-top:4px}.pre span{font-size:11px;color:var(--ink-3)}
+.pre.on::after{content:"✓";position:absolute;right:8px;top:8px;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;line-height:20px;font-weight:900}
+.range-wrap{display:flex;align-items:center;gap:18px}
+input[type=range]{flex:1;accent-color:var(--red)}
+.kg-out{min-width:110px;height:52px;border-radius:12px;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.kg-out small{font-size:14px;margin-left:4px;color:var(--ink-2)}
+.qty{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;height:52px;overflow:hidden}
+.qty button{width:48px;height:100%;font-size:20px;font-weight:700}.qty button:hover{background:var(--paper)}
+.qty b{min-width:44px;text-align:center;font-size:18px}
+.vol{margin-top:14px;padding:14px 16px;border-radius:12px;background:#FFF8D6;font-size:14px;line-height:1.6;color:#5a4800}.vol b{color:var(--ink)}
+.stage-box{display:none;position:relative;margin:-6px 0 18px;border-radius:20px;background:linear-gradient(180deg,#FFF6CC,#FFFDF5);height:250px;overflow:hidden}
+.v-C .stage-box{display:block}
+.stage-box svg{width:100%;height:100%}
+.stage-box .lbl{position:absolute;left:18px;top:16px;font-size:13px;color:#7A5B00;font-weight:700}
+.stage-box .lbl b{display:block;font-size:22px;color:var(--ink);margin-top:2px}
+.stage-box .lbl2{position:absolute;right:18px;top:16px;text-align:right;font-size:13px;color:#7A5B00;font-weight:700}
+.stage-box .lbl2 b{display:block;font-size:22px;color:var(--red);margin-top:2px}
+.prods{display:grid;gap:12px}
+.prod{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:18px;border:1.5px solid var(--line);background:#fff;text-align:left;width:100%;transition:all .25s}
+.prod:hover{border-color:var(--ink)}
+.prod.on{border-color:var(--red);background:#FFFBEA;box-shadow:0 10px 24px rgba(212,5,17,.1)}
+.prod .rad{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none;position:relative}
+.prod.on .rad{border-color:var(--red)}.prod.on .rad::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--red)}
+.prod .nm{font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px}
+.prod .eta{font-size:13px;color:var(--ink-3);margin-top:3px}
+.prod .pr{margin-left:auto;text-align:right}
+.prod .pr s{display:block;font-size:12px;color:var(--ink-3)}
+.prod .pr b{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}.prod .pr small{font-size:13px;margin-left:2px}
+.v-B .prods-wrap{display:none}
+.empty{padding:22px;border-radius:16px;border:1.5px dashed var(--line);color:var(--ink-3);text-align:center;font-size:15px}
+/* items */
+.purpose .chip{height:52px;padding:0 20px;font-size:15px}
+.item-row{display:grid;grid-template-columns:1.6fr .9fr .6fr .8fr .7fr .8fr 32px;gap:10px;align-items:end;padding:16px;border-radius:16px;background:var(--paper);margin-bottom:10px}
+.item-row .inp{height:46px;background:#fff}
+.item-row .del{height:46px;color:var(--ink-3);font-size:18px}
+.inv{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-radius:14px;border:1.5px dashed var(--line);margin-top:6px}
+.inv b{font-size:22px}
+.duty{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.duty button{padding:18px;border-radius:16px;border:1.5px solid var(--line);text-align:left;background:#fff}
+.duty button.on{border-color:var(--red);background:#FFFBEA}
+.duty b{display:block;font-size:16px}.duty span{font-size:13px;color:var(--ink-3)}
+/* addons */
+.dates{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.date{border:1.5px solid var(--line);border-radius:16px;padding:12px 0;background:#fff;text-align:center;transition:all .2s}
+.date small{display:block;font-size:12px;color:var(--ink-3);font-weight:700}.date b{font-size:24px}
+.date.on{background:var(--yellow);border-color:var(--yellow)}
+.date.on small{color:var(--ink)}
+.addon{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:18px;border:1.5px solid var(--line);margin-bottom:10px;cursor:pointer;transition:all .2s}
+.addon:hover{border-color:var(--ink)}
+.addon.on{border-color:var(--red);background:#FFFBEA}
+.addon .ic{width:46px;height:46px;border-radius:14px;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
+.addon.on .ic{background:var(--yellow)}
+.addon b{font-size:16px;display:block}.addon span{font-size:13px;color:var(--ink-3)}
+.addon .p{margin-left:auto;font-weight:800;font-size:16px;white-space:nowrap}
+.sw{width:46px;height:26px;border-radius:999px;background:#ddd;position:relative;flex:none;transition:background .2s}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.addon.on .sw{background:var(--red)}.addon.on .sw::after{transform:translateX(20px)}
+.upsell{display:flex;gap:12px;align-items:center;padding:14px 18px;border-radius:14px;background:var(--navy);color:#fff;font-size:14px;margin-top:6px}
+.upsell b{color:var(--yellow)}
+/* pickup */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.how button{padding:20px 18px;border-radius:18px;border:1.5px solid var(--line);background:#fff;text-align:left;transition:all .2s}
+.how button:hover{border-color:var(--ink)}
+.how button.on{border-color:var(--red);background:#FFFBEA}
+.how .e{font-size:28px}.how b{display:block;font-size:16px;margin-top:8px}.how span{font-size:13px;color:var(--ink-3);line-height:1.5}
+.tl{position:relative;height:74px;margin-top:6px}
+.tl .bar{position:absolute;left:0;right:0;top:30px;height:10px;border-radius:10px;background:var(--paper)}
+.tl .sel{position:absolute;top:30px;height:10px;border-radius:10px;background:var(--red)}
+.tl input{position:absolute;left:0;right:0;top:22px;width:100%;pointer-events:none;background:none;-webkit-appearance:none;appearance:none;height:26px}
+.tl input::-webkit-slider-thumb{pointer-events:auto;-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--red);box-shadow:0 3px 8px rgba(0,0,0,.2);cursor:grab}
+.tl input::-moz-range-thumb{pointer-events:auto;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--red)}
+.tl .ticks{position:absolute;left:0;right:0;top:50px;display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3);font-weight:600}
+.tl-out{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700}
+.tl-out b{font-size:26px;font-variant-numeric:tabular-nums}
+.addr-card{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:16px;background:var(--paper)}
+.addr-card .pin{width:40px;height:40px;border-radius:12px;background:var(--yellow);display:flex;align-items:center;justify-content:center;flex:none}
+.addr-card p{font-size:14px;color:var(--ink-2);line-height:1.6}
+.qr-note{display:none;margin-top:12px;padding:14px 16px;border-radius:14px;background:#EEF5FB;font-size:14px;color:#2b4a63}
+.qr-note.on{display:block}
+/* confirm */
+.sumc{display:grid;gap:10px}
+.sumc .s{display:flex;align-items:flex-start;gap:16px;padding:16px 20px;border-radius:16px;background:var(--paper)}
+.sumc .s .k{width:110px;font-size:13px;font-weight:800;color:var(--ink-3);padding-top:2px;flex:none}
+.sumc .s .v{font-size:15px;font-weight:600;line-height:1.6;flex:1}
+.sumc .s a{font-size:13px;font-weight:800;color:var(--red);cursor:pointer;flex:none}
+.pays{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pays button{height:64px;border-radius:16px;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:15px}
+.pays button.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.promo{display:flex;gap:10px}
+.agree{padding:18px 20px;border-radius:16px;border:1.5px solid var(--line);display:grid;gap:12px}
+/* done */
+.done-hero{text-align:center;padding:10px 0 0}
+.done-hero h3{font-size:34px;letter-spacing:-.03em;margin-top:10px}
+.done-hero p{color:var(--ink-2);margin-top:8px}
+.road{position:relative;height:210px;margin:10px -36px 0;overflow:hidden;background:linear-gradient(180deg,#fff 0,#fff 70%,#EFECE3 70%)}
+.road .lane{position:absolute;left:0;right:0;bottom:30px;height:4px;background:repeating-linear-gradient(90deg,#d6d0bf 0 28px,transparent 28px 56px)}
+.road .truck{position:absolute;bottom:22px;left:-260px;width:240px}
+.road .dbox{position:absolute;bottom:40px;left:50%;width:90px;margin-left:-45px}
+.road.go .truck{animation:truckIn 3.6s cubic-bezier(.45,0,.2,1) forwards}
+.road.go .dbox{animation:boxLoad 3.6s ease forwards}
+@keyframes truckIn{0%{left:-260px}38%{left:calc(50% - 175px)}62%{left:calc(50% - 175px)}100%{left:110%}}
+@keyframes boxLoad{0%,38%{transform:none;opacity:1}50%{transform:translate(-70px,-30px) scale(.7);opacity:1}54%{opacity:0;transform:translate(-80px,-10px) scale(.5)}100%{opacity:0}}
+.wbno{display:inline-flex;gap:12px;align-items:center;margin-top:18px;padding:16px 24px;border-radius:16px;background:var(--ink);color:#fff}
+.wbno span{font-size:13px;color:#aaa}.wbno b{font-size:26px;letter-spacing:.06em}
+.done-acts{display:flex;gap:10px;justify-content:center;margin-top:22px}
+.done-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px;text-align:left}
+.done-grid div{padding:18px;border-radius:16px;background:var(--paper)}
+.done-grid small{font-size:12px;color:var(--ink-3);font-weight:800}.done-grid b{display:block;margin-top:4px;font-size:15px}
+
+/* ===== RIGHT: aside ===== */
+.aside{position:sticky;top:96px}
+/* navy (variant B, quote step) */
+.navy{background:var(--navy);color:#fff;border-radius:24px;padding:26px;display:none}
+.bx-wrap{position:relative;padding-top:60px;margin-bottom:12px}
+.route-tag{position:absolute;left:0;top:0;font-size:13px;color:#9fb0c0}.route-tag b{display:block;color:#fff;font-size:20px;margin-top:4px}
+.applied{position:absolute;right:0;top:0;text-align:right;font-size:13px;color:#9fb0c0}.applied b{display:block;color:var(--yellow);font-size:24px;margin-top:4px}
+#nBox{width:100%;height:230px;display:block}
+.cmp{display:grid;gap:9px;margin-top:4px}
+.cmp>div{display:grid;grid-template-columns:70px 1fr 64px;align-items:center;gap:12px;font-size:13px;color:#9fb0c0}
+.cmp i{height:10px;border-radius:10px;background:#1b3349;overflow:hidden;display:block}
+.cmp em{display:block;height:100%;width:0;border-radius:10px;background:#5d7a96;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.cmp em.win{background:var(--yellow)}
+.cmp b{color:#fff;text-align:right}.cmp b.win{color:var(--yellow)}
+.nopts{display:grid;gap:10px;margin-top:16px}
+.nopt{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-radius:16px;border:1.5px solid #29435d;background:var(--navy-2);text-align:left;width:100%;transition:all .25s;color:#fff}
+.nopt.on{border-color:var(--yellow);background:#1b3349}
+.nopt .nm{font-size:15px;font-weight:800;display:flex;gap:8px;align-items:center}
+.nopt .eta{font-size:12px;color:#9fb0c0;margin-top:3px}
+.nopt .pr{font-size:24px;font-weight:800;color:var(--yellow)}.nopt .pr small{font-size:13px;color:#c6d2dd}
+.tagf{font-size:11px;background:var(--yellow);color:var(--ink);padding:3px 8px;border-radius:999px}
+.navy .btn{width:100%;margin-top:14px}
+.navy .q-note{font-size:12px;color:#7d90a3;margin-top:10px;text-align:center}
+/* receipt */
+.rc-zone{position:relative}
+.rc-box{display:none;position:relative;height:190px;margin-bottom:-4px;z-index:2}
+.v-A .rc-box{display:block}
+.rc-box svg{width:100%;height:100%;overflow:visible}
+.rc-box .hop{animation:hop .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes hop{0%{transform:translateY(0)}40%{transform:translateY(-22px)}100%{transform:none}}
+.printer{position:relative;height:30px;border-radius:14px 14px 6px 6px;background:var(--navy);z-index:3;display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#9fb0c0;font-size:11px;font-weight:700;letter-spacing:.08em}
+.printer i{width:8px;height:8px;border-radius:50%;background:#2fd36b;box-shadow:0 0 8px #2fd36b;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.3}}
+.printer::after{content:"";position:absolute;left:14px;right:14px;bottom:-4px;height:8px;border-radius:0 0 6px 6px;background:#050d16}
+.rcpt{position:relative;margin:0 14px;background:var(--rc);color:var(--ink);padding:22px 22px 30px;box-shadow:0 18px 40px rgba(20,20,20,.12);font-size:13px;transform-origin:top}
+.rcpt::after{content:"";position:absolute;left:0;right:0;bottom:-12px;height:12px;background:linear-gradient(-45deg,transparent 8px,var(--rc) 0) 0 0/16px 12px repeat-x,linear-gradient(45deg,transparent 8px,var(--rc) 0) 0 0/16px 12px repeat-x;filter:drop-shadow(0 4px 2px rgba(0,0,0,.05))}
+.rcpt .ytop{position:absolute;left:0;right:0;top:0;height:6px;background:var(--yellow)}
+.rc-hd{text-align:center;padding:6px 0 10px}
+.rc-hd .lg{display:inline-block;font-weight:900;font-style:italic;color:var(--red);font-size:24px;letter-spacing:-.04em;background:var(--yellow);padding:0 8px;border-radius:3px}
+.rc-hd h4{font-size:15px;margin-top:8px;letter-spacing:-.01em}
+.rc-hd p{font-size:11px;color:var(--ink-3);margin-top:2px}
+.dash{border-top:1.5px dashed #cfc8b6;margin:12px 0}
+.route{display:flex;align-items:center;justify-content:space-between;text-align:center}
+.route .c b{display:block;font-size:26px;font-weight:900;letter-spacing:-.02em}
+.route .c span{font-size:11px;color:var(--ink-3);font-weight:600}
+.route .pl{flex:1;position:relative;height:20px;margin:0 10px}
+.route .pl::before{content:"";position:absolute;left:0;right:0;top:9px;border-top:1.5px dashed #b9b19c}
+.route .pl svg{position:absolute;left:50%;top:0;width:22px;height:20px;margin-left:-11px;background:var(--rc);padding:0 2px}
+.grp{overflow:hidden;max-height:0;opacity:0;transition:max-height .7s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.grp.show{max-height:260px;opacity:1}
+.rl{display:flex;justify-content:space-between;gap:12px;padding:4px 0;line-height:1.45}
+.rl .k{color:var(--ink-3);font-weight:600;flex:none}
+.rl .v{text-align:right;font-weight:700}
+.rl .v.wait{color:#c2baa5;font-weight:600}
+.rl.flash .v{animation:flash 1.1s ease}
+@keyframes flash{0%{background:var(--yellow)}100%{background:transparent}}
+.rl.sub .k,.rl.sub .v{font-size:12px}
+.rl.minus .v{color:var(--red)}
+.rc-sec{font-size:10px;font-weight:800;color:var(--ink-3);letter-spacing:.14em;margin:2px 0 4px}
+.total{display:flex;justify-content:space-between;align-items:flex-end;padding-top:4px}
+.total span{font-size:12px;font-weight:800}
+.total b{font-family:"Courier New",monospace;font-size:30px;font-weight:700;letter-spacing:-.02em}
+.total s{display:block;text-align:right;font-size:12px;color:var(--ink-3);font-family:"Courier New",monospace}
+.barcode{height:44px;margin-top:14px;background:repeating-linear-gradient(90deg,#141414 0 2px,transparent 2px 4px,#141414 4px 5px,transparent 5px 8px,#141414 8px 11px,transparent 11px 12px,#141414 12px 13px,transparent 13px 16px)}
+.bc-no{text-align:center;font-family:"Courier New",monospace;font-size:11px;letter-spacing:.3em;margin-top:6px;color:var(--ink-2)}
+.rc-cta{margin:26px 14px 0}
+.rc-cta .btn{width:100%}
+.rc-note{font-size:11px;color:var(--ink-3);text-align:center;margin-top:10px}
+.stamp{position:absolute;right:22px;top:230px;z-index:2;background:rgba(255,253,247,.6);border:3px solid var(--red);color:var(--red);font-weight:900;font-size:26px;padding:4px 12px;border-radius:8px;transform:rotate(-14deg) scale(2.2);opacity:0;letter-spacing:.06em;font-family:"Courier New",monospace;pointer-events:none;transition:all .45s cubic-bezier(.3,1.6,.5,1)}
+.stamp.on{opacity:.85;transform:rotate(-14deg) scale(1)}
+/* variant visibility */
+.v-B.st-quote .navy{display:block}
+.v-B.st-quote .rc-zone{display:none}
+.flipin{animation:flip .7s cubic-bezier(.2,.8,.2,1)}
+@keyframes flip{from{transform:perspective(900px) rotateY(-90deg);opacity:.2}to{transform:none;opacity:1}}
+.print-in{animation:printIn .9s cubic-bezier(.2,.8,.2,1)}
+@keyframes printIn{from{clip-path:inset(0 0 100% 0);transform:translateY(-30px)}to{clip-path:inset(0 0 -20px 0);transform:none}}
+/* review toolbar */
+#rv{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99;display:flex;align-items:center;gap:16px;background:var(--ink);color:#fff;padding:10px 12px 10px 20px;border-radius:999px;box-shadow:0 20px 50px rgba(0,0,0,.3);font-size:13px;font-weight:700}
+#rv .g{display:flex;align-items:center;gap:6px}
+#rv .g>span{color:#999;margin-right:4px;white-space:nowrap}
+#rv .tip{white-space:nowrap}
+.still #rv{display:none}
+#rv button{white-space:nowrap;height:36px;padding:0 14px;border-radius:999px;color:#ccc;font-weight:700;font-size:13px}
+#rv button.on{background:var(--yellow);color:var(--ink)}
+#rv .sep{width:1px;height:22px;background:#333}
+#rv .tip{font-size:11px;color:#777;font-weight:600}
+#toast{position:fixed;left:50%;top:96px;transform:translate(-50%,-20px);background:var(--ink);color:#fff;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:all .3s;z-index:95;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.mode-step .tabs,.mode-step .subnav,.mode-step .carry{display:none}
+.mode-tab .stepper{display:none}
+#rv{display:none!important}</style></head>
+<body class="mode-step v-A st-quote">
+
+<header><div class="wrap inner">
+  <a class="logo" href="index.html"><b>DHL</b><span>EXPRESS</span></a>
+  <nav class="gnb"><a class="on" aria-current="page" href="quote.html">요금산출</a><a href="track.html">배송조회</a><a href="index.html#services">서비스</a><a href="index.html#support">고객지원</a><a href="guide.html">가이드</a></nav>
+  <div class="hd-right"><a href="#">로그인</a><a href="#">KOR</a></div>
+</div></header>
+
+<section class="sub-hero"><div class="wrap">
+  <div class="crumb">홈 / <b>발송하기</b></div>
+  <h1 class="sub-title">요금 확인부터 픽업까지,<br><em>한 화면에서 끝내요.</em></h1>
+  <p class="sub-desc">한 번 입력한 정보는 다음 단계로 자동으로 이어져요. 오른쪽 영수증에서 실시간으로 확인하세요.</p>
+</div></section>
+
+<section><div class="wrap">
+  <!-- 단계형 -->
+  <div class="stepper" id="stepper">
+    <div class="rider" id="rider"><svg viewBox="0 0 62 46"><g id="riderBox"></g></svg></div>
+    <div class="rail"></div><div class="fill" id="fill"></div>
+    <div class="nodes" id="nodes"></div>
+  </div>
+  <!-- 탭형 -->
+  <div class="tabs" id="tabs">
+    <button class="tab" data-t="quote"><div class="no">01</div><div><b>요금 산출</b><span>어디로 · 얼마나</span></div><em class="st" id="ts-quote"></em></button>
+    <button class="tab" data-t="waybill"><div class="no">02</div><div><b>운송장 작성</b><span>주소 · 물품 · 결제</span></div><em class="st" id="ts-waybill"></em></button>
+    <button class="tab" data-t="pickup"><div class="no">03</div><div><b>픽업 예약</b><span>언제 · 어디서</span></div><em class="st" id="ts-pickup"></em></button>
+  </div>
+  <div class="subnav" id="subnav"></div>
+  <div class="carry" id="carry"></div>
+
+  <div class="grid">
+    <div class="card" id="main">
+
+      <!-- ① 요금 -->
+      <div class="panel" data-p="quote">
+        <div class="p-head"><svg class="mini" data-mini viewBox="0 0 120 110"></svg><h3>어디로, 얼마나 보내나요?</h3></div>
+        <p class="p-sub">조건을 바꾸면 요금이 바로 다시 계산돼요.</p>
+        <div class="stage-box"><svg id="cBox" viewBox="-180 -230 360 260"></svg><div class="lbl">예상 경로<b id="cRoute">서울 → 도쿄</b></div><div class="lbl2">요금 적용 무게<b id="cApplied">2.0kg</b></div></div>
+        <div class="blk"><div class="blk-t"><b>어디로 보내나요?</b><span>출발지는 대한민국으로 고정돼요</span></div>
+          <div class="row"><div class="field"><label>출발지</label><input class="inp" value="대한민국 · 서울" disabled></div>
+          <div class="field"><label>도착지 <em>*</em></label><select class="inp" id="qDest"></select></div></div></div>
+        <div class="blk"><div class="blk-t"><b>무엇을 보내나요?</b></div>
+          <div class="chips" id="qType"><button class="chip" data-v="doc">✉️ 서류</button><button class="chip on" data-v="box">📦 물품</button></div></div>
+        <div class="blk" id="qPkgBlk"><div class="blk-t"><b>어떤 상자에 담나요?</b><span>DHL 박스를 고르면 크기가 자동으로 입력돼요</span></div>
+          <div class="presets" id="presets"></div>
+          <div class="row" id="ownDims" style="margin-top:14px"><div class="field"><label>가로 cm</label><input class="inp" id="qL" type="number" min="1"></div><div class="field"><label>세로 cm</label><input class="inp" id="qW" type="number" min="1"></div><div class="field"><label>높이 cm</label><input class="inp" id="qH" type="number" min="1"></div></div>
+        </div>
+        <div class="blk"><div class="blk-t"><b>무게와 개수</b><span id="qMaxTxt">0.5kg ~ 70kg</span></div>
+          <div class="range-wrap"><input type="range" id="qKg" min="0.5" max="70" step="0.5" value="2"><div class="kg-out"><span id="qKgOut">2.0</span><small>kg</small></div>
+          <div class="qty"><button data-q="-1">−</button><b id="qQty">1</b><button data-q="1">+</button></div></div>
+          <div class="vol" id="qVol"></div></div>
+        <div class="blk prods-wrap"><div class="blk-t"><b>서비스를 골라주세요</b><span>할인 적용가 · 시안용 예시 금액</span></div><div class="prods" id="prods"></div></div>
+        <div class="nav-btns"><span class="hint">입력한 정보는 운송장에 자동으로 이어져요</span><button class="btn btn-red" data-next>이 조건으로 운송장 작성 <span class="arrow">→</span></button></div>
+      </div>
+
+      <!-- ② 주소 -->
+      <div class="panel" data-p="addr">
+        <div class="p-head"><svg class="mini" data-mini viewBox="0 0 120 110"></svg><h3>보내는 분과 받는 분</h3></div>
+        <p class="p-sub">받는 분 정보는 통관을 위해 <b>영문</b>으로 입력해 주세요. <em style="color:var(--red);font-style:normal">*</em> 필수</p>
+        <div class="two">
+          <div class="fs"><div class="fs-t"><i></i>보내는 분 <span class="tag g" style="margin-left:auto">픽업 주소로도 쓰여요</span></div>
+            <div class="row"><div class="field"><label>이름 <em>*</em></label><input class="inp" id="sName"></div><div class="field"><label>회사 <span class="opt">(선택)</span></label><input class="inp" id="sCom" placeholder="회사명"></div></div>
+            <div class="row"><div class="field"><label>주소 <em>*</em></label><input class="inp" id="sAddr"></div></div>
+            <div class="row"><div class="field"><label>우편번호 <em>*</em></label><input class="inp" id="sZip"></div><div class="field"><label>도시</label><input class="inp" id="sCity" readonly></div></div>
+            <div class="row"><div class="field"><label>휴대폰 <em>*</em></label><input readonly class="inp" id="sTel"></div><div class="field"><label>이메일 <em>*</em></label><input class="inp" id="sMail"></div></div>
+            <label class="check" style="margin-top:8px"><input type="checkbox" checked> 배송 알림 문자 받기</label>
+          </div>
+          <div class="fs"><div class="fs-t"><i style="background:var(--yellow)"></i>받는 분</div>
+            <div class="row"><div class="field"><label>이름 (영문) <em>*</em></label><input class="inp" id="rName"></div><div class="field"><label>회사 <span class="opt">(선택)</span></label><input class="inp" placeholder="Company"></div></div>
+            <div class="row"><div class="field"><label>국가 <span class="tag">요금 단계에서 가져옴</span></label><input class="inp" id="rCountry" readonly></div></div>
+            <div class="row"><div class="field"><label>주소 (영문) <em>*</em></label><input class="inp" id="rAddr"></div></div>
+            <div class="row"><div class="field"><label>우편번호 <em>*</em></label><input class="inp" id="rZip"></div><div class="field"><label>도시 <em>*</em></label><input class="inp" id="rCity"></div></div>
+            <div class="row"><div class="field"><label>전화 <em>*</em></label><input readonly class="inp" id="rTel"></div><div class="field"><label>이메일 <em>*</em></label><input class="inp" id="rMail"></div></div>
+            <label class="check" style="margin-top:8px"><input type="checkbox" id="rHome" checked> 가정집 주소예요 <span class="hint">(주거지역 배송 +8,000원)</span></label>
+          </div>
+        </div>
+        <div class="nav-btns"><button class="btn btn-ghost" data-prev>← 이전</button><button class="btn btn-red" data-next>다음 · 물품 정보 <span class="arrow">→</span></button></div>
+      </div>
+
+      <!-- ③ 물품·통관 -->
+      <div class="panel" data-p="items">
+        <div class="p-head"><svg class="mini" data-mini viewBox="0 0 120 110"></svg><h3>무엇을 보내나요?</h3></div>
+        <p class="p-sub">세관에 신고할 정보예요. 입력하면 <b>전자 인보이스가 자동으로</b> 만들어져요.</p>
+        <div class="blk"><div class="blk-t"><b>보내는 목적</b><span>목적에 따라 관세가 달라질 수 있어요</span></div>
+          <div class="chips purpose" id="purpose"></div></div>
+        <div class="blk"><div class="blk-t"><b>품목 상세</b><span>한 품목씩 영문으로 입력해 주세요</span></div>
+          <div id="items"></div>
+          <button class="btn btn-ghost btn-sm" id="addItem">＋ 품목 추가</button>
+          <div class="inv" style="margin-top:16px"><div><div style="font-size:13px;font-weight:800;color:var(--ink-3)">세관 신고 총액</div><div class="hint" id="invSub">수량 1 · 0.0kg</div></div><b class="mono" id="invTot">USD 0.00</b></div></div>
+        <div class="blk"><div class="blk-t"><b>관부가세는 누가 내나요?</b><span>무역조건 (Incoterms)</span></div>
+          <div class="duty" id="duty"><button data-v="DAP" class="on"><b>받는 분이 내요</b><span>DAP · 가장 일반적이에요</span></button><button data-v="DDP"><b>내가 대신 낼게요</b><span>DDP · 받는 분 부담 0원</span></button></div></div>
+        <div class="nav-btns"><button class="btn btn-ghost" data-prev>← 이전</button><button class="btn btn-red" data-next>다음 · 부가 서비스 <span class="arrow">→</span></button></div>
+      </div>
+
+      <!-- ④ 부가 서비스 -->
+      <div class="panel" data-p="addon">
+        <div class="p-head"><svg class="mini" data-mini viewBox="0 0 120 110"></svg><h3>언제 보내고, 무엇을 더할까요?</h3></div>
+        <p class="p-sub">발송일을 바꾸면 도착 예정일이 다시 계산돼요.</p>
+        <div class="blk"><div class="blk-t"><b>발송일</b><span id="etaTxt"></span></div><div class="dates" id="dates"></div></div>
+        <div class="blk"><div class="blk-t"><b>선택한 서비스</b><span>요금 단계에서 고른 서비스예요</span></div><div class="prods" id="prods2"></div></div>
+        <div class="blk"><div class="blk-t"><b>부가 서비스</b><span>필요한 것만 켜세요</span></div><div id="addons"></div>
+          <div class="upsell">⚡ <span><b>+30,000원</b>이면 다음 날 <b>정오 전</b>에 도착해요 (EXPRESS 12:00)</span><button class="btn btn-yellow btn-sm" style="margin-left:auto" id="upBtn">바꾸기</button></div></div>
+        <div class="nav-btns"><button class="btn btn-ghost" data-prev>← 이전</button><button class="btn btn-red" data-next id="addonNext">다음 · 픽업 예약 <span class="arrow">→</span></button></div>
+      </div>
+
+      <!-- ⑤ 픽업 -->
+      <div class="panel" data-p="pickup">
+        <div class="p-head"><svg class="mini" data-mini viewBox="0 0 120 110"></svg><h3>DHL에 어떻게 전달할까요?</h3></div>
+        <p class="p-sub">기사님 방문 픽업을 예약하거나, 가까운 서비스포인트에 직접 맡길 수 있어요.</p>
+        <div class="blk"><div class="how" id="how">
+          <button data-v="pick" class="on"><div class="e">🚚</div><b>기사님 방문 픽업</b><span>원하는 시간에 문 앞으로 가지러 가요</span></button>
+          <button data-v="drop"><div class="e">🏪</div><b>서비스포인트에 맡기기</b><span>QR코드만 보여주면 접수 끝</span></button>
+          <button data-v="have"><div class="e">📅</div><b>이미 예약했어요</b><span>오늘 예약된 픽업에 추가해요</span></button></div></div>
+        <div id="pickOpts">
+          <div class="blk"><div class="blk-t"><b>픽업 날짜</b><span>당일 픽업은 17:00까지 요청할 수 있어요</span></div><div class="dates" id="pdates"></div></div>
+          <div class="blk"><div class="blk-t"><b>기사님이 와도 되는 시간</b><span>최소 2시간 이상 열어 주세요</span></div>
+            <div class="tl-out">⏰ <b id="tFrom">14:00</b> ~ <b id="tTo">17:00</b> <span class="tag g" id="tLen">3시간</span></div>
+            <div class="tl"><div class="bar"></div><div class="sel" id="tSel"></div><input type="range" id="tA" min="18" max="36" step="1" value="28"><input type="range" id="tB" min="18" max="36" step="1" value="34"><div class="ticks"><span>09시</span><span>12시</span><span>15시</span><span>18시</span></div></div></div>
+          <div class="blk"><div class="blk-t"><b>어디서 받아가면 되나요?</b></div>
+            <div class="chips" id="ploc"><button class="chip on" data-v="현관 앞">🚪 현관 앞</button><button class="chip" data-v="리셉션">🛎 리셉션 · 경비실</button><button class="chip" data-v="기타">✏️ 기타</button></div>
+            <div class="row" style="margin-top:14px"><div class="field"><label>기사님께 남길 말 <span class="opt">(선택)</span></label><textarea class="inp" id="pMemo" placeholder="예) 공동현관 비밀번호 #1234, 도착 전 전화 주세요"></textarea></div></div>
+            <div class="addr-card"><div class="pin">📍</div><div><b style="font-size:15px">픽업 주소</b> <span class="tag g">보내는 분 주소와 같아요</span><p id="pAddr"></p></div></div></div>
+        </div>
+        <div class="blk"><div class="blk-t"><b>라벨은 어떻게 받을까요?</b></div>
+          <div class="chips" id="lbl"><button class="chip on" data-v="print">🖨 직접 출력해서 붙일게요</button><button class="chip" data-v="qr">📱 프린터가 없어요 (QR코드)</button></div>
+          <div class="qr-note" id="qrNote">기사님이나 서비스포인트 직원에게 <b>QR코드</b>를 보여주면 라벨을 대신 출력해 붙여 드려요.</div></div>
+        <div class="nav-btns"><button class="btn btn-ghost" data-prev>← 이전</button><button class="btn btn-red" data-next id="pickNext">다음 · 확인하고 결제 <span class="arrow">→</span></button></div>
+      </div>
+
+      <!-- ⑥ 확인·결제 -->
+      <div class="panel" data-p="confirm">
+        <div class="p-head"><svg class="mini" data-mini viewBox="0 0 120 110"></svg><h3>마지막으로 확인해 주세요</h3></div>
+        <p class="p-sub">고칠 부분이 있으면 <b style="color:var(--red)">수정</b>을 눌러 바로 돌아갈 수 있어요.</p>
+        <div class="sumc" id="sumc"></div>
+        <div class="blk" style="margin-top:22px"><div class="blk-t"><b>결제 수단</b><span>체크카드는 결제할 수 없어요</span></div>
+          <div class="pays" id="pays"><button class="on" data-v="신용카드">💳 신용카드</button><button data-v="계좌이체">🏦 계좌이체</button><button data-v="DHL 고객번호">🔢 DHL 고객번호</button></div>
+          <div class="promo" style="margin-top:12px"><input class="inp" placeholder="프로모션 코드 (선택)"><button class="btn btn-ghost btn-sm" style="height:50px">적용</button></div></div>
+        <div class="agree"><label class="check"><input type="checkbox" id="agAll" checked> <b>전체 동의</b></label>
+          <label class="check" style="font-weight:500;color:var(--ink-2)"><input type="checkbox" checked> [필수] 이용약관 · 전자 세관 인보이스 약관</label>
+          <label class="check" style="font-weight:500;color:var(--ink-2)"><input type="checkbox" checked> [필수] 금지 품목이 없음을 확인했어요</label></div>
+        <div class="nav-btns"><button class="btn btn-ghost" data-prev>← 이전</button><button class="btn btn-red" data-next id="payBtn">결제하기 <span class="arrow">→</span></button></div>
+      </div>
+
+      <!-- 완료 -->
+      <div class="panel" data-p="done">
+        <div class="done-hero"><span class="tag g" style="height:30px;font-size:13px">✓ 결제 완료</span><h3 id="doneT">발송 준비가 끝났어요!</h3><p id="doneP"></p>
+          <div class="road" id="road"><div class="lane"></div><svg class="dbox" id="dBox" viewBox="0 0 120 110"></svg>
+            <svg class="truck" viewBox="0 0 240 120"><rect x="0" y="14" width="150" height="74" rx="6" fill="#FFCC00"/><rect x="0" y="40" width="150" height="10" fill="#D40511"/><text x="75" y="76" text-anchor="middle" font-size="28" font-weight="900" font-style="italic" fill="#D40511" font-family="Arial Black,Arial">DHL</text><path d="M154 88V34h44l32 32v22z" fill="#D40511"/><path d="M164 42h30l22 22h-52z" fill="#BFE3F5"/><circle cx="38" cy="94" r="16" fill="#141414"/><circle cx="38" cy="94" r="6" fill="#bbb"/><circle cx="118" cy="94" r="16" fill="#141414"/><circle cx="118" cy="94" r="6" fill="#bbb"/><circle cx="200" cy="94" r="16" fill="#141414"/><circle cx="200" cy="94" r="6" fill="#bbb"/></svg></div>
+          <div class="wbno"><span>운송장 번호</span><b class="mono">1234 5678 90</b></div>
+          <div class="done-acts"><button class="btn btn-yellow">🖨 라벨 출력 (PDF)</button><button class="btn btn-ink">배송 조회하기 <span class="arrow">→</span></button><button class="btn btn-ghost" id="restart">↺ 처음부터 다시 보기</button></div>
+          <div class="done-grid" id="doneGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <aside class="aside" id="aside">
+      <div class="navy" id="navy">
+        <div class="bx-wrap"><div class="route-tag">예상 경로<b id="nRoute">서울 → 도쿄</b></div><div class="applied">요금 적용 무게<b id="nApplied">2.0kg</b></div>
+          <svg id="nBox" viewBox="-180 -230 360 260"></svg>
+          <div class="cmp"><div><span>실제 무게</span><i><em id="cA"></em></i><b id="cAv">-</b></div><div><span>부피무게</span><i><em id="cV"></em></i><b id="cVv">-</b></div></div></div>
+        <div class="nopts" id="nopts"></div>
+        <button class="btn btn-yellow" data-next>이 조건으로 운송장 작성 <span class="arrow">→</span></button>
+        <p class="q-note">* 시안용 예시 금액이에요. 실제 요금과 다를 수 있어요.</p>
+      </div>
+      <div class="rc-zone" id="rcZone">
+        <div class="rc-box"><svg id="rBox" viewBox="-150 -190 300 200"></svg></div>
+        <div class="printer"><span>DHL RECEIPT PRINTER</span><i></i></div>
+        <div class="rcpt" id="rcpt">
+          <div class="ytop"></div>
+          <div class="stamp" id="stamp">PAID</div>
+          <div class="rc-hd"><span class="lg">DHL</span><h4>나의 발송 영수증</h4><p class="mono" id="rcDate">2026.11.16 · No. DHL-2611-0042</p></div>
+          <div class="dash"></div>
+          <div class="route"><div class="c"><b>SEL</b><span>대한민국 · 서울</span></div><div class="pl"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" fill="#D40511"/></svg></div><div class="c"><b id="rcTo">TYO</b><span id="rcToN">일본 · 도쿄</span></div></div>
+          <div class="dash"></div>
+          <div id="rcBody"></div>
+          <div class="dash"></div>
+          <div class="grp show" id="gCost"><div class="rc-sec">CHARGES</div><div id="rcCost"></div></div>
+          <div class="dash"></div>
+          <div class="total"><span>결제 예정 금액<br><small style="font-weight:600;color:var(--ink-3)">VAT 포함 · KRW</small></span><div><s id="rcList"></s><b id="rcTotal">0</b></div></div>
+          <div class="barcode"></div><div class="bc-no">DHL 2611 0042</div>
+        </div>
+        <div class="rc-cta"><button class="btn btn-red" data-next id="rcBtn">다음 단계로 <span class="arrow">→</span></button><p class="rc-note">* 시안용 예시 금액이에요. 실제 요금과 다를 수 있어요.</p></div>
+      </div>
+    </aside>
+  </div>
+</div></section>
+
+<div id="rv">
+  <div class="g"><span>흐름</span><button data-mode="step" class="on">단계형</button><button data-mode="tab">탭형</button></div>
+  <div class="sep"></div>
+  <div class="g"><span>영수증</span><button data-v="A" class="on">A 박스+영수증</button><button data-v="B">B 네이비→영수증</button><button data-v="C">C 영수증만</button></div>
+  <div class="sep"></div>
+  <span class="tip">팀 리뷰용 바 · 실제 사이트엔 없어요</span>
+</div>
+<div id="toast"></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const won=n=>Math.round(n).toLocaleString('ko-KR');
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
+
+/* ---------- data ---------- */
+const CITIES={jp:{n:'도쿄',k:'일본',en:'Japan',code:'TYO',z:1,d:1},vn:{n:'호치민',k:'베트남',en:'Vietnam',code:'SGN',z:1,d:2},sg:{n:'싱가포르',k:'싱가포르',en:'Singapore',code:'SIN',z:2,d:2},au:{n:'시드니',k:'호주',en:'Australia',code:'SYD',z:3,d:3},de:{n:'프랑크푸르트',k:'독일',en:'Germany',code:'FRA',z:4,d:3},uk:{n:'런던',k:'영국',en:'United Kingdom',code:'LON',z:4,d:3},us:{n:'뉴욕',k:'미국',en:'United States',code:'NYC',z:5,d:3}};
+const RATE={1:[38000,9000],2:[42000,10000],3:[52000,12000],4:[58000,14000],5:[62000,15000]};
+const PRESETS=[
+ {id:'flyer',n:'서류 봉투',s:'Flyer',d:[33,24,1],doc:1},
+ {id:'b2',n:'Box 2',s:'신발 상자',d:[33.7,18.2,8.1]},
+ {id:'b3',n:'Box 3',s:'33.7×32.2×9.2',d:[33.7,32.2,9.2]},
+ {id:'b4',n:'Box 4',s:'33.7×32.2×18',d:[33.7,32.2,18]},
+ {id:'b5',n:'Box 5',s:'Jumbo Small',d:[33.7,32.2,34.5]},
+ {id:'b7',n:'Box 7',s:'48.1×40.4×38.9',d:[48.1,40.4,38.9]},
+ {id:'b8',n:'Box 8',s:'Jumbo Large',d:[54.1,44.4,40.9]},
+ {id:'own',n:'내 상자',s:'직접 입력',d:null}];
+const PURP=[['GIFT','🎁 선물'],['SALE','💼 판매'],['PERSONAL','👕 개인 물품'],['SAMPLE','🧪 샘플'],['REPAIR','🔧 수리·반송'],['ETC','기타']];
+const DOW=['일','월','화','수','목','금','토'];
+const TODAY=new Date(2026,10,16);
+function addBiz(d,n){const x=new Date(d);while(n>0){x.setDate(x.getDate()+1);if(x.getDay()!==0&&x.getDay()!==6)n--}return x}
+const fmtD=d=>`${d.getMonth()+1}/${d.getDate()}(${DOW[d.getDay()]})`;
+const SHIPDAYS=(()=>{const a=[];let x=new Date(TODAY);while(a.length<5){if(x.getDay()!==0&&x.getDay()!==6)a.push(new Date(x));x.setDate(x.getDate()+1)}return a})();
+
+const S={dest:'jp',type:'box',preset:'b3',L:33.7,W:32.2,H:9.2,kg:2,qty:1,svc:'ww',
+ sender:{name:'홍길동',addr:'서울특별시 강남구 테헤란로 123, 5층',zip:'06236',city:'SEOUL',tel:'010-1234-5678',mail:'gildong@email.com'},
+ recv:{name:'Yuki Tanaka',addr:'1-1 Marunouchi, Chiyoda-ku',zip:'100-0005',city:'Tokyo',tel:'+81 3-1234-5678',mail:'yuki@email.jp',home:true},
+ purpose:'GIFT',items:[{d:'Cotton T-shirt',hs:'6109.10',q:2,u:15,w:0.4,o:'KR'},{d:'Ceramic mug',hs:'',q:1,u:12,w:0.6,o:'KR'}],duty:'DAP',
+ day:0,addons:{ins:false,sig:false,green:true},how:'pick',pday:0,tA:28,tB:34,ploc:'현관 앞',label:'print',pay:'신용카드',paid:false};
+const ORDER=['quote','addr','items','addon','pickup','confirm'];
+const NAMES={quote:['요금 확인','어디로·얼마나'],addr:['주소','보내는·받는 분'],items:['물품·통관','세관 신고'],addon:['부가 서비스','발송일·옵션'],pickup:['픽업·라벨','언제·어디서'],confirm:['확인·결제','마지막 점검']};
+let cur='quote',mode='step',vari='A',reached=0,tab='quote';
+
+/* ---------- calc ---------- */
+function vol(){return S.type==='doc'?0:S.L*S.W*S.H/5000}
+function applied(){const v=vol();return Math.max(S.kg,Math.ceil(v*2)/2)*S.qty}
+function base(svc){const z=CITIES[S.dest].z,r=RATE[z];let p=r[0]+r[1]*Math.max(0,applied()-.5);if(svc==='12')p+=30000;return Math.round(p/100)*100}
+function cost(){
+  const b=base(S.svc),fuel=Math.round(b*.32/100)*100,home=S.recv.home?8000:0;
+  const ins=S.addons.ins?17000:0,sig=S.addons.sig?5000:0,green=S.addons.green?Math.max(1000,Math.round(b*.02/100)*100):0;
+  const list=b+fuel+home+ins+sig+green,disc=Math.round((b+fuel)*.15/100)*100;
+  return{b,fuel,home,ins,sig,green,list,disc,total:list-disc};
+}
+function priceFor(svc){const b=base(svc),f=Math.round(b*.32/100)*100;return{list:b+f,net:b+f-Math.round((b+f)*.15/100)*100}}
+function eta(svc){const c=CITIES[S.dest];const d=addBiz(SHIPDAYS[S.day],c.d);return fmtD(d)+(svc==='12'?' 12:00 전':' 일과 종료 전')}
+function invTotal(){return S.items.reduce((a,i)=>a+(+i.q||0)*(+i.u||0),0)}
+function stageOf(p){return {quote:0,addr:1,items:1,addon:2,pickup:3,confirm:3,done:4}[p]}
+
+/* ---------- DHL box (isometric, parametric) ---------- */
+const P=(x,y,z)=>[(x-y)*.866,(x+y)*.5-z];
+function boxSVG({L,W,H,k=3,stage=2,doc=false,cx=0,cy=0,dims=false,light=false}){
+  L*=k;W*=k;H=Math.max(H*k,doc?3:6);
+  const vs=[[0,0,0],[L,0,0],[0,W,0],[L,W,0],[0,0,H],[L,0,H],[0,W,H],[L,W,H]].map(v=>P(...v));
+  const x0=Math.min(...vs.map(v=>v[0])),x1=Math.max(...vs.map(v=>v[0])),y1=Math.max(...vs.map(v=>v[1]));
+  const ox=cx-(x0+x1)/2,oy=cy-y1;
+  const pt=(x,y,z)=>{const q=P(x,y,z);return(q[0]+ox).toFixed(1)+','+(q[1]+oy).toFixed(1)};
+  const poly=(a,c,ex='')=>`<polygon points="${a.join(' ')}" fill="${c}" ${ex}/>`;
+  const top=[pt(0,0,H),pt(L,0,H),pt(L,W,H),pt(0,W,H)],rt=[pt(L,0,0),pt(L,W,0),pt(L,W,H),pt(L,0,H)],fr=[pt(0,W,0),pt(L,W,0),pt(L,W,H),pt(0,W,H)];
+  let s='';
+  if(doc){
+    s+=poly(fr,'#E3B300')+poly(rt,'#C99A00')+poly(top,'#FFCC00');
+    s+=poly([pt(L*.08,W*.12,H),pt(L*.5,W*.12,H),pt(L*.5,W*.32,H),pt(L*.08,W*.32,H)],'#D40511');
+    if(stage>=1)s+=poly([pt(L*.55,W*.45,H),pt(L*.92,W*.45,H),pt(L*.92,W*.88,H),pt(L*.55,W*.88,H)],'#fff');
+    return s;
+  }
+  s+=poly(fr,'#FFCC00')+poly(rt,'#E3B300')+poly(top,'#F2C400');
+  s+=poly([pt(0,W*.5-.5,H),pt(L,W*.5-.5,H),pt(L,W*.5+.5,H),pt(0,W*.5+.5,H)],'#000','opacity=".12"');
+  // front face local frame: origin pt(0,W,H), u→x, v→down
+  const o=pt(0,W,H).split(',');
+  const sc=Math.min(L,H*2.4)/100;
+  let face=`<g transform="matrix(${.866*sc},${.5*sc},0,${sc},${o[0]},${o[1]})">`;
+  const fw=L/sc,fh=H/sc;
+  // DHL word mark + stripes
+  const ty=Math.min(fh*.62,44);
+  face+=`<g fill="#D40511"><rect x="${fw*.5-46}" y="${ty-13}" width="16" height="2.2"/><rect x="${fw*.5-46}" y="${ty-8}" width="16" height="2.2"/><rect x="${fw*.5+30}" y="${ty-13}" width="16" height="2.2"/><rect x="${fw*.5+30}" y="${ty-8}" width="16" height="2.2"/></g><text x="${fw*.5}" y="${ty}" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="22" font-weight="900" font-style="italic" fill="#D40511" letter-spacing="-1">DHL</text>`;
+  if(stage>=1){const lw=Math.min(34,fw*.26),lh=Math.min(30,fh*.7);face+=`<g class="lab"><rect x="6" y="${Math.max(3,fh*.12)}" width="${lw}" height="${lh}" rx="2" fill="#fff"/><rect x="9" y="${Math.max(3,fh*.12)+4}" width="${lw*.7}" height="2" fill="#141414"/><rect x="9" y="${Math.max(3,fh*.12)+8}" width="${lw*.5}" height="2" fill="#141414"/><g fill="#141414">${Array.from({length:9},(_,i)=>`<rect x="${9+i*lw*.085}" y="${Math.max(3,fh*.12)+13}" width="${i%2?.6:1.2}" height="${lh*.45}"/>`).join('')}</g></g>`}
+  face+='</g>';
+  s+=face;
+  if(stage>=2){const t=Math.min(W*.16,14);
+    s+=poly([pt(0,W/2-t/2,H),pt(L,W/2-t/2,H),pt(L,W/2+t/2,H),pt(0,W/2+t/2,H)],'#D40511');
+    s+=poly([pt(L,W/2-t/2,H),pt(L,W/2+t/2,H),pt(L,W/2+t/2,H*.55),pt(L,W/2-t/2,H*.55)],'#B5040E');}
+  if(stage>=3){const c=pt(L*.82,W*.2,H).split(',');s+=`<g transform="translate(${c[0]},${+c[1]-8})"><circle r="15" fill="#141414"/><text y="5" text-anchor="middle" font-size="15">🚚</text></g>`}
+  if(dims){const dim=(a,b,t,dx,dy)=>{const A=a.split(','),B=b.split(',');return`<line x1="${+A[0]+dx}" y1="${+A[1]+dy}" x2="${+B[0]+dx}" y2="${+B[1]+dy}" stroke="${light?'#5d7a96':'#C9A400'}" stroke-width="1.5" stroke-dasharray="4 4"/><text x="${(+A[0]+ +B[0])/2+dx*2.4}" y="${(+A[1]+ +B[1])/2+dy*2.4+5}" text-anchor="middle" font-size="14" font-weight="800" font-family="Pretendard" fill="${light?'#FFCC00':'#7A5B00'}">${t}</text>`};
+    s+=dim(pt(0,W,0),pt(L,W,0),'가로 '+Math.round(S.L),-8,14)+dim(pt(L,W,0),pt(L,0,0),'세로 '+Math.round(S.W),12,10)+dim(pt(0,W,0),pt(0,W,H),'높이 '+Math.round(S.H),-18,0);}
+  return s;
+}
+function bigK(){const m=Math.max(S.L,S.W,S.H*1.3,20);return 150/m}
+function drawBoxes(){
+  const doc=S.type==='doc',st=stageOf(cur);
+  const d=doc?{L:33,W:24,H:1}:{L:S.L,W:S.W,H:S.H};
+  $('#nBox').innerHTML=boxSVG({...d,k:bigK(),stage:0,doc,cy:0,dims:!doc,light:true});
+  $('#cBox').innerHTML=boxSVG({...d,k:bigK()*.9,stage:0,doc,cy:5,dims:!doc});
+  $('#rBox').innerHTML=`<g id="rBoxG">`+boxSVG({...d,k:Math.min(bigK()*.75,4),stage:st,doc,cy:0})+`</g>`;
+  $$('[data-mini]').forEach(m=>m.innerHTML=boxSVG({L:30,W:22,H:16,k:1.6,stage:+(m.closest('.panel').dataset.p&&stageOf(m.closest('.panel').dataset.p)),cx:60,cy:100}));
+  $('#dBox').innerHTML=boxSVG({L:30,W:22,H:16,k:1.6,stage:3,cx:60,cy:105});
+  const rb=$('#riderBox');if(rb)rb.innerHTML=boxSVG({L:22,W:16,H:12,k:1.15,stage:st,cx:31,cy:44});
+}
+let lastStage=-1;
+function hopBox(){const st=stageOf(cur);if(st!==lastStage&&lastStage!==-1){const g=$('#rBoxG');if(g){g.classList.remove('hop');void g.getBBox;g.classList.add('hop')}}lastStage=st}
+
+/* ---------- build static UI ---------- */
+$('#qDest').innerHTML=Object.entries(CITIES).map(([k,c])=>`<option value="${k}">${c.k} · ${c.n}</option>`).join('');
+$('#presets').innerHTML=PRESETS.map(p=>{
+  const d=p.d||[30,24,18];const svg=p.id==='own'?`<g opacity=".35">${boxSVG({L:30,W:24,H:18,k:.95,stage:0,cx:0,cy:0})}</g><text x="0" y="-22" text-anchor="middle" font-size="22" font-weight="900" fill="#7A5B00">?</text>`:boxSVG({L:d[0],W:d[1],H:d[2],k:.95,stage:0,doc:!!p.doc,cx:0,cy:0});
+  return `<button class="pre" data-id="${p.id}"><svg viewBox="-60 -86 120 92">${svg}</svg><b>${p.n}</b><span>${p.s}</span></button>`}).join('');
+$('#purpose').innerHTML=PURP.map(([v,t])=>`<button class="chip" data-v="${v}">${t}</button>`).join('');
+const dayBtns=(id,sel)=>{$(id).innerHTML=SHIPDAYS.map((d,i)=>`<button class="date${i===sel?' on':''}" data-i="${i}"><small>${i===0?'오늘':i===1?'내일':DOW[d.getDay()]+'요일'}</small><b>${d.getDate()}</b><small>${d.getMonth()+1}월</small></button>`).join('')};
+$('#addons').innerHTML=[['ins','🛡','물품 안심 서비스','파손·분실 시 신고 금액까지 보상해요','+17,000원'],['sig','✍️','직접 서명','받는 분이 직접 서명해야 배송 완료돼요','+5,000원'],['green','🌱','고그린 플러스','친환경 항공연료로 탄소 배출을 줄여요','+운임의 2%']].map(a=>`<div class="addon" data-a="${a[0]}"><div class="ic">${a[1]}</div><div><b>${a[2]}</b><span>${a[3]}</span></div><div class="p">${a[4]}</div><div class="sw"></div></div>`).join('');
+
+/* ---------- render ---------- */
+function prodHTML(cls){
+  return ['ww','12'].map(s=>{const p=priceFor(s);const nm=s==='ww'?'EXPRESS WORLDWIDE':'EXPRESS 12:00';const tg=s==='12'?'<span class="tagf">정오 전 도착</span>':'<span class="tag g">추천</span>';
+    if(cls==='nopt')return `<button class="nopt${S.svc===s?' on':''}" data-s="${s}"><div><div class="nm">${nm} ${s==='12'?'<span class="tagf">가장 빠름</span>':''}</div><div class="eta">도착 예정 ${eta(s)}</div></div><div class="pr">${won(p.net)}<small>원</small></div></button>`;
+    return `<button class="prod${S.svc===s?' on':''}" data-s="${s}"><span class="rad"></span><div><div class="nm">${nm} ${tg}</div><div class="eta">도착 예정 ${eta(s)}</div></div><div class="pr"><s>${won(p.list)}원</s><b>${won(p.net)}</b><small>원</small></div></button>`}).join('');
+}
+function renderQuote(){
+  const c=CITIES[S.dest],doc=S.type==='doc';
+  $('#qDest').value=S.dest;
+  $$('#qType .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===S.type));
+  $('#qPkgBlk').style.display=doc?'none':'';
+  $$('#presets .pre').forEach(b=>b.classList.toggle('on',b.dataset.id===S.preset));
+  $('#ownDims').style.display=S.preset==='own'?'':'none';
+  $('#qL').value=S.L;$('#qW').value=S.W;$('#qH').value=S.H;
+  const kg=$('#qKg');kg.max=doc?2:70;if(S.kg>kg.max)S.kg=+kg.max;kg.value=S.kg;$('#qKgOut').textContent=S.kg.toFixed(1);$('#qMaxTxt').textContent='0.5kg ~ '+kg.max+'kg';
+  $('#qQty').textContent=S.qty;
+  const v=vol(),ap=applied();
+  $('#qVol').innerHTML=doc?'서류는 무게로만 계산돼요 (최대 2kg).':`부피무게 = ${S.L} × ${S.W} × ${S.H} ÷ 5,000 = <b>${v.toFixed(1)}kg</b> · 실제 무게와 비교해 더 큰 <b>${(ap/S.qty).toFixed(1)}kg</b> × ${S.qty}개 = <b>${ap.toFixed(1)}kg</b>으로 계산돼요.`;
+  $('#prods').innerHTML=prodHTML('prod');$('#nopts').innerHTML=prodHTML('nopt');$('#prods2').innerHTML=prodHTML('prod');
+  [$('#nRoute'),$('#cRoute')].forEach(e=>e.textContent='서울 → '+c.n);
+  [$('#nApplied'),$('#cApplied')].forEach(e=>e.textContent=ap.toFixed(1)+'kg');
+  const mx=Math.max(S.kg,v,1),aw=S.kg>=v;
+  $('#cA').style.width=(S.kg/mx*100)+'%';$('#cV').style.width=(v/mx*100)+'%';
+  $('#cA').classList.toggle('win',aw);$('#cV').classList.toggle('win',!aw&&!doc);$('#cAv').classList.toggle('win',aw);$('#cVv').classList.toggle('win',!aw&&!doc);
+  $('#cAv').textContent=S.kg.toFixed(1)+'kg';$('#cVv').textContent=doc?'-':v.toFixed(1)+'kg';
+}
+function renderAddr(){
+  const m={sName:S.sender.name,sAddr:S.sender.addr,sZip:S.sender.zip,sCity:S.sender.city,sTel:S.sender.tel,sMail:S.sender.mail,rName:S.recv.name,rAddr:S.recv.addr,rZip:S.recv.zip,rCity:S.recv.city,rTel:S.recv.tel,rMail:S.recv.mail};
+  Object.entries(m).forEach(([k,v])=>{const e=$('#'+k);if(document.activeElement!==e)e.value=v});
+  $('#rCountry').value=CITIES[S.dest].en+' ('+CITIES[S.dest].k+')';$('#rHome').checked=S.recv.home;
+}
+function renderItems(){
+  $$('#purpose .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===S.purpose));
+  if(!$('#items').dataset.built||$('#items').children.length!==S.items.length){
+    $('#items').innerHTML=S.items.map((it,i)=>`<div class="item-row" data-i="${i}">
+      <div class="field"><label>품목명 (영문) <em>*</em></label><input class="inp" data-f="d" value="${it.d}"></div>
+      <div class="field"><label>HS 코드 <span class="opt">(선택)</span></label><input class="inp" data-f="hs" value="${it.hs}" placeholder="자동 추천"></div>
+      <div class="field"><label>수량 <em>*</em></label><input class="inp" data-f="q" type="number" value="${it.q}"></div>
+      <div class="field"><label>개당 가격 USD <em>*</em></label><input class="inp" data-f="u" type="number" value="${it.u}"></div>
+      <div class="field"><label>개당 kg <em>*</em></label><input class="inp" data-f="w" type="number" step="0.1" value="${it.w}"></div>
+      <div class="field"><label>제조국 <em>*</em></label><select class="inp" data-f="o"><option ${it.o==='KR'?'selected':''} value="KR">대한민국</option><option value="CN" ${it.o==='CN'?'selected':''}>중국</option><option value="JP" ${it.o==='JP'?'selected':''}>일본</option></select></div>
+      <button class="del" title="삭제">✕</button></div>`).join('');$('#items').dataset.built=1}
+  const q=S.items.reduce((a,i)=>a+(+i.q||0),0),w=S.items.reduce((a,i)=>a+(+i.q||0)*(+i.w||0),0);
+  $('#invTot').textContent='USD '+invTotal().toFixed(2);$('#invSub').textContent=`품목 ${S.items.length}종 · 수량 ${q} · ${w.toFixed(1)}kg · 전자 인보이스 자동 생성 ✓`;
+  $$('#duty button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.duty));
+}
+function renderAddon(){
+  dayBtns('#dates',S.day);$('#etaTxt').textContent='도착 예정 '+eta(S.svc);
+  $$('#addons .addon').forEach(a=>a.classList.toggle('on',S.addons[a.dataset.a]));
+  $('.upsell').style.display=S.svc==='12'?'none':'';
+}
+function tStr(v){return String(Math.floor(v/2)).padStart(2,'0')+':'+(v%2?'30':'00')}
+function renderPickup(){
+  $$('#how button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.how));
+  $('#pickOpts').style.display=S.how==='pick'?'':'none';
+  dayBtns('#pdates',S.pday);
+  $('#tA').value=S.tA;$('#tB').value=S.tB;$('#tFrom').textContent=tStr(S.tA);$('#tTo').textContent=tStr(S.tB);
+  const len=(S.tB-S.tA)/2;$('#tLen').textContent=len+'시간';$('#tLen').className='tag '+(len>=2?'g':'r');
+  $('#tSel').style.left=((S.tA-18)/18*100)+'%';$('#tSel').style.width=((S.tB-S.tA)/18*100)+'%';
+  $$('#ploc .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===S.ploc));
+  $('#pAddr').textContent=`${S.sender.name} · ${S.sender.addr} (${S.sender.zip}) · ${S.sender.tel}`;
+  $$('#lbl .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===S.label));
+  $('#qrNote').classList.toggle('on',S.label==='qr');
+}
+function pickupText(){if(S.how==='drop')return '서비스포인트 직접 접수';if(S.how==='have')return '기존 픽업에 추가';return `${fmtD(SHIPDAYS[S.pday])} ${tStr(S.tA)}–${tStr(S.tB)} · ${S.ploc}`}
+function renderConfirm(){
+  const c=CITIES[S.dest],it=S.items.map(i=>`${i.d} ×${i.q}`).join(', ');
+  const rows=[['요금·상자','quote',`서울 → ${c.n} · ${S.type==='doc'?'서류 봉투':PRESETS.find(p=>p.id===S.preset).n} × ${S.qty} · 청구 ${applied().toFixed(1)}kg`],
+    ['보내는 분','addr',`${S.sender.name} · ${S.sender.addr}`],['받는 분','addr',`${S.recv.name} · ${S.recv.addr}, ${S.recv.city} ${S.recv.zip}`],
+    ['물품·통관','items',`${PURP.find(p=>p[0]===S.purpose)[1]} · ${it} · USD ${invTotal().toFixed(2)} · ${S.duty==='DAP'?'관세 받는 분 부담':'관세 내가 부담'}`],
+    ['서비스','addon',`${S.svc==='ww'?'EXPRESS WORLDWIDE':'EXPRESS 12:00'} · ${fmtD(SHIPDAYS[S.day])} 발송 → ${eta(S.svc)} 도착`],
+    ['픽업·라벨','pickup',`${pickupText()} · ${S.label==='qr'?'QR코드로 라벨 받기':'라벨 직접 출력'}`]];
+  if(mode==='tab')rows.pop();
+  $('#sumc').innerHTML=rows.map(r=>`<div class="s"><div class="k">${r[0]}</div><div class="v">${r[2]}</div><a data-go="${r[1]}">수정</a></div>`).join('');
+  $$('#pays button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.pay));
+  $('#payBtn').innerHTML=`${won(cost().total)}원 결제하기 <span class="arrow">→</span>`;
+}
+/* receipt */
+const prevVals={};
+function rl(k,v,id,cls=''){const wait=v==null;const val=wait?'· · · 입력 전':v;const fl=!wait&&prevVals[id]!==undefined&&prevVals[id]!==val?' flash':'';prevVals[id]=val;return `<div class="rl ${cls}${fl}"><span class="k">${k}</span><span class="v${wait?' wait':''}">${val}</span></div>`}
+function renderReceipt(){
+  const c=CITIES[S.dest],r=reached,doc=S.type==='doc',pr=PRESETS.find(p=>p.id===S.preset),st=ORDER.indexOf(cur);
+  const has=s=>(mode==='tab'&&s==='pickup')?(tab==='pickup'||cur==='done'):(r>=ORDER.indexOf(s)||S.paid);
+  $('#rcTo').textContent=c.code;$('#rcToN').textContent=c.k+' · '+c.n;
+  const iq=S.items.reduce((a,i)=>a+(+i.q||0),0);
+  let h='';
+  h+=`<div class="grp show"><div class="rc-sec">SHIPMENT</div>${rl('상자',doc?'서류 봉투':`${pr.n} · ${S.L}×${S.W}×${S.H}`,'box')}${rl('개수 · 실중량',`${S.qty}개 · ${(S.kg*S.qty).toFixed(1)}kg`,'kg')}${doc?'':rl('부피중량',(vol()*S.qty).toFixed(1)+'kg','vol','sub')}${rl('청구 중량',applied().toFixed(1)+'kg','ap')}${rl('서비스',S.svc==='ww'?'EXPRESS WORLDWIDE':'EXPRESS 12:00','svc')}${rl('도착 예정',eta(S.svc),'eta','sub')}</div>`;
+  h+=`<div class="grp${has('addr')?' show':''}"><div class="dash"></div><div class="rc-sec">FROM · TO</div>${rl('보내는 분',has('addr')||st>=1?S.sender.name:null,'sn')}${rl('받는 분',has('addr')||st>=1?S.recv.name:null,'rn')}${rl('도착지',has('addr')||st>=1?S.recv.city+' '+S.recv.zip:null,'rc','sub')}</div>`;
+  h+=`<div class="grp${has('items')?' show':''}"><div class="dash"></div><div class="rc-sec">CUSTOMS</div>${rl('물품',`${S.items[0]?S.items[0].d:'-'}${S.items.length>1?' 외 '+(S.items.length-1)+'종':''} · ${iq}개`,'it')}${rl('신고 금액','USD '+invTotal().toFixed(2),'inv')}${rl('목적 · 관세',PURP.find(p=>p[0]===S.purpose)[1].replace(/^\S+ /,'')+' · '+(S.duty==='DAP'?'받는 분 부담':'보내는 분 부담'),'pu','sub')}</div>`;
+  const ad=[S.addons.ins&&'안심',S.addons.sig&&'직접 서명',S.addons.green&&'고그린'].filter(Boolean).join(' · ')||'없음';
+  h+=`<div class="grp${has('addon')?' show':''}"><div class="dash"></div><div class="rc-sec">OPTIONS</div>${rl('발송일',fmtD(SHIPDAYS[S.day]),'day')}${rl('부가 서비스',ad,'ad')}</div>`;
+  h+=`<div class="grp${has('pickup')?' show':''}"><div class="dash"></div><div class="rc-sec">PICKUP</div>${rl(S.how==='pick'?'픽업':'전달 방법',pickupText(),'pk')}${rl('라벨',S.label==='qr'?'QR코드':'직접 출력','lb','sub')}</div>`;
+  $('#rcBody').innerHTML=h;
+  const k=cost();
+  $('#rcCost').innerHTML=rl('운임',won(k.b),'cb')+rl('유류할증료',won(k.fuel),'cf')+(k.home&&has('addr')?rl('주거지역 배송',won(k.home),'ch'):'')+(k.ins?rl('물품 안심',won(k.ins),'ci'):'')+(k.sig?rl('직접 서명',won(k.sig),'cs'):'')+(k.green&&has('addon')?rl('고그린 플러스',won(k.green),'cg'):'')+rl('온라인 할인 15%','−'+won(k.disc),'cd','minus');
+  const tot=k.total-(has('addr')?0:k.home)-(has('addon')?0:k.green);
+  rollTo($('#rcTotal'),tot);$('#rcList').textContent=won(tot+k.disc);
+  $('#stamp').classList.toggle('on',S.paid);
+  // rc button
+  const b=$('#rcBtn');
+  const label={quote:'이 조건으로 운송장 작성',addr:'다음 · 물품 정보',items:'다음 · 부가 서비스',addon:mode==='tab'?'다음 · 확인하고 결제':'다음 · 픽업 예약',pickup:mode==='tab'?'픽업 예약 완료':'다음 · 확인하고 결제',confirm:won(cost().total)+'원 결제하기',done:'배송 조회하기'}[cur];
+  b.innerHTML=label+' <span class="arrow">→</span>';
+}
+function rollTo(el,to){const from=+(el.dataset.v||0);el.dataset.v=to;const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/700),e=1-Math.pow(1-p,3);el.textContent=won(from+(to-from)*e);if(p<1)requestAnimationFrame(f)})(t0)}
+
+/* ---------- navigation ---------- */
+function seqFor(){return mode==='step'?ORDER:{quote:['quote'],waybill:['addr','items','addon','confirm'],pickup:['pickup']}[tab]}
+function go(p,dir){
+  const prevCur=cur;cur=p;
+  if(ORDER.includes(p))reached=Math.max(reached,ORDER.indexOf(p));
+  if(mode==='tab'){tab=p==='quote'?'quote':p==='pickup'?'pickup':p==='done'?tab:'waybill'}
+  $$('.panel').forEach(x=>x.classList.toggle('on',x.dataset.p===p));
+  document.body.classList.toggle('st-quote',p==='quote');
+  if(vari==='B'&&prevCur==='quote'&&p!=='quote'){const z=$('#rcZone');z.classList.remove('flipin');void z.offsetWidth;z.classList.add('flipin')}
+  renderAll();hopBox();
+  if(p==='done'){const r=$('#road');r.classList.remove('go');void r.offsetWidth;r.classList.add('go')}
+  if(dir)window.scrollTo({top:$('.stepper').offsetTop-120,behavior:'smooth'});
+}
+function next(){
+  if(cur==='done')return;
+  if(mode==='step'){const i=ORDER.indexOf(cur);if(cur==='confirm'){S.paid=true;go('done',1);return}go(ORDER[i+1],1);return}
+  // tab mode
+  if(cur==='quote'){go('addr',1);return}
+  if(cur==='confirm'){S.paid=true;wbDone=true;toast('✓ 결제 완료 · 운송장 1234 5678 90 발급! 이제 픽업을 예약하세요');go('pickup',1);return}
+  if(cur==='pickup'){go('done',1);return}
+  const sq=['addr','items','addon','confirm'];go(sq[sq.indexOf(cur)+1],1);
+}
+function prev(){
+  if(mode==='step'){const i=ORDER.indexOf(cur);if(i>0)go(ORDER[i-1],1);return}
+  if(cur==='addr'){go('quote',1);return}
+  const sq=['addr','items','addon','confirm'];const i=sq.indexOf(cur);if(i>0)go(sq[i-1],1);else if(cur==='pickup')go('confirm',1);
+}
+let wbDone=false;
+function renderNav(){
+  // stepper
+  $('#nodes').innerHTML=ORDER.map((p,i)=>{const ci=ORDER.indexOf(cur);const cls=cur==='done'||i<ci?'done':i===ci?'cur':'';return `<div class="nd ${cls}" data-go="${p}"><i>${cur==='done'||i<ci?'✓':i+1}</i>${NAMES[p][0]}<small>${NAMES[p][1]}</small></div>`}).join('');
+  const ci=cur==='done'?ORDER.length-1:ORDER.indexOf(cur);
+  const W=$('#stepper').clientWidth-40;
+  $('#fill').style.width=(W*ci/(ORDER.length-1))+'px';
+  $('#rider').style.left=(20+W*ci/(ORDER.length-1)-31)+'px';
+  // tabs
+  $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===tab));
+  const tst={quote:reached>=1||cur!=='quote'?['ok','완료 ✓']:['go','진행 중'],waybill:wbDone?['ok','완료 ✓']:tab==='waybill'?['go','진행 중']:['','대기'],pickup:cur==='done'?['ok','완료 ✓']:tab==='pickup'?['go','진행 중']:['','대기']};
+  Object.entries(tst).forEach(([k,v])=>{const e=$('#ts-'+k);e.className='st '+v[0];e.textContent=v[1]});
+  if(tab==='waybill'){const sq=['addr','items','addon','confirm'];$('#subnav').style.display='flex';
+    $('#subnav').innerHTML=sq.map((p,i)=>`<button class="${p===cur?'on':sq.indexOf(cur)>i||wbDone?'done':''}" data-go="${p}"><i>${sq.indexOf(cur)>i||wbDone?'✓':i+1}</i>${NAMES[p][0]}</button>`).join('');}
+  else $('#subnav').style.display='none';
+  const c=CITIES[S.dest];
+  const carry={quote:'',waybill:`🔗 <span>요금 산출에서 가져왔어요 · <b>서울 → ${c.n}</b> · <b>${S.type==='doc'?'서류':PRESETS.find(p=>p.id===S.preset).n} × ${S.qty}</b> · <b>${applied().toFixed(1)}kg</b> · <b>${S.svc==='ww'?'EXPRESS WORLDWIDE':'EXPRESS 12:00'}</b></span>`,pickup:wbDone?`🔗 <span>연결된 운송장 <b class="mono">1234 5678 90</b> · 상자 <b>${S.qty}개</b> · 총 <b>${(S.kg*S.qty).toFixed(1)}kg</b> · 픽업 주소는 <b>보내는 분 주소</b>로 채웠어요</span>`:`🔗 <span>운송장을 먼저 만들면 상자 수·무게·주소가 자동으로 채워져요 · 지금은 <b>작성 중인 운송장</b>과 연결돼요</span>`}[tab];
+  $('#carry').style.display=carry&&cur!=='done'?'flex':'none';$('#carry').innerHTML=carry;
+  $('#pickNext').innerHTML=(mode==='tab'?'픽업 예약 완료':'다음 · 확인하고 결제')+' <span class="arrow">→</span>';
+  $('#addonNext').innerHTML=(mode==='tab'?'다음 · 확인하고 결제':'다음 · 픽업 예약')+' <span class="arrow">→</span>';
+  $('[data-p="pickup"] [data-prev]').style.visibility=mode==='tab'?'hidden':'';
+}
+function renderDone(){
+  const c=CITIES[S.dest];
+  $('#doneP').innerHTML=S.how==='pick'?`<b>${fmtD(SHIPDAYS[S.pday])} ${tStr(S.tA)}–${tStr(S.tB)}</b> 사이에 기사님이 <b>${S.ploc}</b>으로 방문해요.`:S.how==='drop'?'가까운 서비스포인트에 QR코드를 보여주고 맡겨 주세요.':'오늘 예약된 픽업에 함께 실려 가요.';
+  $('#doneGrid').innerHTML=`<div><small>도착 예정</small><b>${eta(S.svc)}</b></div><div><small>받는 분</small><b>${S.recv.name} · ${c.n}</b></div><div><small>결제 금액</small><b>${won(cost().total)}원 · ${S.pay}</b></div>`;
+}
+function renderAll(){
+  document.body.className=`mode-${mode} v-${vari}${cur==='quote'?' st-quote':''}`;
+  renderQuote();renderAddr();renderItems();renderAddon();renderPickup();renderConfirm();renderReceipt();renderNav();drawBoxes();renderDone();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,[data-go],.addon');if(!t)return;
+  if(t.matches('[data-next]')){next();return}
+  if(t.matches('[data-prev]')){prev();return}
+  if(t.dataset.go&&!t.closest('#rv')){if(S.paid&&mode==='step'&&cur==='done')return;go(t.dataset.go,1);return}
+  if(t.closest('#qType')){S.type=t.dataset.v;if(S.type==='doc'&&S.kg>2)S.kg=1;renderAll();return}
+  if(t.closest('#presets')){S.preset=t.dataset.id;const p=PRESETS.find(x=>x.id===S.preset);if(p.d)[S.L,S.W,S.H]=p.d;renderAll();return}
+  if(t.closest('.qty')){S.qty=Math.max(1,Math.min(9,S.qty+ +t.dataset.q));renderAll();return}
+  if(t.matches('.prod,.nopt')){S.svc=t.dataset.s;renderAll();return}
+  if(t.closest('#purpose')){S.purpose=t.dataset.v;renderAll();return}
+  if(t.closest('#duty')){S.duty=t.dataset.v;renderAll();return}
+  if(t.matches('.del')){const i=+t.closest('.item-row').dataset.i;if(S.items.length>1){S.items.splice(i,1);$('#items').dataset.built='';renderAll()}return}
+  if(t.id==='addItem'){S.items.push({d:'',hs:'',q:1,u:0,w:0.1,o:'KR'});$('#items').dataset.built='';renderAll();return}
+  if(t.closest('#dates')){S.day=+t.dataset.i;renderAll();return}
+  if(t.closest('#pdates')){S.pday=+t.dataset.i;renderAll();return}
+  if(t.matches('.addon')){const a=t.dataset.a;S.addons[a]=!S.addons[a];renderAll();return}
+  if(t.id==='upBtn'){S.svc='12';toast('⚡ EXPRESS 12:00으로 바꿨어요');renderAll();return}
+  if(t.closest('#how')){S.how=t.dataset.v;renderAll();return}
+  if(t.closest('#ploc')){S.ploc=t.dataset.v;renderAll();return}
+  if(t.closest('#lbl')){S.label=t.dataset.v;renderAll();return}
+  if(t.closest('#pays')){S.pay=t.dataset.v;renderAll();return}
+  if(t.id==='restart'){reset();return}
+  if(t.closest('.tabs')){const tt=t.dataset.t;if(tt==='quote')go('quote',1);else if(tt==='waybill')go(['addr','items','addon','confirm'].includes(cur)?cur:'addr',1);else go('pickup',1);return}
+  if(t.closest('#rv')){if(t.dataset.mode){mode=t.dataset.mode;$$('#rv [data-mode]').forEach(b=>b.classList.toggle('on',b===t));if(cur==='done'||S.paid)reset(true);else go(cur)}if(t.dataset.v){vari=t.dataset.v;$$('#rv [data-v]').forEach(b=>b.classList.toggle('on',b===t));renderAll()}return}
+});
+$('#qDest').addEventListener('change',e=>{S.dest=e.target.value;renderAll()});
+$('#qKg').addEventListener('input',e=>{S.kg=+e.target.value;renderAll()});
+['qL','qW','qH'].forEach(id=>$('#'+id).addEventListener('input',e=>{S[id[1]]=Math.max(1,+e.target.value||1);renderAll()}));
+const bind={sName:['sender','name'],sAddr:['sender','addr'],sZip:['sender','zip'],sTel:['sender','tel'],sMail:['sender','mail'],rName:['recv','name'],rAddr:['recv','addr'],rZip:['recv','zip'],rCity:['recv','city'],rTel:['recv','tel'],rMail:['recv','mail']};
+Object.entries(bind).forEach(([id,[o,k]])=>$('#'+id).addEventListener('input',e=>{S[o][k]=e.target.value;renderReceipt();renderPickup()}));
+$('#rHome').addEventListener('change',e=>{S.recv.home=e.target.checked;renderAll()});
+$('#items').addEventListener('input',e=>{const f=e.target.dataset.f;if(!f)return;const i=+e.target.closest('.item-row').dataset.i;S.items[i][f]=e.target.value;renderItems();renderReceipt()});
+['tA','tB'].forEach(id=>$('#'+id).addEventListener('input',e=>{let a=+$('#tA').value,b=+$('#tB').value;if(b-a<4){if(id==='tA')a=b-4;else b=a+4}S.tA=Math.max(18,a);S.tB=Math.min(36,b);renderPickup();renderReceipt()}));
+window.addEventListener('resize',renderNav);
+function reset(keep){S.paid=false;wbDone=false;reached=0;tab='quote';go('quote');if(!keep)window.scrollTo({top:0,behavior:'smooth'})}
+
+/* hash: #mode=tab&v=B&go=addr */
+(function(){const h=new URLSearchParams(location.hash.slice(1));if(h.get('mode'))mode=h.get('mode');if(h.get('v'))vari=h.get('v');
+  $$('#rv [data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));$$('#rv [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===vari));
+  const g=h.get('go');if(g){const tgt=g;if(tgt==='done'){reached=5;wbDone=true;S.paid=true;tab='pickup'}else if(mode==='tab'&&tgt==='pickup'){wbDone=true;S.paid=true;reached=5}else reached=ORDER.indexOf(tgt);go(tgt)}else go('quote');
+  if(h.get('still'))document.documentElement.classList.add('still');})();
+</script>
+<aside style="position:fixed;bottom:5px;left:5px;background:#fff;color:#222;font:11px sans-serif;padding:4px;z-index:100">비공식 학습용 데모</aside></body></html>
