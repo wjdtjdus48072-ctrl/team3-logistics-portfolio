@@ -300,6 +300,26 @@ footer .legal{margin-top:56px;padding-top:24px;border-top:1px solid #e6dcb8;disp
 footer .legal a{color:inherit;text-decoration:none;margin-left:18px}
 footer .wordmark{font:900 italic clamp(50px,14.5vw,250px)/.78 var(--sans);letter-spacing:-.06em;text-align:center;color:transparent;background:linear-gradient(180deg,rgba(255,204,0,.55),rgba(255,204,0,0) 90%);-webkit-background-clip:text;background-clip:text;margin-top:40px;user-select:none;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}*{animation:none!important}}
+/* 서비스 비교 카드 */
+#race{padding:clamp(14px,2.5vw,34px);background:#fffdfa}
+.race-tools{display:flex;align-items:center;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:18px}
+.race-tools label{font-weight:750}.race-tools select{margin-left:8px;border:1px solid var(--line);border-radius:12px;padding:9px 14px;background:white;font:inherit}
+.race-tools .seg{width:auto;display:flex;gap:3px;background:#f3f0e9;border-radius:25px;padding:3px}.race-tools .seg button{border:0;border-radius:22px;background:transparent;padding:8px 14px;color:var(--ink);white-space:nowrap}.race-tools .seg .on{background:#fff;box-shadow:0 1px 4px #0002}
+#raceAgain{margin-left:auto;font-size:13px;padding:10px 16px}
+#lanes{display:grid;gap:10px}
+#race .lane{width:100%;text-align:left;grid-template-columns:minmax(145px,1fr) minmax(75px,2.5fr) auto;gap:24px;padding:17px 20px;border:1px solid #e9e4d8;border-radius:15px;background:white;color:var(--ink)}
+#race .lane.best{border-color:#e7bd46}#race .lane.sel{background:#fffae8}
+#race .lane.best .nm b{color:var(--ink)}#race .status{display:block;margin-top:5px}#race .best .status{color:#825900}
+#race .off{opacity:.66;background:#f6f5f2}#race .off .car,#race .off .metrics strong{visibility:hidden}
+#race .trk{height:40px;margin:0 17px;background:repeating-linear-gradient(90deg,#ded8ca 0 8px,transparent 8px 15px) left 85%/100% 2px no-repeat}
+#race .trk::after{content:'';position:absolute;right:-6px;bottom:5px;width:6px;height:26px;background:repeating-conic-gradient(#9d978b 0 25%,#faf9f5 0 50%) 0 0/6px 6px}
+#race .car{left:0;top:auto;bottom:7px;width:32px;height:25px;margin:0 0 0 -16px;border-radius:3px;background:linear-gradient(90deg,#f2c55c 70%,#d9a63d 70%);box-shadow:0 3px 4px #65480022;transform:skewY(-3deg);z-index:1}
+#race .car::before{content:'';position:absolute;left:0;top:-5px;width:100%;height:7px;background:linear-gradient(90deg,#ffde88 30%,#ce6558 30% 45%,#ffde88 45%);transform:skewX(-28deg);transform-origin:bottom left}
+#race .car::after{left:30%;right:auto;top:0;width:15%;height:48%;background:#c95b52}
+#race .racing .car{left:100%;transition:left var(--duration) cubic-bezier(.25,.55,.4,1)}
+.metrics{display:flex;gap:6px}.metrics>span{min-width:88px;padding:8px 10px;border-radius:9px;background:#f6f4ef;color:#665f53;font-size:11px}.metrics strong{display:block;margin-top:3px;font:750 13px var(--mono);color:var(--ink)}
+@media(max-width:820px){#race .lane{grid-template-columns:1fr auto;gap:10px;padding:14px}.race-tools{gap:8px}.metrics>span{min-width:0;padding:6px}.race-tools .seg button{padding:7px 10px}#race .trk{grid-column:1/-1;order:3}.race-tools #raceAgain{margin-left:0}}
+@media(prefers-reduced-motion:reduce){#race .racing .car{transition:none}}
 </style>
 </head>
 <body>
@@ -348,16 +368,12 @@ footer .wordmark{font:900 italic clamp(50px,14.5vw,250px)/.78 var(--sans);letter
 
 <!-- 5. 도착 시간 레이스 (레퍼런스 MODES를 DHL식으로) -->
 <section class="sec" id="services"><div class="wrap">
-  <div class="sec-head"><div><div class="tag rv"><b>07</b> SERVICE RACE</div><h2 class="rv d1">같은 시각에 출발하면,<br>누가 <span class="hl">먼저</span> 도착할까요?</h2></div><p class="lead rv d2">운송 수단은 DHL이 고를게요. 도착 국가와 우선순위만 고르면 서비스들이 도착 시간으로 경주해요.</p></div>
-  <div class="ctrl rv d2">
-    <div class="panel"><label>도착 국가</label><div class="seg" id="rDest"><button class="on" data-d="JP">일본</button><button data-d="US">미국</button><button data-d="EU">유럽</button></div></div>
-    <div class="panel"><label>우선순위</label><div class="seg" id="rPrio"><button class="on" data-p="fast">가장 빠르게</button><button data-p="cheap">가장 경제적으로</button><button data-p="noon">오전 안에만</button></div></div>
-  </div>
+  <div class="sec-head"><div><div class="tag rv"><b>07</b> SERVICE RACE</div><h2 class="rv d1">내 상자는 <span class="hl">언제</span> 도착할까?</h2></div><p class="lead rv d2">같은 상자도 서비스에 따라 도착 시간이 달라요. 도착지와 원하는 조건을 골라 비교해 보세요.</p></div>
   <div class="race rv d2" id="race">
-    <div class="axis"><span>서비스</span><div class="ax"><i style="left:0">오늘 18:00 픽업</i><i style="left:20%">내일 09:00</i><i style="left:40%">내일 12:00</i><i style="left:60%">내일 18:00</i><i style="left:80%">+2일</i></div><span style="text-align:right">도착</span></div>
+    <div class="race-tools"><label>도착지 <select id="rDest"><option value="JP">일본</option><option value="US">미국</option><option value="EU">유럽</option></select></label><div class="seg" id="rPrio" aria-label="우선순위"><button class="on" data-p="fast">빠른 도착</button><button data-p="noon">오전 도착</button><button data-p="cheap">요금 우선</button></div><button class="btn ghost" id="raceAgain">다시 경주 ↻</button></div>
     <div id="lanes"></div>
   </div>
-  <div class="again"><span class="demo">※ 도착 시간은 '다음 가능 영업일' 기준이에요. 이용 가능한 서비스는 도착 지역에 따라 다르고, 가격 지수는 시안용 예시예요. 줄을 누르면 그 서비스로 발송 카드가 바뀌어요.</span><button class="btn ghost" id="raceAgain" style="padding:11px 18px;font-size:14px">다시 경주 ↻</button></div>
+  <div class="again"><span class="demo">※ 도착 시간은 '다음 가능 영업일' 기준이에요. 이용 가능한 서비스는 도착 지역에 따라 다르고, 가격 지수는 시안용 예시예요. 줄을 누르면 그 서비스로 발송 카드가 바뀌어요.</span></div>
 </div></section>
 
 <!-- 6. 적재 플래너 (레퍼런스 LOAD PLANNER → DHL 합적) -->
@@ -540,28 +556,30 @@ const RS=[
 const DN={JP:'일본',US:'미국',EU:'유럽'};
 let rDest='JP',rPrio='fast',svcSel=null;
 function buildLanes(){
-  $('#lanes').innerHTML=RS.map(r=>`<div class="lane" data-k="${r.k}"><div class="nm"><b>${r.n}<span class="badge">BEST PICK</span></b><span>${r.d}</span></div><div class="trk"><i class="run"></i><i class="car"></i></div><div class="at">${r.at}<small>가격 지수 ${r.px.toFixed(2)} (예시)</small></div></div>`).join('');
-  $$('.lane').forEach(l=>l.onclick=()=>{svcSel=l.dataset.k;markSel();toShip();});
+  $('#lanes').innerHTML=RS.map(r=>`<button type="button" class="lane" data-k="${r.k}"><span class="nm"><b>${r.n}</b><span class="status"></span></span><span class="trk" aria-hidden="true"><i class="car"><i></i></i></span><span class="metrics"><span>예상 도착<strong>${r.at}</strong></span><span>상대 요금<strong>${r.px.toFixed(2)}배</strong></span></span></button>`).join('');
+  $$('.lane').forEach(l=>l.onclick=()=>{svcSel=l.dataset.k;markSel();toShip()});
 }
 function bestKey(){const av=RS.filter(r=>r.only.includes(rDest));
   if(rPrio==='fast')return av.sort((a,b)=>a.pos-b.pos)[0].k;
   if(rPrio==='cheap')return av.sort((a,b)=>a.px-b.px)[0].k;
   return av.filter(r=>r.pos<=2).sort((a,b)=>a.px-b.px)[0].k;}   // 오전 안에만: 정오 전 도착 중 가장 경제적
-function markSel(){$$('.lane').forEach(l=>l.classList.toggle('sel',l.dataset.k===svcSel));}
+function markSel(){$$('.lane').forEach(l=>{const selected=l.dataset.k===svcSel;l.classList.toggle('sel',selected);l.setAttribute('aria-pressed',selected)})}
 let raceT=0;
 function race(){
-  const best=bestKey(); if(!svcSel||!RS.find(r=>r.k===svcSel&&r.only.includes(rDest)))svcSel=best;
-  $$('.lane').forEach(l=>{const r=RS.find(x=>x.k===l.dataset.k),ok=r.only.includes(rDest);l.classList.toggle('off',!ok);l.classList.remove('best');
-    const run=l.querySelector('.run'),car=l.querySelector('.car');run.style.transition=car.style.transition='none';run.style.width='0';car.style.left='0';});
-  markSel(); clearTimeout(raceT);
-  raceT=setTimeout(()=>{$$('.lane').forEach(l=>{const r=RS.find(x=>x.k===l.dataset.k);if(!r.only.includes(rDest))return;
-    const w=(r.pos/5*100)+'%',dur=(0.6+r.pos*.45)+'s';const run=l.querySelector('.run'),car=l.querySelector('.car');
-    run.style.transition=`width ${dur} cubic-bezier(.3,.1,.3,1)`;car.style.transition=`left ${dur} cubic-bezier(.3,.1,.3,1)`;run.style.width=w;car.style.left=w;});
-    setTimeout(()=>$(`.lane[data-k="${best}"]`).classList.add('best'),2900);},80);
-  toShip();
+  const best=bestKey();
+  if(!RS.some(r=>r.k===svcSel&&r.only.includes(rDest)))svcSel=best;
+  clearTimeout(raceT);
+  const lanes=$$('.lane');
+  lanes.forEach((l,i)=>{
+    const r=RS[i],ok=r.only.includes(rDest),recommended=r.k===best;
+    l.disabled=!ok;l.classList.toggle('off',!ok);l.classList.toggle('best',recommended);
+    l.querySelector('.status').textContent=!ok?'이 도착지에서는 이용 불가':recommended?({fast:'가장 일찍 도착',noon:'정오 전 도착 중 최저 요금',cheap:'가장 낮은 요금'})[rPrio]:r.d;
+    l.style.setProperty('--duration',(.65+r.pos*.45)+'s');l.classList.remove('racing');
+  });
+  markSel();raceT=setTimeout(()=>lanes.forEach(l=>l.classList.toggle('racing',!l.disabled)),80);toShip();
 }
 buildLanes();
-$$('#rDest button').forEach(b=>b.onclick=()=>{rDest=b.dataset.d;$$('#rDest button').forEach(x=>x.classList.toggle('on',x===b));race();});
+$('#rDest').onchange=e=>{rDest=e.target.value;svcSel=null;race()};
 $$('#rPrio button').forEach(b=>b.onclick=()=>{rPrio=b.dataset.p;svcSel=null;$$('#rPrio button').forEach(x=>x.classList.toggle('on',x===b));race();});
 $('#raceAgain').onclick=race;
 new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){race();o.disconnect();}}),{threshold:.3}).observe($('#race'));
