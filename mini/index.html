@@ -182,7 +182,7 @@ input[type=range]{width:100%;accent-color:var(--r)}
 .lp-act{display:flex;gap:8px}.lp-act .btn{flex:1;justify-content:center;padding:12px 14px;font-size:14px}
 .lp-parcels{list-style:none;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
 .lp-parcels button{--u:26px;width:calc(var(--w)*var(--u) + (var(--w) - 1)*4px);height:calc(var(--h)*var(--u) + (var(--h) - 1)*4px);border:0;border-radius:6px;background:var(--c);position:relative;cursor:grab;box-shadow:inset 0 -5px 0 rgba(0,0,0,.08),0 2px 0 rgba(0,0,0,.06);transition:transform .2s,opacity .3s}
-.lp-parcels button::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:rgba(255,255,255,.45)}
+.lp-parcels button::after,.lp-fly::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:var(--r)}
 .lp-parcels button.dhl::after{background:var(--r);opacity:.85}
 .lp-parcels button{touch-action:none;user-select:none}.lp-parcels button:hover{transform:translateY(-3px)}
 .lp-fly{position:fixed;z-index:200;pointer-events:none;margin:0;--u:26px;width:calc(var(--w)*var(--u) + (var(--w) - 1)*4px);height:calc(var(--h)*var(--u) + (var(--h) - 1)*4px);border-radius:6px;background:var(--c);box-shadow:0 14px 30px rgba(0,0,0,.2);transform:rotate(-4deg) scale(1.08);transition:opacity .15s}
@@ -271,13 +271,13 @@ input[type=range]{width:100%;accent-color:var(--r)}
 .roll-dock::after{content:'';position:absolute;left:0;right:0;top:8px;height:3px;background:repeating-linear-gradient(90deg,var(--ink) 0 14px,var(--y) 14px 28px);opacity:.5}
 .roll-pile{position:absolute;right:8px;bottom:100%;width:140px;height:0;transform:scale(var(--ps,1));transform-origin:100% 100%}
 .roll-pile i{position:absolute;bottom:0;border-radius:4px;background:var(--c);box-shadow:inset 0 -4px 0 rgba(0,0,0,.1);cursor:pointer;transition:transform .2s}
-.roll-pile i::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:rgba(255,255,255,.4)}
+.roll-pile i::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:var(--r)}
 .roll-pile i.dhl::after{background:var(--r);opacity:.85}
 .roll-pile i:hover{transform:translateY(-4px)}
 .roll-pile i{touch-action:none;cursor:grab}.roll-fly.hold{box-shadow:0 14px 26px rgba(0,0,0,.22),inset 0 -4px 0 rgba(0,0,0,.1);cursor:grabbing}
 .roll-truck img{transition:filter .25s}.roll-truck.want img{filter:saturate(1.3) brightness(1.13) contrast(1.02) drop-shadow(0 0 14px rgba(255,204,0,.9))}
 .roll-fly{position:absolute;z-index:3;border-radius:4px;pointer-events:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.1)}
-.roll-fly::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:rgba(255,255,255,.4)}
+.roll-fly::after{content:'';position:absolute;left:0;right:0;top:42%;height:16%;background:var(--r)}
 .roll-fly.dhl::after{background:var(--r);opacity:.85}
 .roll-cv{position:absolute;left:0;top:-260px;width:100%;height:calc(100% + 260px);z-index:3;pointer-events:none}
 .roll-truck{position:absolute;bottom:40px;left:calc(50% - var(--tw)*.46);width:var(--tw);will-change:transform;z-index:2}
@@ -570,7 +570,7 @@ new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){race();o.di
 /* 8. 적재 플래너 — 컨테이너 앞면을 8칸×4칸 격자로 봄. 원하는 위치에 놓으면 그 칸 위에서 떨어져 아래에 쌓임 (3D는 아래 module 스크립트) */
 const LP_W=8, LP_H=4;
 const LPP=[[3,2],[2,2],[2,2],[3,1],[2,1],[2,1],[1,2],[2,2],[1,1],[2,1],[1,2],[1,1],[3,1],[1,1],[2,1],[1,1]];
-const LPC=['#c99f6d','#d9b384','#bf9260','#e3c79f','#c99f6d','#d4aa76','#bf9260','#FFCC00','#e3c79f','#c99f6d','#d9b384','#bf9260','#d4aa76','#e3c79f','#c99f6d','#d9b384'];
+const LPC=['#F6CA18','#FFD52C','#EDBE09','#FFDA42','#F6CA18','#F9CF21','#EDBE09','#FFCC00','#FFDA42','#F6CA18','#FFD52C','#EDBE09','#F9CF21','#FFDA42','#F6CA18','#FFD52C'];
 const LP={placed:[],onChange:null,ghost:null};
 const lpH=(x,w,skip)=>{let t=0;LP.placed.forEach(p=>{if(p.k!==skip&&p.x<x+w&&x<p.x+p.w)t=Math.max(t,p.y+p.h)});return t}; // 그 칸들 위 가장 높은 곳
 function lpDrop(k,x){const[w,h]=LPP[k];x=Math.max(0,Math.min(LP_W-w,x));const y=lpH(x,w);return y+h<=LP_H?{x,y}:null}
@@ -626,7 +626,7 @@ toShip();
 /* 10. 마무리: 하역장 상자를 트럭에 싣기 → 3개면 출발, 새 트럭이 들어옴
    물리(matter.js)를 불러오면 상자가 진짜처럼 굴러다니고 던질 수 있음. 못 불러오면 단순 버전으로 동작 */
 (()=>{const stg=$('#rollStage'),pile=$('#rollPile'),trk=$('#rollTruck');if(!stg)return;
-  const PB=[[46,34,'#c99f6d'],[40,30,'#e3c79f'],[34,40,'#FFCC00'],[44,26,'#bf9260'],[30,30,'#d9b384'],[38,28,'#d4aa76']];
+  const PB=[[46,34,'#F6CA18'],[40,30,'#FFDA42'],[34,40,'#FFCC00'],[44,26,'#EDBE09'],[30,30,'#FFD52C'],[38,28,'#F9CF21']];
   const POS=[[0,0],[48,0],[92,0],[8,34],[54,30],[30,62]];
   let n=0,busy=false,driving=false,tx=0,drag=null,PH=null;
   function fillPile(){if(PH)return PH.refill();pile.innerHTML=PB.map(([w,h,c],i)=>`<i data-i="${i}" class="${c==='#FFCC00'?'dhl':''}" style="--c:${c};width:${w}px;height:${h}px;left:${POS[i][0]}px;bottom:${POS[i][1]}px"></i>`).join('')}
@@ -727,7 +727,7 @@ toShip();
       const draw=(b,x,y,a,k,sq)=>{const ww=b.w0,hh=b.h0;
         ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(k*(1+sq),k*(1-sq));ctx.fillStyle=b.c;rr(-ww/2,-hh/2,ww,hh,4);ctx.fill();
         ctx.fillStyle='rgba(0,0,0,.1)';ctx.fillRect(-ww/2,hh/2-4,ww,4);ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(-ww/2,-hh/2,ww,3);
-        ctx.fillStyle=b.c==='#FFCC00'?'rgba(212,5,17,.85)':'rgba(255,255,255,.4)';ctx.fillRect(-ww/2,-hh*.08,ww,hh*.16);ctx.restore()};
+        ctx.fillStyle='#D40511';ctx.fillRect(-ww/2,-hh*.08,ww,hh*.16);ctx.restore()};
       for(const b of boxes){// 찌그러짐은 스프링처럼 출렁이며 돌아옴
         b.sqv=((b.sqv||0)-(b.sq||0)*.28)*.78;b.sq=(b.sq||0)+b.sqv;
         const gk=b.gk=(b.gk||1)+(((grab&&grab.body===b)?1.08:1)-(b.gk||1))*.25;
@@ -778,7 +778,7 @@ for(let i=1;i<W;i++){const g=new THREE.BufferGeometry().setFromPoints([new THREE
 const meshes=new Map(), G=.06;
 function boxMesh(k){const [w,h]=PP[k],g=new THREE.Group();
   const m=new THREE.Mesh(new THREE.BoxGeometry(w-G,h-G,D-G*2),new THREE.MeshStandardMaterial({color:new THREE.Color(PC[k]),roughness:.85})); m.castShadow=m.receiveShadow=true; m.userData.k=k; g.add(m);
-  const t=new THREE.Mesh(new THREE.BoxGeometry(w-G+.005,.12,D-G*2+.005),new THREE.MeshStandardMaterial({color:PC[k]==='#FFCC00'?0xD40511:0xefe4cf,roughness:.7})); t.userData.k=k; g.add(t);
+  const t=new THREE.Mesh(new THREE.BoxGeometry(w-G+.005,.12,D-G*2+.005),new THREE.MeshStandardMaterial({color:0xD40511,roughness:.7})); t.userData.k=k; g.add(t);
   return g;}
 function sync(){const now=new Set(LP.placed.map(p=>p.k));
   for(const [k,m] of meshes) if(!now.has(k)){root.remove(m);meshes.delete(k)}
