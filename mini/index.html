@@ -793,17 +793,20 @@ function boxMesh(k){
   }
   const matKey=PC[k]+key;
   if(!parcelMaterials.has(matKey)){
-    const plain=new THREE.MeshStandardMaterial({color:PC[k],roughness:.94});
-    const painted=(full)=>{
-      const c=document.createElement('canvas');c.width=c.height=256;
-      const ctx=c.getContext('2d');ctx.fillStyle=PC[k];ctx.fillRect(0,0,256,256);
-      const tapeWidth=256*.16/(w-G);
-      ctx.fillStyle='#C95B52';ctx.fillRect((256-tapeWidth)/2,0,tapeWidth,full?256:256*.32/(h-G));
-      const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;
-      return new THREE.MeshStandardMaterial({map,roughness:.94});
+    const mat=new THREE.MeshStandardMaterial({color:PC[k],roughness:.94});
+    mat.onBeforeCompile=shader=>{
+      shader.uniforms.parcelTop={value:(h-G)/2};
+      shader.uniforms.tapeColor={value:new THREE.Color('#C95B52')};
+      shader.vertexShader='varying vec3 parcelPoint;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nparcelPoint=position;');
+      shader.fragmentShader='varying vec3 parcelPoint; uniform float parcelTop; uniform vec3 tapeColor;\n'+shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+        float side=abs(parcelPoint.x)-0.08;
+        float endDist=parcelTop-0.32-parcelPoint.y;
+        float sw=max(fwidth(side),0.0001)*0.5;
+        float ew=max(fwidth(endDist),0.0001)*0.5;
+        float ribbon=(1.0-smoothstep(-sw,sw,side))*(1.0-smoothstep(-ew,ew,endDist));
+        diffuseColor.rgb=mix(diffuseColor.rgb,tapeColor,ribbon);`);
     };
-    const end=painted(false);
-    parcelMaterials.set(matKey,[plain,plain,painted(true),plain,end,end]);
+    parcelMaterials.set(matKey,mat);
   }
   const m=new THREE.Mesh(parcelShapes.get(key),parcelMaterials.get(matKey));
   m.castShadow=m.receiveShadow=true;m.userData.k=k;
