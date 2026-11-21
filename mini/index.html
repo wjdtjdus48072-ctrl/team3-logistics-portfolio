@@ -569,7 +569,7 @@ new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){race();o.di
 /* 8. 적재 플래너 — 컨테이너 앞면을 8칸×4칸 격자로 봄. 원하는 위치에 놓으면 그 칸 위에서 떨어져 아래에 쌓임 (3D는 아래 module 스크립트) */
 const LP_W=8, LP_H=4;
 const LPP=[[3,2],[2,2],[2,2],[3,1],[2,1],[2,1],[1,2],[2,2],[1,1],[2,1],[1,2],[1,1],[3,1],[1,1],[2,1],[1,1]];
-const LPC=LPP.map((_,i)=>['#F7D46C','#F9D975','#F4CF62','#F8D771'][i%4]);
+const LPC=['#F5CD62','#F6D7B5','#BDE2D3','#D2D6EF','#F7E9C9','#F5CD62','#BDE2D3','#F6D7B5','#D2D6EF','#F5CD62','#F7E9C9','#BDE2D3','#F6D7B5','#D2D6EF','#F5CD62','#F7E9C9'];
 const LP={placed:[],onChange:null,ghost:null};
 const lpH=(x,w,skip)=>{let t=0;LP.placed.forEach(p=>{if(p.k!==skip&&p.x<x+w&&x<p.x+p.w)t=Math.max(t,p.y+p.h)});return t}; // 그 칸들 위 가장 높은 곳
 function lpDrop(k,x){const[w,h]=LPP[k];x=Math.max(0,Math.min(LP_W-w,x));const y=lpH(x,w);return y+h<=LP_H?{x,y}:null}
