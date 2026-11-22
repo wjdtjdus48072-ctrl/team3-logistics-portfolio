@@ -734,7 +734,8 @@ toShip();
       statics=[Bodies.rectangle(g.dw/2,g.dt+(H-g.dt)/2+3,g.dw,H-g.dt,opt),           // 하역장
         Bodies.rectangle(W/2,H-40+30,W*3,60,opt),                                   // 도로
         Bodies.rectangle(-30,H/2-200,60,H+800,opt),                                 // 왼쪽 벽
-        Bodies.rectangle(W+30,H/2-200,60,H+800,opt)];                               // 오른쪽 벽
+        Bodies.rectangle(W+30,H/2-200,60,H+800,opt),
+        Bodies.rectangle(g.dw-3,g.dt-7,6,14,opt)];                               // 하역장 끝 턱                               // 오른쪽 벽
       sensor={x:g.tl+g.tw*.015,y:g.tt+g.th*.1,w:g.tw*.58,h:g.th*.62};              // 짐칸 영역 (여기 닿으면 실림)
       Composite.add(eng.world,statics)}
     function spawn(i,drop){const s=sc()*1.15,[w,h,c]=PB[i%PB.length],g=geo();
@@ -770,14 +771,15 @@ toShip();
       if(!g.moved||overTruck(e.clientX,e.clientY)){sendToTruck(b,g.moved?30:110*sc());return}      // 그냥 누른 상자 → 트럭으로 던짐
       const h=g.hist.filter(q=>now-q.t<90),a=h[0],z=h[h.length-1];
       if(a&&z&&z.t>a.t){const k=STEP/(z.t-a.t),vx=(z.x-a.x)*k,vy=(z.y-a.y)*k,cap=34,sp=Math.hypot(vx,vy),m=sp>cap?cap/sp:1;
-        Body.setVelocity(b,{x:vx*m*1.05,y:vy*m*1.05});Body.setAngularVelocity(b,b.angularVelocity+vx*m*.012)}};
+        Body.setVelocity(b,{x:vx*m*1.05,y:vy*m*1.05});Body.setAngularVelocity(b,b.angularVelocity+vx*m*.012)}
+      b.userTs=now};
     SEC.addEventListener('pointerup',rel);SEC.addEventListener('pointercancel',rel);
     // 착지하면 찌그러졌다 펴짐
     Events.on(eng,'collisionStart',ev=>ev.pairs.forEach(pr=>[pr.bodyA,pr.bodyB].forEach(b=>{if(b.c){const v=Math.hypot(b.velocity.x,b.velocity.y);if(v>2.5)b.sq=Math.min(.28,v*.025)}})));
     // 매 프레임: 물리(고정 시간 간격) → 짐칸에 닿은 상자 빨아들이기 → 그리기
     let last=performance.now(),acc=0;
     function frame(now){acc+=Math.min(100,now-last);last=now;while(acc>=STEP){Engine.update(eng,STEP);acc-=STEP}
-      if(!busy&&!driving&&n<3)for(const b of [...boxes]){if(grab&&grab.body===b)continue;const p=b.position;
+      if(!busy&&!driving&&n<3)for(const b of [...boxes]){if(grab&&grab.body===b)continue;if(!b.userTs||now-b.userTs>4000)continue;const p=b.position;
         if(p.x>sensor.x&&p.x<sensor.x+sensor.w&&p.y>sensor.y&&p.y<sensor.y+sensor.h){boxes=boxes.filter(x=>x!==b);Composite.remove(eng.world,b);
           sucked.push({b,x:p.x,y:p.y,a:b.angle,vx:b.velocity.x,vy:b.velocity.y,t:now});loaded();if(n>=3)break}}
       for(const b of [...boxes])if(b.position.y>H+200||b.position.x<-200||b.position.x>W+200){boxes=boxes.filter(x=>x!==b);Composite.remove(eng.world,b);PH.refill()}
